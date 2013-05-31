@@ -23,7 +23,7 @@ class paymill
             $amount = round($total, $xtPrice->get_decimal_places($order->info['currency']));
         } else {
             $amount = round(
-                $xtPrice->xtcCalculateCurrEx($total, $order->info['currency']),
+                $xtPrice->tepCalculateCurrEx($total, $order->info['currency']),
                 $xtPrice->get_decimal_places($order->info['currency'])
             );
         }
@@ -107,8 +107,8 @@ class paymill
         ));
         
         if (!$result) {
-            xtc_db_query("UPDATE " . TABLE_ORDERS . " SET orders_status = (SELECT orders_status_id from " . TABLE_ORDERS_STATUS . " where orders_status_name LIKE '%Paymill%' GROUP by orders_status_id) WHERE orders_id = '" . $insert_id . "'");
-            xtc_redirect(xtc_href_link(FILENAME_CHECKOUT_PAYMENT, 'step=step2&payment_error=' . $this->code . '&error=200', 'SSL', true, false));
+            tep_db_query("UPDATE " . TABLE_ORDERS . " SET orders_status = (SELECT orders_status_id from " . TABLE_ORDERS_STATUS . " where orders_status_name LIKE '%Paymill%' GROUP by orders_status_id) WHERE orders_id = '" . $insert_id . "'");
+            tep_redirect(tep_href_link(FILENAME_CHECKOUT_PAYMENT, 'step=step2&payment_error=' . $this->code . '&error=200', 'SSL', true, false));
         }
 
         unset($_SESSION['pi']);
@@ -142,7 +142,7 @@ class paymill
         } else {
             $const = 'MODULE_SHIPPING_' . $shippingClass . '_TAX_CLASS';
             if (defined($const)) {
-                $shippingTaxRate = xtc_get_tax_rate(constant($const));
+                $shippingTaxRate = tep_get_tax_rate(constant($const));
             } else {
                 $shippingTaxRate = 0;
             }
