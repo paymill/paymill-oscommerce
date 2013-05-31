@@ -1,6 +1,6 @@
 var isCcSubmitted = false;
 $(document).ready(function () {
-    $("#checkout_payment").submit(function () {
+    $('form[name="checkout_payment"]').submit(function () {
         if (!isCcSubmitted) {
             if ($("input[name=\'payment\'][value=\'paymill_cc\']").prop("checked")) {
                 if (!paymill.validateExpiry($("#card-expiry-month option:selected").val(), $("#card-expiry-year option:selected").val())) {
@@ -32,7 +32,6 @@ $(document).ready(function () {
         }
     });
 
-
     function PaymillCcResponseHandler(error, result) 
     { 
         isCcSubmitted = true;
@@ -41,9 +40,8 @@ $(document).ready(function () {
             return false;
         } else {
             console.log(result.token);
-            
-            $("#checkout_payment").append("<input type='hidden' name='paymill_token' value='" + result.token + "'/>");
-            $("#checkout_payment").submit();
+            $('form[name="checkout_payment"]').append("<input type='hidden' name='paymill_token' value='" + result.token + "'/>");
+            $('form[name="checkout_payment"]').submit();
             return false;
         }
     }

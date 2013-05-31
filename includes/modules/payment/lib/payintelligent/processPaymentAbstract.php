@@ -166,9 +166,14 @@ abstract class processPaymentAbstract
                 return false;
             }
             
-            if (!$this->_createTransaction($params)) {
+            $paramsClone = $params;
+            $paramsClone['amount'] = $paramsClone['authorizedAmount'];
+            
+            if (!$this->_createTransaction($paramsClone)) {
                 return false;
             }
+            
+            $params['transactionId'] = $paramsClone['transactionId'];
             
             if (!is_null($this->_newClient) && !is_null($this->_newPayment && isset($params['userId']))) {
                 $this->saveFastCheckoutData($params['userId'], $this->_newClient, $this->_newPayment);

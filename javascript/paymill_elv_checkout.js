@@ -1,6 +1,6 @@
 var isElvSubmitted = false;
 $(document).ready(function () {
-    $("#checkout_payment").submit(function () {
+    $('form[name="checkout_payment"]').submit(function () {
         if (!isElvSubmitted) {
             if ($("input[name=\'payment\'][value=\'paymill_elv\']").prop("checked")) {
                 if (false === paymill.validateAccountNumber($('#account-number').val())) {
@@ -38,8 +38,8 @@ $(document).ready(function () {
             return false;
         } else {
             console.log(result.token);
-            $("#checkout_payment").append("<input type='hidden' name='paymill_token' value='" + result.token + "'/>");
-            $("#checkout_payment").submit();
+            $('form[name="checkout_payment"]').append("<input type='hidden' name='paymill_token' value='" + result.token + "'/>");
+            $('form[name="checkout_payment"]').submit();
             return false;
         }
     }
