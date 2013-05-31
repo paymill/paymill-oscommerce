@@ -90,7 +90,7 @@ class paymill
         $result = $paymill->processPayment(array(
             'token' => $_SESSION['paymill_token'],
             'authorizedAmount' => $authorizedAmount * 100,
-            'amount' => ($total-5) * 100,
+            'amount' => $total * 100,
             'currency' => strtoupper($order->info['currency']),
             'name' => $order->customer['lastname'] . ', ' . $order->customer['firstname'],
             'email' => $order->customer['email_address'],
