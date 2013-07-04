@@ -7,16 +7,13 @@ class paymill_cc extends paymill
     function paymill_cc()
     {
         $this->code = 'paymill_cc';
-        $this->version = '1.0.4';
+        $this->version = '1.0.5';
         $this->title = MODULE_PAYMENT_PAYMILL_CC_TEXT_TITLE;
         $this->public_title = MODULE_PAYMENT_PAYMILL_CC_TEXT_PUBLIC_TITLE;
         $this->sort_order = MODULE_PAYMENT_PAYMILL_CC_SORT_ORDER;
         $this->enabled = ((MODULE_PAYMENT_PAYMILL_CC_STATUS == 'True') ? true : false);
         $this->privateKey = trim(MODULE_PAYMENT_PAYMILL_CC_PRIVATEKEY);
-        $this->tmpOrders = true;
-        $this->tmpStatus = MODULE_PAYMENT_PAYMILL_CC_TMP_STATUS_ID;
         $this->order_status = MODULE_PAYMENT_PAYMILL_CC_ORDER_STATUS_ID;
-        //$this->form_action_url = '';
         $this->logging = MODULE_PAYMENT_PAYMILL_CC_LOGGING;
         $this->publicKey = MODULE_PAYMENT_PAYMILL_CC_PUBLICKEY;
     }
@@ -132,9 +129,9 @@ class paymill_cc extends paymill
                 . '<script type="text/javascript" src="' . $this->bridgeUrl . '"></script>'
                 . '<script type="text/javascript">'
                     . 'var cclogging = "' . MODULE_PAYMENT_PAYMILL_CC_LOGGING . '";'
-                    . 'var cc_expiery_invalid = ' . utf8_decode(MODULE_PAYMENT_PAYMILL_CC_TEXT_CREDITCARD_EXPIRY_INVALID) . ';'
-                    . 'var cc_card_number_invalid = ' . utf8_decode(MODULE_PAYMENT_PAYMILL_CC_TEXT_CREDITCARD_CARDNUMBER_INVALID) . ';'
-                    . 'var cc_cvc_number_invalid = ' . utf8_decode(MODULE_PAYMENT_PAYMILL_CC_TEXT_CREDITCARD_CVC_INVALID) . ';'
+                    . 'var cc_expiery_invalid = "' . utf8_decode(MODULE_PAYMENT_PAYMILL_CC_TEXT_CREDITCARD_EXPIRY_INVALID) . '";'
+                    . 'var cc_card_number_invalid = "' . utf8_decode(MODULE_PAYMENT_PAYMILL_CC_TEXT_CREDITCARD_CARDNUMBER_INVALID) . '";'
+                    . 'var cc_cvc_number_invalid = "' . utf8_decode(MODULE_PAYMENT_PAYMILL_CC_TEXT_CREDITCARD_CVC_INVALID) . '";'
                     . file_get_contents(DIR_FS_CATALOG . 'javascript/paymill_cc_checkout.js')
                 . '</script>';
 
@@ -166,19 +163,6 @@ class paymill_cc extends paymill
     {
         global $language;
         
-        if (tep_db_num_rows(tep_db_query("SELECT * from " . TABLE_ORDERS_STATUS . " where orders_status_name LIKE 'Pending Payment (Paymill)'")) == 0) {
-            //based on orders_status.php with action save new orders_status_id
-            $next_id_query = tep_db_query("select max(orders_status_id) as orders_status_id from " . TABLE_ORDERS_STATUS . "");
-            $next_id = tep_db_fetch_array($next_id_query);
-            $tmp_status_id = $next_id['orders_status_id'] + 1;
-            //based on orders_status.php ends
-            tep_db_query("INSERT INTO " . TABLE_ORDERS_STATUS . " (orders_status_id, language_id, orders_status_name) VALUES (" . $tmp_status_id . ",1, 'Pending Payment (Paymill)'),(" . $tmp_status_id . ",2,'Ausstehende Zahlung (Paymill)');");
-        } else {
-            $tmp_status_query = tep_db_query("SELECT * from " . TABLE_ORDERS_STATUS . " where orders_status_name LIKE 'Pending Payment (Paymill)'");
-            $tmp_status = tep_db_fetch_array($tmp_status_query);
-            $tmp_status_id = $tmp_status['orders_status_id'];
-        }
-        
         @include(DIR_FS_CATALOG . DIR_WS_LANGUAGES . $language . '/modules/payment/paymill_cc.php');
         
         tep_db_query("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) VALUES ('" . MODULE_PAYMENT_PAYMILL_CC_STATUS_TITLE . "', 'MODULE_PAYMENT_PAYMILL_CC_STATUS', 'True', '6', '1', 'tep_cfg_select_option(array(\'True\', \'False\'), ', now())");
@@ -188,7 +172,6 @@ class paymill_cc extends paymill
         tep_db_query("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_group_id, sort_order, date_added) VALUES ('" . MODULE_PAYMENT_PAYMILL_CC_PUBLICKEY_TITLE . "', 'MODULE_PAYMENT_PAYMILL_CC_PUBLICKEY', '0', '6', '0', now())");
         tep_db_query("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_group_id, sort_order, date_added) VALUES ('" . MODULE_PAYMENT_PAYMILL_CC_ADD_AMOUNT_TITLE . "', 'MODULE_PAYMENT_PAYMILL_CC_ADD_AMOUNT', '10', '6', '0', now())");
         tep_db_query("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_group_id, sort_order, set_function, use_function, date_added) values ('" . MODULE_PAYMENT_PAYMILL_CC_ORDER_STATUS_ID_TITLE . "', 'MODULE_PAYMENT_PAYMILL_CC_ORDER_STATUS_ID', '0',  '6', '0', 'tep_cfg_pull_down_order_statuses(', 'tep_get_order_status_name', now())");
-	tep_db_query("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_group_id, sort_order, set_function, use_function, date_added) values ('" . MODULE_PAYMENT_PAYMILL_CC_TMP_STATUS_ID_TITLE . "', 'MODULE_PAYMENT_PAYMILL_CC_TMP_STATUS_ID', '" . $tmp_status_id . "',  '6', '8', 'tep_cfg_pull_down_order_statuses(', 'tep_get_order_status_name', now())");
         tep_db_query("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) VALUES ('" . MODULE_PAYMENT_PAYMILL_CC_LOGGING_TITLE . "', 'MODULE_PAYMENT_PAYMILL_CC_LOGGING', 'False', '6', '0', 'tep_cfg_select_option(array(\'True\', \'False\'), ', now())");
     }
 
@@ -206,7 +189,6 @@ class paymill_cc extends paymill
             'MODULE_PAYMENT_PAYMILL_CC_PUBLICKEY',
             'MODULE_PAYMENT_PAYMILL_CC_ADD_AMOUNT',
             'MODULE_PAYMENT_PAYMILL_CC_ORDER_STATUS_ID',
-            'MODULE_PAYMENT_PAYMILL_CC_TMP_STATUS_ID',
             'MODULE_PAYMENT_PAYMILL_CC_SORT_ORDER',
             'MODULE_PAYMENT_PAYMILL_CC_ALLOWED'
         );

@@ -81,7 +81,7 @@ class paymill implements Services_Paymill_LoggingInterface
         $paymill->setAmount((int) (string) ($total * 100));
         $paymill->setApiUrl((string) $this->apiUrl);
         $paymill->setCurrency((string) strtoupper($order->info['currency']));
-        $paymill->setDescription((string) STORE_NAME . ' Bestellnummer: ');
+        $paymill->setDescription((string) STORE_NAME);
         $paymill->setEmail((string) $order->customer['email_address']);
         $paymill->setName((string) $order->customer['lastname'] . ', ' . $order->customer['firstname']);
         $paymill->setPrivateKey((string) $this->privateKey);
@@ -90,6 +90,7 @@ class paymill implements Services_Paymill_LoggingInterface
         $paymill->setSource($this->version . '_' . str_replace(' ', '_', PROJECT_VERSION));
 
         $result = $paymill->processPayment();
+        $_SESSION['paymill']['transaction_id'] = $paymill->getTransactionId();
 
         if (!$result) {
             tep_redirect(tep_href_link(FILENAME_CHECKOUT_PAYMENT, 'step=step2&payment_error=' . $this->code . '&error=200', 'SSL', true, false));
@@ -99,10 +100,32 @@ class paymill implements Services_Paymill_LoggingInterface
     function after_process()
     {
         global $insert_id;
+        
+        tep_db_query("UPDATE " . TABLE_ORDERS
+                   . " SET orders_status='" . $this->order_status . "'"
+                   . " WHERE orders_id='" . $insert_id . "'"
+        );
 
-        if ($this->order_status) {
-            tep_db_query("UPDATE " . TABLE_ORDERS . " SET orders_status='" . $this->order_status . "' WHERE orders_id='" . $insert_id . "'");
-        }
+        $sql = "INSERT INTO  `orders_status_history` ("
+                . "`orders_status_history_id` ,"
+                . "`orders_id` ,"
+                . "`orders_status_id` ,"
+                . "`date_added` ,"
+                . "`customer_notified` ,"
+                . "`comments`"
+             . ") VALUES("
+                . "NULL, "
+                . "'" . $insert_id . "', "
+                . "'" . $this->order_status . "', "
+                . "NOW(), "
+                . "'0', "
+                . "'Payment approved, Transaction ID: " . $_SESSION['paymill']['transaction_id'] . "'"
+              . ")";
+
+
+        tep_db_query($sql);
+        
+        unset($_SESSION['paymill']);
     }
 
     /**
