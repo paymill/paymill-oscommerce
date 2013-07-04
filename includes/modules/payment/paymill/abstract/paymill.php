@@ -76,9 +76,9 @@ class paymill implements Services_Paymill_LoggingInterface
         } else {
             $total = $order->info['total'];
         }
-
+        
         $paymill = new Services_Paymill_PaymentProcessor();
-        $paymill->setAmount((int) (string) ($total * 100));
+        $paymill->setAmount((int) (string) round($total * 100));
         $paymill->setApiUrl((string) $this->apiUrl);
         $paymill->setCurrency((string) strtoupper($order->info['currency']));
         $paymill->setDescription((string) STORE_NAME);
