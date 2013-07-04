@@ -25,22 +25,7 @@ class paymill implements Services_Paymill_LoggingInterface
 
         $_SESSION['paymill_token'] = $_POST['paymill_token'];
     }
-
-    function confirmation()
-    {
-        return false;
-    }
-
-    function process_button()
-    {
-        return false;
-    }
-
-    function before_process()
-    {
-        return false;
-    }
-
+    
     function get_error()
     {
         global $_GET;
@@ -61,15 +46,25 @@ class paymill implements Services_Paymill_LoggingInterface
 
         return $error_text;
     }
-
-    function update_status()
+    
+    function javascript_validation()
     {
         return false;
     }
-
-    function javascript_validation()
+    
+    function confirmation()
     {
-        return '';
+        return false;
+    }
+    
+    function process_button()
+    {
+        return false;
+    }
+    
+    function before_process()
+    {
+        $this->payment_action();
     }
 
     function payment_action()
@@ -86,7 +81,7 @@ class paymill implements Services_Paymill_LoggingInterface
         $paymill->setAmount((int) (string) ($total * 100));
         $paymill->setApiUrl((string) $this->apiUrl);
         $paymill->setCurrency((string) strtoupper($order->info['currency']));
-        $paymill->setDescription((string) STORE_NAME . ' Bestellnummer: ' . $_SESSION['tmp_oID']);
+        $paymill->setDescription((string) STORE_NAME . ' Bestellnummer: ');
         $paymill->setEmail((string) $order->customer['email_address']);
         $paymill->setName((string) $order->customer['lastname'] . ', ' . $order->customer['firstname']);
         $paymill->setPrivateKey((string) $this->privateKey);
@@ -98,8 +93,6 @@ class paymill implements Services_Paymill_LoggingInterface
 
         if (!$result) {
             tep_redirect(tep_href_link(FILENAME_CHECKOUT_PAYMENT, 'step=step2&payment_error=' . $this->code . '&error=200', 'SSL', true, false));
-        } else {
-            tep_redirect(tep_href_link(FILENAME_CHECKOUT_PROCESS, 'SSL', true, false));
         }
     }
 
@@ -110,8 +103,6 @@ class paymill implements Services_Paymill_LoggingInterface
         if ($this->order_status) {
             tep_db_query("UPDATE " . TABLE_ORDERS . " SET orders_status='" . $this->order_status . "' WHERE orders_id='" . $insert_id . "'");
         }
-
-        return true;
     }
 
     /**

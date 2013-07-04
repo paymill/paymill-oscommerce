@@ -1,13 +1,6 @@
 var isElvSubmitted = false;
-
-function paymillElvLog(message) {
-    if(elvlogging === "True") {
-        console.log(message);
-    }
-}
-
 $(document).ready(function () {
-    $("#checkout_payment").submit(function () {
+    $('form[name="checkout_payment"]').submit(function () {
         if (!isElvSubmitted) {
             if ($("input[name=\'payment\'][value=\'paymill_elv\']").prop("checked")) {
                 if (false === paymill.validateAccountNumber($('#account-number').val())) {
@@ -41,12 +34,12 @@ $(document).ready(function () {
     { 
         isElvSubmitted = true;
         if (error) {
-            paymillElvLog("An API error occured: " + error.apierror);
+            console.log("An API error occured: " + error.apierror);
             return false;
         } else {
-            paymillElvLog(result.token);
-            $("#checkout_payment").append("<input type='hidden' name='paymill_token' value='" + result.token + "'/>");
-            $("#checkout_payment").submit();
+            console.log(result.token);
+            $('form[name="checkout_payment"]').append("<input type='hidden' name='paymill_token' value='" + result.token + "'/>");
+            $('form[name="checkout_payment"]').submit();
             return false;
         }
     }
