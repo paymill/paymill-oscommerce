@@ -93,7 +93,7 @@ class paymill implements Services_Paymill_LoggingInterface
         $_SESSION['paymill']['transaction_id'] = $paymill->getTransactionId();
 
         if (!$result) {
-            tep_redirect(tep_href_link(FILENAME_CHECKOUT_PAYMENT, 'step=step2&payment_error=' . $this->code . '&error=200', 'SSL', true, false));
+            tep_redirect(tep_href_link(FILENAME_CHECKOUT_PAYMENT, '', 'SSL', true, false) . '?step=step2&payment_error=' . $this->code . '&error=200');
         }
     }
 
