@@ -1,19 +1,21 @@
 <?php
 
-require_once('abstract/paymill.php');
+require_once('paymill/abstract/paymill.php');
 
 class paymill_cc extends paymill
 {
     function paymill_cc()
     {
         $this->code = 'paymill_cc';
-        $this->version = '1.0.3';
-        $this->title = 'Kreditkartenzahlung';
-        $this->public_title = 'Kreditkartenzahlung';
+        $this->version = '1.0.5';
+        $this->title = MODULE_PAYMENT_PAYMILL_CC_TEXT_TITLE;
+        $this->public_title = MODULE_PAYMENT_PAYMILL_CC_TEXT_PUBLIC_TITLE;
         $this->sort_order = MODULE_PAYMENT_PAYMILL_CC_SORT_ORDER;
         $this->enabled = ((MODULE_PAYMENT_PAYMILL_CC_STATUS == 'True') ? true : false);
-        $this->privateKey = MODULE_PAYMENT_PAYMILL_CC_PRIVATEKEY;
-        $this->apiUrl = MODULE_PAYMENT_PAYMILL_CC_API_URL;
+        $this->privateKey = trim(MODULE_PAYMENT_PAYMILL_CC_PRIVATEKEY);
+        $this->order_status = MODULE_PAYMENT_PAYMILL_CC_ORDER_STATUS_ID;
+        $this->logging = MODULE_PAYMENT_PAYMILL_CC_LOGGING;
+        $this->publicKey = MODULE_PAYMENT_PAYMILL_CC_PUBLICKEY;
     }
 
     function selection()
@@ -26,12 +28,7 @@ class paymill_cc extends paymill
             $total = $order->info['total'];
         }
 
-        for ($i = 1; $i < 13; $i++) {
-            $expires_month[] = array(
-                'id' => sprintf('%02d', $i),
-                'text' => utf8_decode(strftime('%B', mktime(0, 0, 0, $i, 1, 2000)))
-            );
-        }
+        $amount = $total + $this->getShippingTaxAmount($order);
 
         $today = getdate();
         for ($i = $today['year']; $i < $today['year'] + 10; $i++) {//
@@ -40,6 +37,20 @@ class paymill_cc extends paymill
                 'text' => strftime('%Y', mktime(0, 0, 0, 1, 1, $i))
             );
         }
+        
+        $expires_month = array();
+        $expires_month[] = array('id' => '01', 'text' => MODULE_PAYMENT_PAYMILL_CC_TEXT_MONTH_JANUARY);
+        $expires_month[] = array('id' => '02', 'text' => MODULE_PAYMENT_PAYMILL_CC_TEXT_MONTH_FEBRUARY);
+        $expires_month[] = array('id' => '03', 'text' => MODULE_PAYMENT_PAYMILL_CC_TEXT_MONTH_MARCH);
+        $expires_month[] = array('id' => '04', 'text' => MODULE_PAYMENT_PAYMILL_CC_TEXT_MONTH_APRIL);
+        $expires_month[] = array('id' => '05', 'text' => MODULE_PAYMENT_PAYMILL_CC_TEXT_MONTH_MAY);
+        $expires_month[] = array('id' => '06', 'text' => MODULE_PAYMENT_PAYMILL_CC_TEXT_MONTH_JUNE);
+        $expires_month[] = array('id' => '07', 'text' => MODULE_PAYMENT_PAYMILL_CC_TEXT_MONTH_JULY);
+        $expires_month[] = array('id' => '08', 'text' => MODULE_PAYMENT_PAYMILL_CC_TEXT_MONTH_AUGUST);
+        $expires_month[] = array('id' => '09', 'text' => MODULE_PAYMENT_PAYMILL_CC_TEXT_MONTH_SEPTEMBER);
+        $expires_month[] = array('id' => '10', 'text' => MODULE_PAYMENT_PAYMILL_CC_TEXT_MONTH_OCTOBER);
+        $expires_month[] = array('id' => '11', 'text' => MODULE_PAYMENT_PAYMILL_CC_TEXT_MONTH_NOVEMBER);
+        $expires_month[] = array('id' => '12', 'text' => MODULE_PAYMENT_PAYMILL_CC_TEXT_MONTH_DECEMBER);
 
         $months_string = '';
         foreach ($expires_month as $m) {
@@ -58,7 +69,7 @@ class paymill_cc extends paymill
             'field' => '<link rel="stylesheet" type="text/css" href="' . HTTP_SERVER . DIR_WS_CATALOG . 'css/paymill.css"/>'
         );
 
-        $resourcesDir = HTTP_SERVER . DIR_WS_CATALOG . '/includes/modules/payment/resources/';
+        $resourcesDir = HTTP_SERVER . DIR_WS_CATALOG . '/includes/modules/payment/paymill/resources/';
         $this->accepted = tep_image($resourcesDir . 'icon_mastercard.png') . " " . tep_image($resourcesDir . 'icon_visa.png');
 
         $formArray[] = array(
@@ -66,19 +77,19 @@ class paymill_cc extends paymill
         );
 
         $formArray[] = array(
-            'title' => 'Kreditkarten-Nummer',
+            'title' => MODULE_PAYMENT_PAYMILL_CC_TEXT_CREDITCARD_NUMBER,
             'field' => '<br/><input type="text" id="card-number" class="form-row-paymill"/>'
         );
 
         $formArray[] = array(
-            'title' => 'G&uuml;ltigkeitsdatum',
+            'title' => MODULE_PAYMENT_PAYMILL_CC_TEXT_CREDITCARD_EXPIRY,
             'field' => '<br/><span class="paymill-expiry"><select id="card-expiry-month">' . $months_string . '</select>'
                      . '&nbsp;'
                      . '<select id="card-expiry-year">' . $years_string . '</select></span>'
         );
 
         $formArray[] = array(
-            'title' => 'CVC-Code',
+            'title' => MODULE_PAYMENT_PAYMILL_CC_TEXT_CREDITCARD_CVC,
             'field' => '<br/><span class="card-cvc-row"><input type="text" size="4" id="card-cvc" class="form-row-paymill"/></span>'
             . '<br/>'
             . '<a href="javascript:popupWindow(\'' . tep_href_link(FILENAME_POPUP_CVV, '', 'SSL') . '\')">Info</a>'
@@ -89,18 +100,21 @@ class paymill_cc extends paymill
             '<div class="form-row">'
               . '<div class="paymill_powered">'
                    . '<div class="paymill_credits">'
-                       . 'Sichere Kreditkartenzahlung powered by'
+                       . MODULE_PAYMENT_PAYMILL_CC_TEXT_CREDITCARD_SAVED
                       . ' <a href="http://www.paymill.de" target="_blank">Paymill</a>'
                    . '</div>'
                . '</div>'
            . '</div>'
         );
-
-        $_SESSION['pi']['paymill_amount'] = $total;
+        
+        $difference_amount = MODULE_PAYMENT_PAYMILL_CC_ADD_AMOUNT;
+        if(!is_numeric($difference_amount)) {
+            $difference_amount = 0;
+        }
         
         $formArray[] = array(
             'title' => '',
-            'field' => '<br/><input type="hidden" value="' . round($total * 100) . '" id="amount" name="amount"/>'
+            'field' => '<br/><input type="hidden" value="' . ($amount+$difference_amount) * 100 . '" id="amount" name="amount"/>'
         );
 
         $formArray[] = array(
@@ -110,13 +124,14 @@ class paymill_cc extends paymill
 
         $script = '<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>'
                 . '<script type="text/javascript">'
-                    . 'var PAYMILL_PUBLIC_KEY = "' . MODULE_PAYMENT_PAYMILL_CC_PUBLICKEY . '";'
+                    . 'var PAYMILL_PUBLIC_KEY = "' . $this->publicKey . '";'
                 . '</script>'
-                . '<script type="text/javascript" src="' . MODULE_PAYMENT_PAYMILL_CC_BRIDGE_URL . '"></script>'
+                . '<script type="text/javascript" src="' . $this->bridgeUrl . '"></script>'
                 . '<script type="text/javascript">'
-                    . 'var cc_expiery_invalid = ' . '"Das Gültigkeitsdatum ihrer Kreditkarte ist ungültig. Bitte korrigieren Sie Ihre Angaben.";'
-                    . 'var cc_card_number_invalid = ' . '"Die Kreditkarten-Nummer, die Sie angegeben haben, ist ungültig. Bitte korrigieren Sie Ihre Angaben.";'
-                    . 'var cc_cvc_number_invalid = ' . '"Das Formularfeld Kontoinhaber ist ein Pflichfeld.";'
+                    . 'var cclogging = "' . MODULE_PAYMENT_PAYMILL_CC_LOGGING . '";'
+                    . 'var cc_expiery_invalid = "' . utf8_decode(MODULE_PAYMENT_PAYMILL_CC_TEXT_CREDITCARD_EXPIRY_INVALID) . '";'
+                    . 'var cc_card_number_invalid = "' . utf8_decode(MODULE_PAYMENT_PAYMILL_CC_TEXT_CREDITCARD_CARDNUMBER_INVALID) . '";'
+                    . 'var cc_cvc_number_invalid = "' . utf8_decode(MODULE_PAYMENT_PAYMILL_CC_TEXT_CREDITCARD_CVC_INVALID) . '";'
                     . file_get_contents(DIR_FS_CATALOG . 'javascript/paymill_cc_checkout.js')
                 . '</script>';
 
@@ -147,24 +162,17 @@ class paymill_cc extends paymill
     function install()
     {
         global $language;
-        if (tep_db_num_rows(tep_db_query("SELECT * from " . TABLE_ORDERS_STATUS . " where orders_status_name LIKE '%Paymill%'")) == 0) {
-            //based on orders_status.php with action save new orders_status_id
-            $next_id_query = tep_db_query("select max(orders_status_id) as orders_status_id from " . TABLE_ORDERS_STATUS . "");
-            $next_id = tep_db_fetch_array($next_id_query);
-            $orders_status_id = $next_id['orders_status_id'] + 1;
-            //based on orders_status.php ends
-            tep_db_query("INSERT INTO " . TABLE_ORDERS_STATUS . " (orders_status_id, language_id, orders_status_name) VALUES (" . $orders_status_id . ",1, 'Paymill Payment cancelled'),(" . $orders_status_id . ",2,'Paymill Bezahlung abgebrochen');");
-        }
         
         @include(DIR_FS_CATALOG . DIR_WS_LANGUAGES . $language . '/modules/payment/paymill_cc.php');
         
         tep_db_query("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) VALUES ('" . MODULE_PAYMENT_PAYMILL_CC_STATUS_TITLE . "', 'MODULE_PAYMENT_PAYMILL_CC_STATUS', 'True', '6', '1', 'tep_cfg_select_option(array(\'True\', \'False\'), ', now())");
         tep_db_query("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_group_id, sort_order, date_added) VALUES ('" . MODULE_PAYMENT_PAYMILL_CC_ALLOWED_TITLE . "', 'MODULE_PAYMENT_PAYMILL_CC_ALLOWED', '', '6', '0', now())");
         tep_db_query("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_group_id, sort_order, date_added) VALUES ('" . MODULE_PAYMENT_PAYMILL_CC_SORT_ORDER_TITLE . "', 'MODULE_PAYMENT_PAYMILL_CC_SORT_ORDER', '0', '6', '0', now())");
-        tep_db_query("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_group_id, sort_order, date_added) VALUES ('" . MODULE_PAYMENT_PAYMILL_CC_PUBLICKEY_TITLE . "', 'MODULE_PAYMENT_PAYMILL_CC_PUBLICKEY', '0', '6', '0', now())");
         tep_db_query("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_group_id, sort_order, date_added) VALUES ('" . MODULE_PAYMENT_PAYMILL_CC_PRIVATEKEY_TITLE . "', 'MODULE_PAYMENT_PAYMILL_CC_PRIVATEKEY', '0', '6', '0', now())");
-        tep_db_query("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_group_id, sort_order, date_added) VALUES ('" . MODULE_PAYMENT_PAYMILL_CC_BRIDGE_URL_TITLE . "', 'MODULE_PAYMENT_PAYMILL_CC_BRIDGE_URL', 'https://bridge.paymill.de/', '6', '0', now())");
-        tep_db_query("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_group_id, sort_order, date_added) VALUES ('" . MODULE_PAYMENT_PAYMILL_CC_API_URL_TITLE . "', 'MODULE_PAYMENT_PAYMILL_CC_API_URL', 'https://api.paymill.de/v2/', '6', '0', now())");
+        tep_db_query("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_group_id, sort_order, date_added) VALUES ('" . MODULE_PAYMENT_PAYMILL_CC_PUBLICKEY_TITLE . "', 'MODULE_PAYMENT_PAYMILL_CC_PUBLICKEY', '0', '6', '0', now())");
+        tep_db_query("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_group_id, sort_order, date_added) VALUES ('" . MODULE_PAYMENT_PAYMILL_CC_ADD_AMOUNT_TITLE . "', 'MODULE_PAYMENT_PAYMILL_CC_ADD_AMOUNT', '10', '6', '0', now())");
+        tep_db_query("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_group_id, sort_order, set_function, use_function, date_added) values ('" . MODULE_PAYMENT_PAYMILL_CC_ORDER_STATUS_ID_TITLE . "', 'MODULE_PAYMENT_PAYMILL_CC_ORDER_STATUS_ID', '0',  '6', '0', 'tep_cfg_pull_down_order_statuses(', 'tep_get_order_status_name', now())");
+        tep_db_query("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) VALUES ('" . MODULE_PAYMENT_PAYMILL_CC_LOGGING_TITLE . "', 'MODULE_PAYMENT_PAYMILL_CC_LOGGING', 'False', '6', '0', 'tep_cfg_select_option(array(\'True\', \'False\'), ', now())");
     }
 
     function remove()
@@ -176,12 +184,13 @@ class paymill_cc extends paymill
     {
         return array(
             'MODULE_PAYMENT_PAYMILL_CC_STATUS',
-            'MODULE_PAYMENT_PAYMILL_CC_SORT_ORDER',
-            'MODULE_PAYMENT_PAYMILL_CC_PUBLICKEY',
+            'MODULE_PAYMENT_PAYMILL_CC_LOGGING',
             'MODULE_PAYMENT_PAYMILL_CC_PRIVATEKEY',
-            'MODULE_PAYMENT_PAYMILL_CC_ALLOWED',
-            'MODULE_PAYMENT_PAYMILL_CC_BRIDGE_URL',
-            'MODULE_PAYMENT_PAYMILL_CC_API_URL'
+            'MODULE_PAYMENT_PAYMILL_CC_PUBLICKEY',
+            'MODULE_PAYMENT_PAYMILL_CC_ADD_AMOUNT',
+            'MODULE_PAYMENT_PAYMILL_CC_ORDER_STATUS_ID',
+            'MODULE_PAYMENT_PAYMILL_CC_SORT_ORDER',
+            'MODULE_PAYMENT_PAYMILL_CC_ALLOWED'
         );
     }
 
