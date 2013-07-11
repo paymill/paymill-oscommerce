@@ -36,6 +36,7 @@ $(document).ready(function () {
     { 
         isCcSubmitted = true;
         if (error) {
+            isCcSubmitted = false;
             console.log("An API error occured: " + error.apierror);
             return false;
         } else {
