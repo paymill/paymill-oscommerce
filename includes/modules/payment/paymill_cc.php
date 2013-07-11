@@ -14,7 +14,7 @@ class paymill_cc extends paymill
         $this->enabled = ((MODULE_PAYMENT_PAYMILL_CC_STATUS == 'True') ? true : false);
         $this->privateKey = trim(MODULE_PAYMENT_PAYMILL_CC_PRIVATEKEY);
         $this->order_status = MODULE_PAYMENT_PAYMILL_CC_ORDER_STATUS_ID;
-        $this->logging = MODULE_PAYMENT_PAYMILL_CC_LOGGING;
+        $this->logging = ((MODULE_PAYMENT_PAYMILL_CC_LOGGING == 'True') ? true : false);
         $this->publicKey = MODULE_PAYMENT_PAYMILL_CC_PUBLICKEY;
     }
 

@@ -15,7 +15,7 @@ class paymill_elv extends paymill
         $this->enabled = ((MODULE_PAYMENT_PAYMILL_ELV_STATUS == 'True') ? true : false);
         $this->privateKey = trim(MODULE_PAYMENT_PAYMILL_ELV_PRIVATEKEY);
         $this->order_status = MODULE_PAYMENT_PAYMILL_ELV_ORDER_STATUS_ID;
-        $this->logging = MODULE_PAYMENT_PAYMILL_ELV_LOGGING;
+        $this->logging = ((MODULE_PAYMENT_PAYMILL_ELV_LOGGING == 'True') ? true : false);
         $this->publicKey = MODULE_PAYMENT_PAYMILL_ELV_PUBLICKEY;
     }
 
