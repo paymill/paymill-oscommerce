@@ -21,13 +21,13 @@ class paymill_elv extends paymill
 
     function selection()
     {
-        $resourcesDir = HTTP_SERVER . DIR_WS_CATALOG . '/includes/modules/payment/paymill/resources/';
+        $resourcesDir = HTTPS_SERVER . DIR_WS_CATALOG . '/includes/modules/payment/paymill/resources/';
 
         $formArray = array();
 
         $formArray[] = array(
             'title' => '',
-            'field' => '<link rel="stylesheet" type="text/css" href="' . HTTP_SERVER . DIR_WS_CATALOG . 'css/paymill.css"/>'
+            'field' => '<link rel="stylesheet" type="text/css" href="' . HTTPS_SERVER . DIR_WS_CATALOG . 'css/paymill.css"/>'
         );
 
         $formArray[] = array(
@@ -56,7 +56,7 @@ class paymill_elv extends paymill
             . '<div class="paymill_powered">'
             . '<div class="paymill_credits">'
             . MODULE_PAYMENT_PAYMILL_ELV_TEXT_SAVED
-            . ' <a href="http://www.paymill.de" target="_blank">Paymill</a>'
+            . ' <a href="http://www.paymill.de" target="_blank">PAYMILL</a>'
             . '</div>'
             . '</div>'
             . '</div>'

@@ -66,10 +66,10 @@ class paymill_cc extends paymill
 
         $formArray[] = array(
             'title' => '',
-            'field' => '<link rel="stylesheet" type="text/css" href="' . HTTP_SERVER . DIR_WS_CATALOG . 'css/paymill.css"/>'
+            'field' => '<link rel="stylesheet" type="text/css" href="' . HTTPS_SERVER . DIR_WS_CATALOG . 'css/paymill.css"/>'
         );
 
-        $resourcesDir = HTTP_SERVER . DIR_WS_CATALOG . '/includes/modules/payment/paymill/resources/';
+        $resourcesDir = HTTPS_SERVER . DIR_WS_CATALOG . '/includes/modules/payment/paymill/resources/';
         $this->accepted = tep_image($resourcesDir . 'icon_mastercard.png') . " " . tep_image($resourcesDir . 'icon_visa.png');
 
         $formArray[] = array(
@@ -101,7 +101,7 @@ class paymill_cc extends paymill
               . '<div class="paymill_powered">'
                    . '<div class="paymill_credits">'
                        . MODULE_PAYMENT_PAYMILL_CC_TEXT_CREDITCARD_SAVED
-                      . ' <a href="http://www.paymill.de" target="_blank">Paymill</a>'
+                      . ' <a href="http://www.paymill.de" target="_blank">PAYMILL</a>'
                    . '</div>'
                . '</div>'
            . '</div>'
