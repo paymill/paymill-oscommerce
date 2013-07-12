@@ -12,6 +12,7 @@ class paymill implements Services_Paymill_LoggingInterface
     var $code, $title, $description = '', $enabled, $privateKey, $logging;
     var $bridgeUrl = 'https://bridge.paymill.com/';
     var $apiUrl    = 'https://api.paymill.com/v2/';
+    var $differentAmount = 0;
     
     function pre_confirmation_check()
     {
@@ -88,7 +89,8 @@ class paymill implements Services_Paymill_LoggingInterface
         $paymill->setToken((string) $_SESSION['paymill_token']);
         $paymill->setLogger($this);
         $paymill->setSource($this->version . '_' . str_replace(' ', '_', PROJECT_VERSION));
-
+        $paymill->setDifferentAmount((int) (string) ($this->getDifferentAmount() * 100));
+        
         $result = $paymill->processPayment();
         $_SESSION['paymill']['transaction_id'] = $paymill->getTransactionId();
 
@@ -176,4 +178,13 @@ class paymill implements Services_Paymill_LoggingInterface
         }
     }
 
+    protected function getDifferentAmount()
+    {
+        $differenceAmount = $this->differentAmount;
+        if(empty($differenceAmount) || !is_numeric($differenceAmount)) {
+            $differenceAmount = 0;
+        }
+        
+        return $differenceAmount;
+    }
 }
