@@ -7,7 +7,7 @@ class paymill_cc extends paymill
     function paymill_cc()
     {
         $this->code = 'paymill_cc';
-        $this->version = '1.0.6';
+        $this->version = '1.0.7';
         $this->title = MODULE_PAYMENT_PAYMILL_CC_TEXT_TITLE;
         $this->public_title = MODULE_PAYMENT_PAYMILL_CC_TEXT_PUBLIC_TITLE;
         $this->sort_order = MODULE_PAYMENT_PAYMILL_CC_SORT_ORDER;
@@ -31,6 +31,8 @@ class paymill_cc extends paymill
 
         $amount = $total + $this->getShippingTaxAmount($order);
 
+        $_SESSION['paymill_authorized_amount'] = ($amount + $this->getDifferentAmount()) * 100;
+        
         $today = getdate();
         for ($i = $today['year']; $i < $today['year'] + 10; $i++) {//
             $expires_year[] = array(
@@ -110,7 +112,7 @@ class paymill_cc extends paymill
         
         $formArray[] = array(
             'title' => '',
-            'field' => '<br/><input type="hidden" value="' . ($amount + $this->getDifferentAmount()) * 100 . '" id="amount" name="amount"/>'
+            'field' => '<br/><input type="hidden" value="' . $_SESSION['paymill_authorized_amount'] . '" id="amount" name="amount"/>'
         );
 
         $formArray[] = array(

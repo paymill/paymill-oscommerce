@@ -8,7 +8,7 @@ class paymill_elv extends paymill
     function paymill_elv()
     {
         $this->code = 'paymill_elv';
-        $this->version = '1.0.6';
+        $this->version = '1.0.7';
         $this->title = MODULE_PAYMENT_PAYMILL_ELV_TEXT_TITLE;
         $this->public_title = MODULE_PAYMENT_PAYMILL_ELV_TEXT_PUBLIC_TITLE;
         $this->sort_order = MODULE_PAYMENT_PAYMILL_ELV_SORT_ORDER;
@@ -89,7 +89,14 @@ class paymill_elv extends paymill
 
         return $selection;
     }
-
+    
+    function pre_confirmation_check()
+    {
+        parent::pre_confirmation_check();
+        
+        unset($_SESSION['paymill_authorized_amount']);
+    }
+    
     function check()
     {
         if (!isset($this->_check)) {

@@ -89,7 +89,10 @@ class paymill implements Services_Paymill_LoggingInterface
         $paymill->setToken((string) $_SESSION['paymill_token']);
         $paymill->setLogger($this);
         $paymill->setSource($this->version . '_' . str_replace(' ', '_', PROJECT_VERSION));
-        $paymill->setDifferentAmount((int) (string) ($this->getDifferentAmount() * 100));
+        
+        if (array_key_exists('paymill_authorized_amount', $_SESSION)) {
+            $paymill->setPreAuthAmount((int) (string) $_SESSION['paymill_authorized_amount']);
+        }
         
         $result = $paymill->processPayment();
         $_SESSION['paymill']['transaction_id'] = $paymill->getTransactionId();
@@ -138,19 +141,14 @@ class paymill implements Services_Paymill_LoggingInterface
      */
     public function getShippingTaxAmount(order $order)
     {
-        return round($order->info['shipping_cost'] * ($this->getShippingTaxRate($order) / 100), 2);
+        return round($order->info['shipping_cost'] * ($this->getShippingTaxRate() / 100), 2);
     }
 
-    /**
-     * Retrieve the shipping tax rate
-     *
-     * @param order $order
-     * @return float
-     */
-    public function getShippingTaxRate(order $order)
+    public function getShippingTaxRate()
     {
-        $shippingClassArray = explode("_", $order->info['shipping_class']);
-        $shippingClass = strtoupper($shippingClassArray[0]);
+        global $shipping;
+        $shippingClasses = explode("_", $shipping['id']);
+        $shippingClass = strtoupper($shippingClasses[0]);
         if (empty($shippingClass)) {
             $shippingTaxRate = 0;
         } else {
@@ -164,7 +162,7 @@ class paymill implements Services_Paymill_LoggingInterface
 
         return $shippingTaxRate;
     }
-
+    
     public function log($messageInfo, $debugInfo)
     {
         if ($this->logging) {
