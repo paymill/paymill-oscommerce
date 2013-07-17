@@ -1,8 +1,8 @@
 <?php
 
-require_once('paymill/abstract/paymill.php');
+require_once('paymill/paymill_abstract.php');
 
-class paymill_cc extends paymill
+class paymill_cc extends paymill_abstract
 {
     function paymill_cc()
     {
@@ -82,8 +82,7 @@ class paymill_cc extends paymill
 
         $formArray = array();
 
-        $resourcesDir = HTTPS_SERVER . DIR_WS_CATALOG . '/includes/modules/payment/paymill/resources/';
-        $this->accepted = tep_image($resourcesDir . 'icon_mastercard.png') . " " . tep_image($resourcesDir . 'icon_visa.png');
+        $this->accepted = tep_image('ext/modules/payment/paymill/public/images/icon_mastercard.png') . " " . tep_image('ext/modules/payment/paymill/public/images/icon_visa.png');
 
         $formArray[] = array(
         	'title' => null,

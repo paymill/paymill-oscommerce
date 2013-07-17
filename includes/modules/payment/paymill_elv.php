@@ -1,8 +1,8 @@
 <?php
 
-require_once('paymill/abstract/paymill.php');
+require_once('paymill/paymill_abstract.php');
 
-class paymill_elv extends paymill
+class paymill_elv extends paymill_abstract
 {
     function paymill_elv()
     {
@@ -35,13 +35,11 @@ class paymill_elv extends paymill
 
     function selection()
     {
-        $resourcesDir = HTTPS_SERVER . DIR_WS_CATALOG . '/includes/modules/payment/paymill/resources/';
-
         $formArray = array();
 
         $formArray[] = array(
             'title' => '',
-            'field' => tep_image($resourcesDir . 'icon_elv.png')
+            'field' => tep_image('ext/modules/payment/paymill/public/images/icon_elv.png')
         );
 
         $formArray[] = array(
