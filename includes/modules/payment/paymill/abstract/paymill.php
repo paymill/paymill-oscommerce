@@ -104,12 +104,7 @@ class paymill implements Services_Paymill_LoggingInterface
 
     function after_process()
     {
-        global $insert_id;
-        
-        tep_db_query("UPDATE " . TABLE_ORDERS
-                   . " SET orders_status='" . $this->order_status . "'"
-                   . " WHERE orders_id='" . $insert_id . "'"
-        );
+        global $order, $insert_id;
 
         $sql = "INSERT INTO  `orders_status_history` ("
                 . "`orders_status_history_id` ,"
@@ -121,7 +116,7 @@ class paymill implements Services_Paymill_LoggingInterface
              . ") VALUES("
                 . "NULL, "
                 . "'" . $insert_id . "', "
-                . "'" . $this->order_status . "', "
+                . "'" . $order->info['order_status'] . "', "
                 . "NOW(), "
                 . "'0', "
                 . "'Payment approved, Transaction ID: " . $_SESSION['paymill']['transaction_id'] . "'"

@@ -1,5 +1,5 @@
 <?php
-define('MODULE_PAYMENT_PAYMILL_ELV_TEXT_TITLE', 'Direct Debit');
+define('MODULE_PAYMENT_PAYMILL_ELV_TEXT_TITLE', 'Paymill Direct Debit');
 define('MODULE_PAYMENT_PAYMILL_ELV_STATUS_TITLE', 'Activate Direct Debit');
 define('MODULE_PAYMENT_PAYMILL_ELV_STATUS_DESC', '');
 define('MODULE_PAYMENT_PAYMILL_ELV_SORT_ORDER_TITLE', 'Sort Order');
@@ -18,7 +18,7 @@ define('MODULE_PAYMENT_PAYMILL_ELV_ORDER_STATUS_ID_TITLE', 'Order Status');
 define('MODULE_PAYMENT_PAYMILL_ELV_ORDER_STATUS_ID_DESC', 'Sets the order status for successful payment');
 define('MODULE_PAYMENT_PAYMILL_ELV_TMP_STATUS_ID_TITLE', 'Temporarily Order Status');
 define('MODULE_PAYMENT_PAYMILL_ELV_TMP_STATUS_ID_DESC', 'Sets the temporarily order status for temporarily orders which are not paid.');
-define('MODULE_PAYMENT_PAYMILL_ELV_TEXT_PUBLIC_TITLE', 'Debit');
+define('MODULE_PAYMENT_PAYMILL_ELV_TEXT_PUBLIC_TITLE', 'Debit Card');
 define('MODULE_PAYMENT_PAYMILL_ELV_TEXT_ACCOUNT', 'Account Number');
 define('MODULE_PAYMENT_PAYMILL_ELV_TEXT_BANKCODE', 'Bank Code');
 define('MODULE_PAYMENT_PAYMILL_ELV_TEXT_ACCOUNT_HOLDER', 'Account Holder');
