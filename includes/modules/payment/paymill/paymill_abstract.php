@@ -1,12 +1,11 @@
 <?php
-
-require_once(dirname(dirname(__FILE__)) . '/lib/Services/Paymill/PaymentProcessor.php');
-require_once(dirname(dirname(__FILE__)) . '/lib/Services/Paymill/LoggingInterface.php');
+require_once(DIR_FS_CATALOG . 'ext/modules/payment/paymill/lib/Services/Paymill/PaymentProcessor.php');
+require_once(DIR_FS_CATALOG . 'ext/modules/payment/paymill/lib/Services/Paymill/LoggingInterface.php');
 
 /**
  * Paymill payment plugin
  */
-class paymill implements Services_Paymill_LoggingInterface
+class paymill_abstract implements Services_Paymill_LoggingInterface
 {
 
     var $code, $title, $description = '', $enabled, $privateKey, $logging;
@@ -161,7 +160,7 @@ class paymill implements Services_Paymill_LoggingInterface
     public function log($messageInfo, $debugInfo)
     {
         if ($this->logging) {
-            $logfile = dirname(dirname(__FILE__)) . '/log/log.txt';
+            $logfile = dirname(__FILE__) . '/log.txt';
             if (file_exists($logfile) && is_writable($logfile)) {
                 $handle = fopen($logfile, 'a');
                 fwrite($handle, "[" . date(DATE_RFC822) . "] " . $messageInfo . "\n");
