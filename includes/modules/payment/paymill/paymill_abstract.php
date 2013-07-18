@@ -11,19 +11,14 @@ class paymill_abstract implements Services_Paymill_LoggingInterface
     var $code, $title, $description = '', $enabled, $privateKey, $logging;
     var $bridgeUrl = 'https://bridge.paymill.com/';
     var $apiUrl    = 'https://api.paymill.com/v2/';
-    var $differentAmount = 0;
     
     function pre_confirmation_check()
     {
-        global $order;
+        global $oscTemplate;
 
-        if ($_SESSION['customers_status']['customers_status_show_price_tax'] == 0 && $_SESSION['customers_status']['customers_status_add_tax_ot'] == 1) {
-            $total = $order->info['total'] + $order->info['tax'];
-        } else {
-            $total = $order->info['total'];
-        }
-
-        $_SESSION['paymill_token'] = $_POST['paymill_token'];
+        $oscTemplate->addBlock('<link rel="stylesheet" type="text/css" href="ext/modules/payment/paymill/public/css/paymill.css" />', 'header_tags');
+        $oscTemplate->addBlock('<script type="text/javascript">var PAYMILL_PUBLIC_KEY = "' . $this->publicKey . '";</script>', 'header_tags');
+        $oscTemplate->addBlock('<script type="text/javascript" src="' . $this->bridgeUrl . '"></script>', 'header_tags');
     }
     
     function get_error()
@@ -51,7 +46,12 @@ class paymill_abstract implements Services_Paymill_LoggingInterface
     {
         return false;
     }
-    
+
+    function selection() {
+      return array('id' => $this->code,
+                   'module' => $this->public_title);
+    }
+
     function confirmation()
     {
         return false;
@@ -64,35 +64,20 @@ class paymill_abstract implements Services_Paymill_LoggingInterface
     
     function before_process()
     {
-        $this->payment_action();
-    }
-
-    function payment_action()
-    {
         global $order;
 
-        if ($_SESSION['customers_status']['customers_status_show_price_tax'] == 0 && $_SESSION['customers_status']['customers_status_add_tax_ot'] == 1) {
-            $total = $order->info['total'] + $order->info['tax'];
-        } else {
-            $total = $order->info['total'];
-        }
-        
         $paymill = new Services_Paymill_PaymentProcessor();
-        $paymill->setAmount((int) (string) round($total * 100));
+        $paymill->setAmount((int) $this->format_raw($order->info['total']));
         $paymill->setApiUrl((string) $this->apiUrl);
         $paymill->setCurrency((string) strtoupper($order->info['currency']));
         $paymill->setDescription((string) STORE_NAME);
         $paymill->setEmail((string) $order->customer['email_address']);
         $paymill->setName((string) $order->customer['lastname'] . ', ' . $order->customer['firstname']);
         $paymill->setPrivateKey((string) $this->privateKey);
-        $paymill->setToken((string) $_SESSION['paymill_token']);
+        $paymill->setToken((string) $_POST['paymill_token']);
         $paymill->setLogger($this);
-        $paymill->setSource($this->version . '_' . str_replace(' ', '_', PROJECT_VERSION));
-        
-        if (array_key_exists('paymill_authorized_amount', $_SESSION)) {
-            $paymill->setPreAuthAmount((int) (string) $_SESSION['paymill_authorized_amount']);
-        }
-        
+        $paymill->setSource($this->version . '_OSCOM_' . tep_get_version());
+
         $result = $paymill->processPayment();
         $_SESSION['paymill']['transaction_id'] = $paymill->getTransactionId();
 
@@ -127,37 +112,12 @@ class paymill_abstract implements Services_Paymill_LoggingInterface
         unset($_SESSION['paymill']);
     }
 
-    /**
-     * Add the shipping tax to the order object
-     *
-     * @param order $order
-     * @return float
-     */
-    public function getShippingTaxAmount(order $order)
+    function remove()
     {
-        return round($order->info['shipping_cost'] * ($this->getShippingTaxRate() / 100), 2);
+        tep_db_query("DELETE FROM " . TABLE_CONFIGURATION . " WHERE configuration_key IN ('" . implode("', '", $this->keys()) . "')");
     }
 
-    public function getShippingTaxRate()
-    {
-        global $shipping;
-        $shippingClasses = explode("_", $shipping['id']);
-        $shippingClass = strtoupper($shippingClasses[0]);
-        if (empty($shippingClass)) {
-            $shippingTaxRate = 0;
-        } else {
-            $const = 'MODULE_SHIPPING_' . $shippingClass . '_TAX_CLASS';
-            if (defined($const)) {
-                $shippingTaxRate = tep_get_tax_rate(constant($const));
-            } else {
-                $shippingTaxRate = 0;
-            }
-        }
-
-        return $shippingTaxRate;
-    }
-    
-    public function log($messageInfo, $debugInfo)
+    function log($messageInfo, $debugInfo)
     {
         if ($this->logging) {
             $logfile = dirname(__FILE__) . '/log.txt';
@@ -170,13 +130,18 @@ class paymill_abstract implements Services_Paymill_LoggingInterface
         }
     }
 
-    protected function getDifferentAmount()
-    {
-        $differenceAmount = $this->differentAmount;
-        if(empty($differenceAmount) || !is_numeric($differenceAmount)) {
-            $differenceAmount = 0;
-        }
-        
-        return $differenceAmount;
+    function format_raw($number, $currency_code = '', $currency_value = '') {
+      global $currencies, $currency;
+
+      if (empty($currency_code) || !$currencies->is_set($currency_code)) {
+        $currency_code = $currency;
+      }
+
+      if (empty($currency_value) || !is_numeric($currency_value)) {
+        $currency_value = $currencies->currencies[$currency_code]['value'];
+      }
+
+      return number_format(tep_round($number * $currency_value, $currencies->currencies[$currency_code]['decimal_places']), $currencies->currencies[$currency_code]['decimal_places'], '', '');
     }
 }
+?>

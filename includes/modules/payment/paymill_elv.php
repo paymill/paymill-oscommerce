@@ -1,5 +1,4 @@
 <?php
-
 require_once('paymill/paymill_abstract.php');
 
 class paymill_elv extends paymill_abstract
@@ -7,8 +6,6 @@ class paymill_elv extends paymill_abstract
 
     function paymill_elv()
     {
-        global $oscTemplate;
-
         $this->code = 'paymill_elv';
         $this->version = '1.0.8';
         $this->api_version = '2';
@@ -27,74 +24,43 @@ class paymill_elv extends paymill_abstract
             }
         }
 
-        if (isset($oscTemplate)) {
-            $oscTemplate->addBlock('<link rel="stylesheet" type="text/css" href="ext/modules/payment/paymill/public/css/paymill.css" />', 'header_tags');
-            $oscTemplate->addBlock('<script type="text/javascript">var PAYMILL_PUBLIC_KEY = "' . $this->publicKey . '";</script>', 'header_tags');
-            $oscTemplate->addBlock('<script type="text/javascript" src="' . $this->bridgeUrl . '"></script>', 'header_tags');
-        }
-    }
-
-    function selection()
-    {
-        $formArray = array();
-
-        $formArray[] = array(
-            'title' => '',
-            'field' => tep_image('ext/modules/payment/paymill/public/images/icon_elv.png')
-        );
-
-        $formArray[] = array(
-            'title' => MODULE_PAYMENT_PAYMILL_ELV_TEXT_ACCOUNT_HOLDER,
-            'field' => '<input type="text" id="bank-owner" class="form-row-paymill" />'
-        );
-
-        $formArray[] = array(
-            'title' => MODULE_PAYMENT_PAYMILL_ELV_TEXT_ACCOUNT,
-            'field' => '<input type="text" id="account-number" class="form-row-paymill" />'
-        );
-
-        $formArray[] = array(
-            'title' => MODULE_PAYMENT_PAYMILL_ELV_TEXT_BANKCODE,
-            'field' => '<input type="text" id="bank-code" class="form-row-paymill" />'
-        );
-
-        $script = '<script type="text/javascript">'
-                . 'var elvlogging = "' . MODULE_PAYMENT_PAYMILL_ELV_LOGGING . '";'
-                . 'var elv_account_number_invalid = "' . utf8_decode(MODULE_PAYMENT_PAYMILL_ELV_TEXT_ACCOUNT_INVALID) . '";'
-                . 'var elv_bank_code_invalid = "' . utf8_decode(MODULE_PAYMENT_PAYMILL_ELV_TEXT_BANKCODE_INVALID) . '";'
-                . 'var elv_bank_owner_invalid = "' . utf8_decode(MODULE_PAYMENT_PAYMILL_ELV_TEXT_ACCOUNT_HOLDER_INVALID) . '";'
-                . file_get_contents(DIR_FS_CATALOG . 'ext/modules/payment/paymill/public/javascript/elv.js')
-                . '</script>';
-
-        $formArray[] = array(
-            'title' => null,
-            'field' => '<div class="form-row">'
-            . '  <div class="paymill_powered">'
-            . '    <div class="paymill_credits">'
-            . MODULE_PAYMENT_PAYMILL_ELV_TEXT_SAVED
-            . '      <a href="http://www.paymill.de" target="_blank">PAYMILL</a>'
-            . '    </div>'
-            . '  </div>'
-            . '</div>'
-            . '<input type="hidden" value="' . $_SESSION['paymill_authorized_amount'] . '" id="amount" name="amount" />'
-            . '<input type="hidden" value="' . strtoupper($order->info['currency']) . '" id="currency" name="currency" />'
-            . $script
-        );
-
-        $selection = array(
-            'id' => $this->code,
-            'module' => $this->public_title,
-            'fields' => $formArray
-        );
-
-        return $selection;
+        $this->form_action_url = '#';
     }
 
     function pre_confirmation_check()
     {
+        global $oscTemplate;
+
         parent::pre_confirmation_check();
 
-        unset($_SESSION['paymill_authorized_amount']);
+        $oscTemplate->addBlock('<script type="text/javascript" src="ext/modules/payment/paymill/public/javascript/elv.js"></script>', 'header_tags');
+
+        $script = '<script type="text/javascript">'
+                . '$(function() { $(\'form[name="checkout_confirmation"]\').attr(\'action\', \'\'); });'
+                . 'var elvlogging = "' . MODULE_PAYMENT_PAYMILL_ELV_LOGGING . '";'
+                . 'var elv_account_number_invalid = "' . utf8_decode(MODULE_PAYMENT_PAYMILL_ELV_TEXT_ACCOUNT_INVALID) . '";'
+                . 'var elv_bank_code_invalid = "' . utf8_decode(MODULE_PAYMENT_PAYMILL_ELV_TEXT_BANKCODE_INVALID) . '";'
+                . 'var elv_bank_owner_invalid = "' . utf8_decode(MODULE_PAYMENT_PAYMILL_ELV_TEXT_ACCOUNT_HOLDER_INVALID) . '";'
+                . 'var form_post_to = ' . json_encode(tep_href_link(FILENAME_CHECKOUT_PROCESS, '', 'SSL')) . ';'
+                . '</script>';
+
+        $oscTemplate->addBlock($script, 'header_tags');
+    }
+
+    function confirmation()
+    {
+        global $order;
+
+        $confirmation = array('fields' => array(array('title' => '',
+                                                      'field' => tep_image('ext/modules/payment/paymill/public/images/icon_elv.png')),
+                                                array('title' => MODULE_PAYMENT_PAYMILL_ELV_TEXT_ACCOUNT_HOLDER,
+                                                      'field' => '<input type="text" value="' . tep_output_string($order->billing['firstname'] . ' ' . $order->billing['lastname']) . '" id="bank-owner" class="form-row-paymill" />'),
+                                                array('title' => MODULE_PAYMENT_PAYMILL_ELV_TEXT_ACCOUNT,
+                                                      'field' => '<input type="text" id="account-number" class="form-row-paymill" />'),
+                                                array('title' => MODULE_PAYMENT_PAYMILL_ELV_TEXT_BANKCODE,
+                                                      'field' => '<input type="text" id="bank-code" class="form-row-paymill" />')));
+
+        return $confirmation;
     }
 
     function check()
@@ -121,11 +87,6 @@ class paymill_elv extends paymill_abstract
         tep_db_query("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_description, configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) VALUES ('" . MODULE_PAYMENT_PAYMILL_ELV_LOGGING_TITLE . "', '" . MODULE_PAYMENT_PAYMILL_ELV_LOGGING_DESC . "', 'MODULE_PAYMENT_PAYMILL_ELV_LOGGING', 'False', '6', '0', 'tep_cfg_select_option(array(\'True\', \'False\'), ', now())");
     }
 
-    function remove()
-    {
-        tep_db_query("DELETE FROM " . TABLE_CONFIGURATION . " WHERE configuration_key IN ('" . implode("', '", $this->keys()) . "')");
-    }
-
     function keys()
     {
         return array(
@@ -138,5 +99,5 @@ class paymill_elv extends paymill_abstract
             'MODULE_PAYMENT_PAYMILL_ELV_ALLOWED'
         );
     }
-
 }
+?>
