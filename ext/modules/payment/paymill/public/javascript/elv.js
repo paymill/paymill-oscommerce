@@ -1,5 +1,15 @@
 var isElvSubmitted = false;
 $(document).ready(function () {
+    if (typeof $.fn.prop !== 'function') {
+        $.fn.prop = function(name, value) {
+            if (typeof value === 'undefined') {
+                return this.attr(name);
+            } else {
+                return this.attr(name, value);
+            }
+        };
+    }
+
     $('form[name="checkout_payment"]').submit(function () {
         if (!isElvSubmitted) {
             if ($("input[name=\'payment\'][value=\'paymill_elv\']").prop("checked")) {
