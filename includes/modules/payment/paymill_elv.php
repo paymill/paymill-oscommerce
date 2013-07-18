@@ -4,32 +4,33 @@ require_once('paymill/paymill_abstract.php');
 
 class paymill_elv extends paymill_abstract
 {
+
     function paymill_elv()
     {
-    	global $oscTemplate;
+        global $oscTemplate;
 
         $this->code = 'paymill_elv';
-        $this->version = '1.0.7';
+        $this->version = '1.0.8';
         $this->api_version = '2';
         $this->title = MODULE_PAYMENT_PAYMILL_ELV_TEXT_TITLE;
         $this->public_title = MODULE_PAYMENT_PAYMILL_ELV_TEXT_PUBLIC_TITLE;
 
-        if ( defined('MODULE_PAYMENT_PAYMILL_CC_STATUS') ) {
-    	    $this->enabled = ((MODULE_PAYMENT_PAYMILL_ELV_STATUS == 'True') ? true : false);
-	        $this->sort_order = MODULE_PAYMENT_PAYMILL_ELV_SORT_ORDER;
-        	$this->privateKey = trim(MODULE_PAYMENT_PAYMILL_ELV_PRIVATEKEY);
-        	$this->logging = ((MODULE_PAYMENT_PAYMILL_ELV_LOGGING == 'True') ? true : false);
-        	$this->publicKey = MODULE_PAYMENT_PAYMILL_ELV_PUBLICKEY;
+        if (defined('MODULE_PAYMENT_PAYMILL_CC_STATUS')) {
+            $this->enabled = ((MODULE_PAYMENT_PAYMILL_ELV_STATUS == 'True') ? true : false);
+            $this->sort_order = MODULE_PAYMENT_PAYMILL_ELV_SORT_ORDER;
+            $this->privateKey = trim(MODULE_PAYMENT_PAYMILL_ELV_PRIVATEKEY);
+            $this->logging = ((MODULE_PAYMENT_PAYMILL_ELV_LOGGING == 'True') ? true : false);
+            $this->publicKey = MODULE_PAYMENT_PAYMILL_ELV_PUBLICKEY;
 
-        	if ((int)MODULE_PAYMENT_PAYMILL_ELV_ORDER_STATUS_ID > 0) {
-        		$this->order_status = MODULE_PAYMENT_PAYMILL_ELV_ORDER_STATUS_ID;
-        	}
+            if ((int) MODULE_PAYMENT_PAYMILL_ELV_ORDER_STATUS_ID > 0) {
+                $this->order_status = MODULE_PAYMENT_PAYMILL_ELV_ORDER_STATUS_ID;
+            }
         }
 
-        if ( isset($oscTemplate) ) {
-        	$oscTemplate->addBlock('<link rel="stylesheet" type="text/css" href="ext/modules/payment/paymill/public/css/paymill.css" />', 'header_tags');
-        	$oscTemplate->addBlock('<script type="text/javascript">var PAYMILL_PUBLIC_KEY = "' . $this->publicKey . '";</script>', 'header_tags');
-        	$oscTemplate->addBlock('<script type="text/javascript" src="' . $this->bridgeUrl . '"></script>', 'header_tags');
+        if (isset($oscTemplate)) {
+            $oscTemplate->addBlock('<link rel="stylesheet" type="text/css" href="ext/modules/payment/paymill/public/css/paymill.css" />', 'header_tags');
+            $oscTemplate->addBlock('<script type="text/javascript">var PAYMILL_PUBLIC_KEY = "' . $this->publicKey . '";</script>', 'header_tags');
+            $oscTemplate->addBlock('<script type="text/javascript" src="' . $this->bridgeUrl . '"></script>', 'header_tags');
         }
     }
 
@@ -62,22 +63,22 @@ class paymill_elv extends paymill_abstract
                 . 'var elv_account_number_invalid = "' . utf8_decode(MODULE_PAYMENT_PAYMILL_ELV_TEXT_ACCOUNT_INVALID) . '";'
                 . 'var elv_bank_code_invalid = "' . utf8_decode(MODULE_PAYMENT_PAYMILL_ELV_TEXT_BANKCODE_INVALID) . '";'
                 . 'var elv_bank_owner_invalid = "' . utf8_decode(MODULE_PAYMENT_PAYMILL_ELV_TEXT_ACCOUNT_HOLDER_INVALID) . '";'
-        		. file_get_contents(DIR_FS_CATALOG . 'ext/modules/payment/paymill/public/javascript/elv.js')
-        		. '</script>';
+                . file_get_contents(DIR_FS_CATALOG . 'ext/modules/payment/paymill/public/javascript/elv.js')
+                . '</script>';
 
         $formArray[] = array(
-        	'title' => null,
-        	'field' => '<div class="form-row">'
-        			 . '  <div class="paymill_powered">'
-        			 . '    <div class="paymill_credits">'
-        			 . MODULE_PAYMENT_PAYMILL_ELV_TEXT_SAVED
-        			 . '      <a href="http://www.paymill.de" target="_blank">PAYMILL</a>'
-        			 . '    </div>'
-        			 . '  </div>'
-        			 . '</div>'
-        			 . '<input type="hidden" value="' . $_SESSION['paymill_authorized_amount'] . '" id="amount" name="amount" />'
-        			 . '<input type="hidden" value="' . strtoupper($order->info['currency']) . '" id="currency" name="currency" />'
-        			 . $script
+            'title' => null,
+            'field' => '<div class="form-row">'
+            . '  <div class="paymill_powered">'
+            . '    <div class="paymill_credits">'
+            . MODULE_PAYMENT_PAYMILL_ELV_TEXT_SAVED
+            . '      <a href="http://www.paymill.de" target="_blank">PAYMILL</a>'
+            . '    </div>'
+            . '  </div>'
+            . '</div>'
+            . '<input type="hidden" value="' . $_SESSION['paymill_authorized_amount'] . '" id="amount" name="amount" />'
+            . '<input type="hidden" value="' . strtoupper($order->info['currency']) . '" id="currency" name="currency" />'
+            . $script
         );
 
         $selection = array(
@@ -88,14 +89,14 @@ class paymill_elv extends paymill_abstract
 
         return $selection;
     }
-    
+
     function pre_confirmation_check()
     {
         parent::pre_confirmation_check();
-        
+
         unset($_SESSION['paymill_authorized_amount']);
     }
-    
+
     function check()
     {
         if (!isset($this->_check)) {
