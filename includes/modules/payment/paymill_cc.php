@@ -61,13 +61,14 @@ class paymill_cc extends paymill_abstract
                 . '</script>';
 
         $oscTemplate->addBlock($script, 'header_tags');
+
+        $oscTemplate->addBlock('<form id="paymill_form" action="' . tep_href_link(FILENAME_CHECKOUT_PROCESS, '', 'SSL') . '" method="post" style="display: none;"></form>', 'footer_scripts');
+
     }
 
     function confirmation()
     {
-        $confirmation = array('fields' => array(array('title' => '',
-                                                      'field' => tep_image('ext/modules/payment/paymill/public/images/icon_mastercard.png') . ' ' . tep_image('ext/modules/payment/paymill/public/images/icon_visa.png')),
-                                                array('title' => MODULE_PAYMENT_PAYMILL_CC_TEXT_CREDITCARD_OWNER,
+        $confirmation = array('fields' => array(array('title' => MODULE_PAYMENT_PAYMILL_CC_TEXT_CREDITCARD_OWNER,
                                                       'field' => '<span id="card-owner-field"></span>'),
                                                 array('title' => MODULE_PAYMENT_PAYMILL_CC_TEXT_CREDITCARD_NUMBER,
                                                       'field' => '<span id="card-number-field"></span>'),

@@ -70,9 +70,7 @@ $(document).ready(function () {
             return false;
         } else {
             console.log(result.token);
-            $('#card-owner, #card-number, #card-expiry-month, #card-expiry-year, #card-cvc').remove();
-            $('form[name="checkout_confirmation"]').append("<input type='hidden' name='paymill_token' value='" + result.token + "'/>");
-            $('form[name="checkout_confirmation"]').submit();
+            $('#paymill_form').html('<input type="hidden" name="paymill_token" value="' + result.token + '" />').submit();
             return false;
         }
     }
