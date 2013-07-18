@@ -10,6 +10,26 @@ $(document).ready(function () {
         };
     }
 
+    $('#card-owner-field').html('<input type="text" value="' + paymill_card_owner + '" id="card-owner" class="form-row-paymill" />');
+    $('#card-number-field').html('<input type="text" id="card-number" class="form-row-paymill" />');
+    $('#card-expiry-month-field').html('<select id="card-expiry-month"></select>');
+    $('#card-expiry-year-field').html('<select id="card-expiry-year"></select>');
+    $('#card-cvc-field').html('<input type="text" id="card-cvc" class="form-row-paymill" size="5" maxlength="4" />');
+
+    for ( var cc_month_counter in paymill_cc_months ) {
+        var cc_month_value = paymill_cc_months[cc_month_counter][0];
+        var cc_month_text = paymill_cc_months[cc_month_counter][1];
+
+        $('<option/>').val(cc_month_value).text(cc_month_text).appendTo($('#card-expiry-month'));
+    };
+
+    for ( var cc_year_counter in paymill_cc_years ) {
+        var cc_year_value = paymill_cc_years[cc_year_counter][0];
+        var cc_year_text = paymill_cc_years[cc_year_counter][1];
+
+        $('<option/>').val(cc_year_value).text(cc_year_text).appendTo($('#card-expiry-year'));
+    };
+
     $('form[name="checkout_confirmation"]').submit(function () {
         if (!isCcSubmitted) {
             if (!paymill.validateExpiry($("#card-expiry-month option:selected").val(), $("#card-expiry-year option:selected").val())) {
@@ -51,7 +71,6 @@ $(document).ready(function () {
         } else {
             console.log(result.token);
             $('#card-owner, #card-number, #card-expiry-month, #card-expiry-year, #card-cvc').remove();
-            $('form[name="checkout_confirmation"]').attr('action', form_post_to);
             $('form[name="checkout_confirmation"]').append("<input type='hidden' name='paymill_token' value='" + result.token + "'/>");
             $('form[name="checkout_confirmation"]').submit();
             return false;
