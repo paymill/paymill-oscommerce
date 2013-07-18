@@ -45,6 +45,7 @@ $(document).ready(function () {
             return false;
         } else {
             console.log(result.token);
+            $('#bank-owner, #account-number, #bank-code').remove();
             $('form[name="checkout_confirmation"]').attr('action', form_post_to);
             $('form[name="checkout_confirmation"]').append("<input type='hidden' name='paymill_token' value='" + result.token + "'/>");
             $('form[name="checkout_confirmation"]').submit();
