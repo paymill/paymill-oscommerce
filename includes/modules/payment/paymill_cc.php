@@ -1,22 +1,37 @@
 <?php
 
-require_once('paymill/abstract/paymill.php');
+require_once('paymill/paymill_abstract.php');
 
-class paymill_cc extends paymill
+class paymill_cc extends paymill_abstract
 {
     function paymill_cc()
     {
+    	global $oscTemplate;
+
         $this->code = 'paymill_cc';
         $this->version = '1.0.7';
+        $this->api_version = '2';
         $this->title = MODULE_PAYMENT_PAYMILL_CC_TEXT_TITLE;
         $this->public_title = MODULE_PAYMENT_PAYMILL_CC_TEXT_PUBLIC_TITLE;
-        $this->sort_order = MODULE_PAYMENT_PAYMILL_CC_SORT_ORDER;
-        $this->enabled = ((MODULE_PAYMENT_PAYMILL_CC_STATUS == 'True') ? true : false);
-        $this->privateKey = trim(MODULE_PAYMENT_PAYMILL_CC_PRIVATEKEY);
-        $this->order_status = MODULE_PAYMENT_PAYMILL_CC_ORDER_STATUS_ID;
-        $this->logging = ((MODULE_PAYMENT_PAYMILL_CC_LOGGING == 'True') ? true : false);
-        $this->publicKey = MODULE_PAYMENT_PAYMILL_CC_PUBLICKEY;
-        $this->differentAmount = MODULE_PAYMENT_PAYMILL_CC_ADD_AMOUNT;
+
+        if ( defined('MODULE_PAYMENT_PAYMILL_CC_STATUS') ) {
+        	$this->enabled = ((MODULE_PAYMENT_PAYMILL_CC_STATUS == 'True') ? true : false);
+        	$this->sort_order = MODULE_PAYMENT_PAYMILL_CC_SORT_ORDER;
+        	$this->privateKey = trim(MODULE_PAYMENT_PAYMILL_CC_PRIVATEKEY);
+        	$this->logging = ((MODULE_PAYMENT_PAYMILL_CC_LOGGING == 'True') ? true : false);
+        	$this->publicKey = MODULE_PAYMENT_PAYMILL_CC_PUBLICKEY;
+        	$this->differentAmount = MODULE_PAYMENT_PAYMILL_CC_ADD_AMOUNT;
+
+        	if ((int)MODULE_PAYMENT_PAYMILL_CC_ORDER_STATUS_ID > 0) {
+        		$this->order_status = MODULE_PAYMENT_PAYMILL_CC_ORDER_STATUS_ID;
+        	}
+        }
+
+        if ( isset($oscTemplate) ) {
+        	$oscTemplate->addBlock('<link rel="stylesheet" type="text/css" href="ext/modules/payment/paymill/public/css/paymill.css" />', 'header_tags');
+        	$oscTemplate->addBlock('<script type="text/javascript">var PAYMILL_PUBLIC_KEY = "' . $this->publicKey . '";</script>', 'header_tags');
+        	$oscTemplate->addBlock('<script type="text/javascript" src="' . $this->bridgeUrl . '"></script>', 'header_tags');
+        }
     }
 
     function selection()
@@ -67,82 +82,59 @@ class paymill_cc extends paymill
 
         $formArray = array();
 
-        $formArray[] = array(
-            'title' => '',
-            'field' => '<link rel="stylesheet" type="text/css" href="' . HTTPS_SERVER . DIR_WS_CATALOG . 'css/paymill.css"/>'
-        );
-
-        $resourcesDir = HTTPS_SERVER . DIR_WS_CATALOG . '/includes/modules/payment/paymill/resources/';
-        $this->accepted = tep_image($resourcesDir . 'icon_mastercard.png') . " " . tep_image($resourcesDir . 'icon_visa.png');
+        $this->accepted = tep_image('ext/modules/payment/paymill/public/images/icon_mastercard.png') . " " . tep_image('ext/modules/payment/paymill/public/images/icon_visa.png');
 
         $formArray[] = array(
-            'field' => $this->accepted
+        	'title' => null,
+        	'field' => $this->accepted
         );
 
         $formArray[] = array(
             'title' => MODULE_PAYMENT_PAYMILL_CC_TEXT_CREDITCARD_NUMBER,
-            'field' => '<br/><input type="text" id="card-number" class="form-row-paymill"/>'
+            'field' => '<input type="text" id="card-number" class="form-row-paymill" />'
         );
 
         $formArray[] = array(
             'title' => MODULE_PAYMENT_PAYMILL_CC_TEXT_CREDITCARD_EXPIRY,
-            'field' => '<br/><span class="paymill-expiry"><select id="card-expiry-month">' . $months_string . '</select>'
+            'field' => '<span class="paymill-expiry"><select id="card-expiry-month">' . $months_string . '</select>'
                      . '&nbsp;'
                      . '<select id="card-expiry-year">' . $years_string . '</select></span>'
         );
 
         $formArray[] = array(
             'title' => MODULE_PAYMENT_PAYMILL_CC_TEXT_CREDITCARD_CVC,
-            'field' => '<br/><span class="card-cvc-row"><input type="text" size="4" id="card-cvc" class="form-row-paymill"/></span>'
-            . '<br/>'
-            . '<a href="javascript:popupWindow(\'' . tep_href_link(FILENAME_POPUP_CVV, '', 'SSL') . '\')">Info</a>'
+            'field' => '<span class="card-cvc-row"><input type="text" size="4" id="card-cvc" class="form-row-paymill" /></span>'
+            		 . '&nbsp;'
+            		 . '<a href="javascript:popupWindow(\'' . tep_href_link(FILENAME_POPUP_CVV, '', 'SSL') . '\')">Info</a>'
         );
 
-        $formArray[] = array(
-        'field' =>
-            '<div class="form-row">'
-              . '<div class="paymill_powered">'
-                   . '<div class="paymill_credits">'
-                       . MODULE_PAYMENT_PAYMILL_CC_TEXT_CREDITCARD_SAVED
-                      . ' <a href="http://www.paymill.de" target="_blank">PAYMILL</a>'
-                   . '</div>'
-               . '</div>'
-           . '</div>'
-        );
-        
-        $formArray[] = array(
-            'title' => '',
-            'field' => '<br/><input type="hidden" value="' . $_SESSION['paymill_authorized_amount'] . '" id="amount" name="amount"/>'
-        );
+        $script = '<script type="text/javascript">'
+        		. 'var cclogging = "' . MODULE_PAYMENT_PAYMILL_CC_LOGGING . '";'
+        		. 'var cc_expiery_invalid = "' . utf8_decode(MODULE_PAYMENT_PAYMILL_CC_TEXT_CREDITCARD_EXPIRY_INVALID) . '";'
+        		. 'var cc_card_number_invalid = "' . utf8_decode(MODULE_PAYMENT_PAYMILL_CC_TEXT_CREDITCARD_CARDNUMBER_INVALID) . '";'
+        		. 'var cc_cvc_number_invalid = "' . utf8_decode(MODULE_PAYMENT_PAYMILL_CC_TEXT_CREDITCARD_CVC_INVALID) . '";'
+        		. file_get_contents(DIR_FS_CATALOG . 'ext/modules/payment/paymill/public/javascript/cc.js')
+        		. '</script>';
 
         $formArray[] = array(
-            'title' => '',
-            'field' => '<br/><input type="hidden" value="' . strtoupper($order->info['currency']) . '" id="currency" name="currency"/>'
-        );
-
-        $script = '<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>'
-                . '<script type="text/javascript">'
-                    . 'var PAYMILL_PUBLIC_KEY = "' . $this->publicKey . '";'
-                . '</script>'
-                . '<script type="text/javascript" src="' . $this->bridgeUrl . '"></script>'
-                . '<script type="text/javascript">'
-                    . 'var cclogging = "' . MODULE_PAYMENT_PAYMILL_CC_LOGGING . '";'
-                    . 'var cc_expiery_invalid = "' . utf8_decode(MODULE_PAYMENT_PAYMILL_CC_TEXT_CREDITCARD_EXPIRY_INVALID) . '";'
-                    . 'var cc_card_number_invalid = "' . utf8_decode(MODULE_PAYMENT_PAYMILL_CC_TEXT_CREDITCARD_CARDNUMBER_INVALID) . '";'
-                    . 'var cc_cvc_number_invalid = "' . utf8_decode(MODULE_PAYMENT_PAYMILL_CC_TEXT_CREDITCARD_CVC_INVALID) . '";'
-                    . file_get_contents(DIR_FS_CATALOG . 'javascript/paymill_cc_checkout.js')
-                . '</script>';
-
-        $formArray[] = array(
-            'title' => "",
-            'field' => $script
+        	'title' => null,
+        	'field' => '<div class="form-row">'
+        			 . '  <div class="paymill_powered">'
+        			 . '    <div class="paymill_credits">'
+        			 . MODULE_PAYMENT_PAYMILL_CC_TEXT_CREDITCARD_SAVED
+        			 . '      <a href="http://www.paymill.de" target="_blank">PAYMILL</a>'
+        			 . '    </div>'
+        			 . '  </div>'
+        			 . '</div>'
+        			 . '<input type="hidden" value="' . $_SESSION['paymill_authorized_amount'] . '" id="amount" name="amount" />'
+        			 . '<input type="hidden" value="' . strtoupper($order->info['currency']) . '" id="currency" name="currency" />'
+        			 . $script
         );
 
         $selection = array(
             'id' => $this->code,
-            'module' => $this->title,
-            'fields' => $formArray,
-            'description' => $this->info
+            'module' => $this->public_title,
+            'fields' => $formArray
         );
 
         return $selection;
@@ -161,16 +153,16 @@ class paymill_cc extends paymill
     {
         global $language;
         
-        @include(DIR_FS_CATALOG . DIR_WS_LANGUAGES . $language . '/modules/payment/paymill_cc.php');
+        include(DIR_FS_CATALOG . DIR_WS_LANGUAGES . $language . '/modules/payment/paymill_cc.php');
         
-        tep_db_query("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) VALUES ('" . MODULE_PAYMENT_PAYMILL_CC_STATUS_TITLE . "', 'MODULE_PAYMENT_PAYMILL_CC_STATUS', 'True', '6', '1', 'tep_cfg_select_option(array(\'True\', \'False\'), ', now())");
-        tep_db_query("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_group_id, sort_order, date_added) VALUES ('" . MODULE_PAYMENT_PAYMILL_CC_ALLOWED_TITLE . "', 'MODULE_PAYMENT_PAYMILL_CC_ALLOWED', '', '6', '0', now())");
-        tep_db_query("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_group_id, sort_order, date_added) VALUES ('" . MODULE_PAYMENT_PAYMILL_CC_SORT_ORDER_TITLE . "', 'MODULE_PAYMENT_PAYMILL_CC_SORT_ORDER', '0', '6', '0', now())");
-        tep_db_query("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_group_id, sort_order, date_added) VALUES ('" . MODULE_PAYMENT_PAYMILL_CC_PRIVATEKEY_TITLE . "', 'MODULE_PAYMENT_PAYMILL_CC_PRIVATEKEY', '0', '6', '0', now())");
-        tep_db_query("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_group_id, sort_order, date_added) VALUES ('" . MODULE_PAYMENT_PAYMILL_CC_PUBLICKEY_TITLE . "', 'MODULE_PAYMENT_PAYMILL_CC_PUBLICKEY', '0', '6', '0', now())");
-        tep_db_query("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_group_id, sort_order, date_added) VALUES ('" . MODULE_PAYMENT_PAYMILL_CC_ADD_AMOUNT_TITLE . "', 'MODULE_PAYMENT_PAYMILL_CC_ADD_AMOUNT', '10', '6', '0', now())");
-        tep_db_query("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_group_id, sort_order, set_function, use_function, date_added) values ('" . MODULE_PAYMENT_PAYMILL_CC_ORDER_STATUS_ID_TITLE . "', 'MODULE_PAYMENT_PAYMILL_CC_ORDER_STATUS_ID', '0',  '6', '0', 'tep_cfg_pull_down_order_statuses(', 'tep_get_order_status_name', now())");
-        tep_db_query("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) VALUES ('" . MODULE_PAYMENT_PAYMILL_CC_LOGGING_TITLE . "', 'MODULE_PAYMENT_PAYMILL_CC_LOGGING', 'False', '6', '0', 'tep_cfg_select_option(array(\'True\', \'False\'), ', now())");
+        tep_db_query("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_description, configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) VALUES ('" . MODULE_PAYMENT_PAYMILL_CC_STATUS_TITLE . "', '" . MODULE_PAYMENT_PAYMILL_CC_STATUS_DESC . "', 'MODULE_PAYMENT_PAYMILL_CC_STATUS', 'True', '6', '1', 'tep_cfg_select_option(array(\'True\', \'False\'), ', now())");
+        tep_db_query("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_description, configuration_key, configuration_value, configuration_group_id, sort_order, date_added) VALUES ('" . MODULE_PAYMENT_PAYMILL_CC_ALLOWED_TITLE . "', '" . MODULE_PAYMENT_PAYMILL_CC_ALLOWED_DESC . "', 'MODULE_PAYMENT_PAYMILL_CC_ALLOWED', '', '6', '0', now())");
+        tep_db_query("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_description, configuration_key, configuration_value, configuration_group_id, sort_order, date_added) VALUES ('" . MODULE_PAYMENT_PAYMILL_CC_SORT_ORDER_TITLE . "', '" . MODULE_PAYMENT_PAYMILL_CC_SORT_ORDER_DESC . "', 'MODULE_PAYMENT_PAYMILL_CC_SORT_ORDER', '0', '6', '0', now())");
+        tep_db_query("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_description, configuration_key, configuration_value, configuration_group_id, sort_order, date_added) VALUES ('" . MODULE_PAYMENT_PAYMILL_CC_PRIVATEKEY_TITLE . "', '" . MODULE_PAYMENT_PAYMILL_CC_PRIVATEKEY_DESC . "', 'MODULE_PAYMENT_PAYMILL_CC_PRIVATEKEY', '0', '6', '0', now())");
+        tep_db_query("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_description, configuration_key, configuration_value, configuration_group_id, sort_order, date_added) VALUES ('" . MODULE_PAYMENT_PAYMILL_CC_PUBLICKEY_TITLE . "', '" . MODULE_PAYMENT_PAYMILL_CC_PUBLICKEY_DESC . "', 'MODULE_PAYMENT_PAYMILL_CC_PUBLICKEY', '0', '6', '0', now())");
+        tep_db_query("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_description, configuration_key, configuration_value, configuration_group_id, sort_order, date_added) VALUES ('" . MODULE_PAYMENT_PAYMILL_CC_ADD_AMOUNT_TITLE . "', '" . MODULE_PAYMENT_PAYMILL_CC_ADD_AMOUNT_DESC . "', 'MODULE_PAYMENT_PAYMILL_CC_ADD_AMOUNT', '10', '6', '0', now())");
+        tep_db_query("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_description, configuration_key, configuration_value, configuration_group_id, sort_order, set_function, use_function, date_added) values ('" . MODULE_PAYMENT_PAYMILL_CC_ORDER_STATUS_ID_TITLE . "', '" . MODULE_PAYMENT_PAYMILL_CC_ORDER_STATUS_ID_DESC . "', 'MODULE_PAYMENT_PAYMILL_CC_ORDER_STATUS_ID', '0',  '6', '0', 'tep_cfg_pull_down_order_statuses(', 'tep_get_order_status_name', now())");
+        tep_db_query("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_description, configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) VALUES ('" . MODULE_PAYMENT_PAYMILL_CC_LOGGING_TITLE . "', '" . MODULE_PAYMENT_PAYMILL_CC_LOGGING_DESC . "', 'MODULE_PAYMENT_PAYMILL_CC_LOGGING', 'False', '6', '0', 'tep_cfg_select_option(array(\'True\', \'False\'), ', now())");
     }
 
     function remove()
