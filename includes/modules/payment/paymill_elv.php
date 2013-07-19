@@ -23,42 +23,39 @@ class paymill_elv extends paymill_abstract
                 $this->order_status = MODULE_PAYMENT_PAYMILL_ELV_ORDER_STATUS_ID;
             }
         }
-
-        $this->form_action_url = '#';
     }
 
     function pre_confirmation_check()
     {
-        global $oscTemplate;
+        global $oscTemplate, $order;
 
         parent::pre_confirmation_check();
 
         $oscTemplate->addBlock('<script type="text/javascript" src="ext/modules/payment/paymill/public/javascript/elv.js"></script>', 'header_tags');
 
         $script = '<script type="text/javascript">'
-                . '$(function() { $(\'form[name="checkout_confirmation"]\').attr(\'action\', \'\'); });'
                 . 'var elvlogging = "' . MODULE_PAYMENT_PAYMILL_ELV_LOGGING . '";'
                 . 'var elv_account_number_invalid = "' . utf8_decode(MODULE_PAYMENT_PAYMILL_ELV_TEXT_ACCOUNT_INVALID) . '";'
                 . 'var elv_bank_code_invalid = "' . utf8_decode(MODULE_PAYMENT_PAYMILL_ELV_TEXT_BANKCODE_INVALID) . '";'
                 . 'var elv_bank_owner_invalid = "' . utf8_decode(MODULE_PAYMENT_PAYMILL_ELV_TEXT_ACCOUNT_HOLDER_INVALID) . '";'
-                . 'var form_post_to = ' . json_encode(tep_href_link(FILENAME_CHECKOUT_PROCESS, '', 'SSL')) . ';'
+                . 'var paymill_account_name = ' . json_encode(tep_output_string_protected($order->billing['firstname'] . ' ' . $order->billing['lastname'])) . ';'
                 . '</script>';
 
         $oscTemplate->addBlock($script, 'header_tags');
+
+        $oscTemplate->addBlock('<form id="paymill_form" action="' . tep_href_link(FILENAME_CHECKOUT_PROCESS, '', 'SSL') . '" method="post" style="display: none;"></form>', 'footer_scripts');
     }
 
     function confirmation()
     {
         global $order;
 
-        $confirmation = array('fields' => array(array('title' => '',
-                                                      'field' => tep_image('ext/modules/payment/paymill/public/images/icon_elv.png')),
-                                                array('title' => MODULE_PAYMENT_PAYMILL_ELV_TEXT_ACCOUNT_HOLDER,
-                                                      'field' => '<input type="text" value="' . tep_output_string($order->billing['firstname'] . ' ' . $order->billing['lastname']) . '" id="bank-owner" class="form-row-paymill" />'),
+        $confirmation = array('fields' => array(array('title' => MODULE_PAYMENT_PAYMILL_ELV_TEXT_ACCOUNT_HOLDER,
+                                                      'field' => '<span id="account-name-field"></span>'),
                                                 array('title' => MODULE_PAYMENT_PAYMILL_ELV_TEXT_ACCOUNT,
-                                                      'field' => '<input type="text" id="account-number" class="form-row-paymill" />'),
+                                                      'field' => '<span id="account-number-field"></span>'),
                                                 array('title' => MODULE_PAYMENT_PAYMILL_ELV_TEXT_BANKCODE,
-                                                      'field' => '<input type="text" id="bank-code" class="form-row-paymill" />')));
+                                                      'field' => '<span id="bank-code-field"></span>')));
 
         return $confirmation;
     }

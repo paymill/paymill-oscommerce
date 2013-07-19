@@ -10,6 +10,10 @@ $(document).ready(function () {
         };
     }
 
+    $('#account-name-field').html('<input type="text" value="' + paymill_account_name + '" id="bank-owner" class="form-row-paymill" />');
+    $('#account-number-field').html('<input type="text" id="account-number" class="form-row-paymill" />');
+    $('#bank-code-field').html('<input type="text" id="bank-code" class="form-row-paymill" />');
+
     $('form[name="checkout_confirmation"]').submit(function () {
         if (!isElvSubmitted) {
             if (false === paymill.validateAccountNumber($('#account-number').val())) {
@@ -45,10 +49,7 @@ $(document).ready(function () {
             return false;
         } else {
             console.log(result.token);
-            $('#bank-owner, #account-number, #bank-code').remove();
-            $('form[name="checkout_confirmation"]').attr('action', form_post_to);
-            $('form[name="checkout_confirmation"]').append("<input type='hidden' name='paymill_token' value='" + result.token + "'/>");
-            $('form[name="checkout_confirmation"]').submit();
+            $('#paymill_form').html('<input type="hidden" name="paymill_token" value="' + result.token + '" />').submit();
             return false;
         }
     }
