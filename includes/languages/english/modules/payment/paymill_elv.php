@@ -26,3 +26,4 @@ define('MODULE_PAYMENT_PAYMILL_ELV_TEXT_SAVED', 'Debit Payment powered by');
 define('MODULE_PAYMENT_PAYMILL_ELV_TEXT_ACCOUNT_INVALID', 'The account number is invalid.');
 define('MODULE_PAYMENT_PAYMILL_ELV_TEXT_BANKCODE_INVALID', 'The bank code is invalid.');
 define('MODULE_PAYMENT_PAYMILL_ELV_TEXT_ACCOUNT_HOLDER_INVALID', 'The account holder is invalid.');
+?>

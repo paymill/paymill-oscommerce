@@ -26,3 +26,4 @@ define('MODULE_PAYMENT_PAYMILL_ELV_TEXT_SAVED', 'Lastschriftverfahren powered by
 define('MODULE_PAYMENT_PAYMILL_ELV_TEXT_ACCOUNT_INVALID', 'Die Kontonummer, die Sie angegeben haben, ist ungültig. Bitte korrigieren Sie Ihre Angaben.');
 define('MODULE_PAYMENT_PAYMILL_ELV_TEXT_BANKCODE_INVALID', 'Die Bankleitzahl, die Sie angegeben haben, ist ungültig. Bitte korrigieren Sie Ihre Angaben.');
 define('MODULE_PAYMENT_PAYMILL_ELV_TEXT_ACCOUNT_HOLDER_INVALID', 'Der Kontoinhaber, die Sie angegeben haben, ist ungültig. Bitte korrigieren Sie Ihre Angaben.');
+?>
