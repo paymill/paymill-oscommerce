@@ -90,6 +90,14 @@ class paymill_abstract implements Services_Paymill_LoggingInterface
     {
         global $order, $insert_id;
 
+        if ( get_class($this) == 'paymill_cc' ) {
+            $order_status_id = MODULE_PAYMENT_PAYMILL_CC_TRANSACTION_ORDER_STATUS_ID;
+        } elseif ( get_class($this) == 'paymill_elv' ) {
+            $order_status_id = MODULE_PAYMENT_PAYMILL_ELV_TRANSACTION_ORDER_STATUS_ID;
+        } else {
+            $order_status_id = $order->info['order_status'];
+        }
+
         $sql = "INSERT INTO  `orders_status_history` ("
                 . "`orders_status_history_id` ,"
                 . "`orders_id` ,"
@@ -100,7 +108,7 @@ class paymill_abstract implements Services_Paymill_LoggingInterface
              . ") VALUES("
                 . "NULL, "
                 . "'" . $insert_id . "', "
-                . "'" . $order->info['order_status'] . "', "
+                . "'" . $order_status_id . "', "
                 . "NOW(), "
                 . "'0', "
                 . "'Payment approved, Transaction ID: " . $_SESSION['paymill']['transaction_id'] . "'"
@@ -115,6 +123,34 @@ class paymill_abstract implements Services_Paymill_LoggingInterface
     function remove()
     {
         tep_db_query("DELETE FROM " . TABLE_CONFIGURATION . " WHERE configuration_key IN ('" . implode("', '", $this->keys()) . "')");
+    }
+
+    function getOrderStatusTransactionID() {
+      $check_query = tep_db_query("select orders_status_id from " . TABLE_ORDERS_STATUS . " where orders_status_name = 'Paymill [Transactions]' limit 1");
+
+      if (tep_db_num_rows($check_query) < 1) {
+        $status_query = tep_db_query("select max(orders_status_id) as status_id from " . TABLE_ORDERS_STATUS);
+        $status = tep_db_fetch_array($status_query);
+
+        $status_id = $status['status_id']+1;
+
+        $languages = tep_get_languages();
+
+        foreach ($languages as $lang) {
+          tep_db_query("insert into " . TABLE_ORDERS_STATUS . " (orders_status_id, language_id, orders_status_name) values ('" . $status_id . "', '" . $lang['id'] . "', 'Paymill [Transactions]')");
+        }
+
+        $flags_query = tep_db_query("describe " . TABLE_ORDERS_STATUS . " public_flag");
+        if (tep_db_num_rows($flags_query) == 1) {
+          tep_db_query("update " . TABLE_ORDERS_STATUS . " set public_flag = 0 and downloads_flag = 0 where orders_status_id = '" . $status_id . "'");
+        }
+      } else {
+        $check = tep_db_fetch_array($check_query);
+
+        $status_id = $check['orders_status_id'];
+      }
+
+      return $status_id;
     }
 
     function log($messageInfo, $debugInfo)
