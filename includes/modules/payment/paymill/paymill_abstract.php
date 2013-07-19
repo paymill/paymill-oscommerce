@@ -11,7 +11,38 @@ class paymill_abstract implements Services_Paymill_LoggingInterface
     var $code, $title, $description = '', $enabled, $privateKey, $logging;
     var $bridgeUrl = 'https://bridge.paymill.com/';
     var $apiUrl    = 'https://api.paymill.com/v2/';
-    
+
+    function update_status() {
+        global $order;
+
+        if ( get_class($this) == 'paymill_cc' ) {
+            $zone_id = MODULE_PAYMENT_PAYMILL_CC_ZONE;
+        } elseif ( get_class($this) == 'paymill_elv' ) {
+            $zone_id = MODULE_PAYMENT_PAYMILL_ELV_ZONE;
+        } else {
+            $zone_id = 0;
+        }
+
+        if ( ($this->enabled == true) && ((int)$zone_id > 0) ) {
+            $check_flag = false;
+
+            $check_query = tep_db_query("select zone_id from " . TABLE_ZONES_TO_GEO_ZONES . " where geo_zone_id = '" . (int)$zone_id . "' and zone_country_id = '" . $order->billing['country']['id'] . "' order by zone_id");
+            while ($check = tep_db_fetch_array($check_query)) {
+                if ($check['zone_id'] < 1) {
+                    $check_flag = true;
+                    break;
+                } elseif ($check['zone_id'] == $order->billing['zone_id']) {
+                    $check_flag = true;
+                    break;
+                }
+            }
+
+            if ($check_flag == false) {
+                $this->enabled = false;
+            }
+        }
+    }
+
     function pre_confirmation_check()
     {
         global $oscTemplate;
