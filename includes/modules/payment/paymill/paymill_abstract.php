@@ -1,4 +1,5 @@
 <?php
+
 require_once(DIR_FS_CATALOG . 'ext/modules/payment/paymill/lib/Services/Paymill/PaymentProcessor.php');
 require_once(DIR_FS_CATALOG . 'ext/modules/payment/paymill/lib/Services/Paymill/LoggingInterface.php');
 
@@ -10,23 +11,24 @@ class paymill_abstract implements Services_Paymill_LoggingInterface
 
     var $code, $title, $description = '', $enabled, $privateKey, $logging;
     var $bridgeUrl = 'https://bridge.paymill.com/';
-    var $apiUrl    = 'https://api.paymill.com/v2/';
+    var $apiUrl = 'https://api.paymill.com/v2/';
 
-    function update_status() {
+    function update_status()
+    {
         global $order;
 
-        if ( get_class($this) == 'paymill_cc' ) {
+        if (get_class($this) == 'paymill_cc') {
             $zone_id = MODULE_PAYMENT_PAYMILL_CC_ZONE;
-        } elseif ( get_class($this) == 'paymill_elv' ) {
+        } elseif (get_class($this) == 'paymill_elv') {
             $zone_id = MODULE_PAYMENT_PAYMILL_ELV_ZONE;
         } else {
             $zone_id = 0;
         }
 
-        if ( ($this->enabled == true) && ((int)$zone_id > 0) ) {
+        if (($this->enabled == true) && ((int) $zone_id > 0)) {
             $check_flag = false;
 
-            $check_query = tep_db_query("select zone_id from " . TABLE_ZONES_TO_GEO_ZONES . " where geo_zone_id = '" . (int)$zone_id . "' and zone_country_id = '" . $order->billing['country']['id'] . "' order by zone_id");
+            $check_query = tep_db_query("select zone_id from " . TABLE_ZONES_TO_GEO_ZONES . " where geo_zone_id = '" . (int) $zone_id . "' and zone_country_id = '" . $order->billing['country']['id'] . "' order by zone_id");
             while ($check = tep_db_fetch_array($check_query)) {
                 if ($check['zone_id'] < 1) {
                     $check_flag = true;
@@ -51,7 +53,7 @@ class paymill_abstract implements Services_Paymill_LoggingInterface
         $oscTemplate->addBlock('<script type="text/javascript">var PAYMILL_PUBLIC_KEY = "' . $this->publicKey . '";</script>', 'header_tags');
         $oscTemplate->addBlock('<script type="text/javascript" src="' . $this->bridgeUrl . '"></script>', 'header_tags');
     }
-    
+
     function get_error()
     {
         global $_GET;
@@ -72,27 +74,28 @@ class paymill_abstract implements Services_Paymill_LoggingInterface
 
         return $error_text;
     }
-    
+
     function javascript_validation()
     {
         return false;
     }
 
-    function selection() {
-      return array('id' => $this->code,
-                   'module' => $this->public_title);
+    function selection()
+    {
+        return array('id' => $this->code,
+            'module' => $this->public_title);
     }
 
     function confirmation()
     {
         return false;
     }
-    
+
     function process_button()
     {
         return false;
     }
-    
+
     function before_process()
     {
         global $order;
@@ -121,19 +124,19 @@ class paymill_abstract implements Services_Paymill_LoggingInterface
     {
         global $order, $insert_id;
 
-        if ( get_class($this) == 'paymill_cc' ) {
+        if (get_class($this) == 'paymill_cc') {
             $order_status_id = MODULE_PAYMENT_PAYMILL_CC_TRANSACTION_ORDER_STATUS_ID;
-        } elseif ( get_class($this) == 'paymill_elv' ) {
+        } elseif (get_class($this) == 'paymill_elv') {
             $order_status_id = MODULE_PAYMENT_PAYMILL_ELV_TRANSACTION_ORDER_STATUS_ID;
         } else {
             $order_status_id = $order->info['order_status'];
         }
 
         $sql_data_array = array('orders_id' => $insert_id,
-                                'orders_status_id' => $order_status_id,
-                                'date_added' => 'now()',
-                                'customer_notified' => '0',
-                                'comments' => 'Payment approved, Transaction ID: ' . $_SESSION['paymill']['transaction_id']);
+            'orders_status_id' => $order_status_id,
+            'date_added' => 'now()',
+            'customer_notified' => '0',
+            'comments' => 'Payment approved, Transaction ID: ' . $_SESSION['paymill']['transaction_id']);
 
         tep_db_perform(TABLE_ORDERS_STATUS_HISTORY, $sql_data_array);
 
@@ -145,32 +148,33 @@ class paymill_abstract implements Services_Paymill_LoggingInterface
         tep_db_query("DELETE FROM " . TABLE_CONFIGURATION . " WHERE configuration_key IN ('" . implode("', '", $this->keys()) . "')");
     }
 
-    function getOrderStatusTransactionID() {
-      $check_query = tep_db_query("select orders_status_id from " . TABLE_ORDERS_STATUS . " where orders_status_name = 'Paymill [Transactions]' limit 1");
+    function getOrderStatusTransactionID()
+    {
+        $check_query = tep_db_query("select orders_status_id from " . TABLE_ORDERS_STATUS . " where orders_status_name = 'Paymill [Transactions]' limit 1");
 
-      if (tep_db_num_rows($check_query) < 1) {
-        $status_query = tep_db_query("select max(orders_status_id) as status_id from " . TABLE_ORDERS_STATUS);
-        $status = tep_db_fetch_array($status_query);
+        if (tep_db_num_rows($check_query) < 1) {
+            $status_query = tep_db_query("select max(orders_status_id) as status_id from " . TABLE_ORDERS_STATUS);
+            $status = tep_db_fetch_array($status_query);
 
-        $status_id = $status['status_id']+1;
+            $status_id = $status['status_id'] + 1;
 
-        $languages = tep_get_languages();
+            $languages = tep_get_languages();
 
-        foreach ($languages as $lang) {
-          tep_db_query("insert into " . TABLE_ORDERS_STATUS . " (orders_status_id, language_id, orders_status_name) values ('" . $status_id . "', '" . $lang['id'] . "', 'Paymill [Transactions]')");
+            foreach ($languages as $lang) {
+                tep_db_query("insert into " . TABLE_ORDERS_STATUS . " (orders_status_id, language_id, orders_status_name) values ('" . $status_id . "', '" . $lang['id'] . "', 'Paymill [Transactions]')");
+            }
+
+            $flags_query = tep_db_query("describe " . TABLE_ORDERS_STATUS . " public_flag");
+            if (tep_db_num_rows($flags_query) == 1) {
+                tep_db_query("update " . TABLE_ORDERS_STATUS . " set public_flag = 0 and downloads_flag = 0 where orders_status_id = '" . $status_id . "'");
+            }
+        } else {
+            $check = tep_db_fetch_array($check_query);
+
+            $status_id = $check['orders_status_id'];
         }
 
-        $flags_query = tep_db_query("describe " . TABLE_ORDERS_STATUS . " public_flag");
-        if (tep_db_num_rows($flags_query) == 1) {
-          tep_db_query("update " . TABLE_ORDERS_STATUS . " set public_flag = 0 and downloads_flag = 0 where orders_status_id = '" . $status_id . "'");
-        }
-      } else {
-        $check = tep_db_fetch_array($check_query);
-
-        $status_id = $check['orders_status_id'];
-      }
-
-      return $status_id;
+        return $status_id;
     }
 
     function log($messageInfo, $debugInfo)
@@ -186,18 +190,21 @@ class paymill_abstract implements Services_Paymill_LoggingInterface
         }
     }
 
-    function format_raw($number, $currency_code = '', $currency_value = '') {
-      global $currencies, $currency;
+    function format_raw($number, $currency_code = '', $currency_value = '')
+    {
+        global $currencies, $currency;
 
-      if (empty($currency_code) || !$currencies->is_set($currency_code)) {
-        $currency_code = $currency;
-      }
+        if (empty($currency_code) || !$currencies->is_set($currency_code)) {
+            $currency_code = $currency;
+        }
 
-      if (empty($currency_value) || !is_numeric($currency_value)) {
-        $currency_value = $currencies->currencies[$currency_code]['value'];
-      }
+        if (empty($currency_value) || !is_numeric($currency_value)) {
+            $currency_value = $currencies->currencies[$currency_code]['value'];
+        }
 
-      return number_format(tep_round($number * $currency_value, $currencies->currencies[$currency_code]['decimal_places']), $currencies->currencies[$currency_code]['decimal_places'], '', '');
+        return number_format(tep_round($number * $currency_value, $currencies->currencies[$currency_code]['decimal_places']), $currencies->currencies[$currency_code]['decimal_places'], '', '');
     }
+
 }
+
 ?>
