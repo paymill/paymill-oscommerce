@@ -98,25 +98,14 @@ class paymill_abstract implements Services_Paymill_LoggingInterface
             $order_status_id = $order->info['order_status'];
         }
 
-        $sql = "INSERT INTO  `orders_status_history` ("
-                . "`orders_status_history_id` ,"
-                . "`orders_id` ,"
-                . "`orders_status_id` ,"
-                . "`date_added` ,"
-                . "`customer_notified` ,"
-                . "`comments`"
-             . ") VALUES("
-                . "NULL, "
-                . "'" . $insert_id . "', "
-                . "'" . $order_status_id . "', "
-                . "NOW(), "
-                . "'0', "
-                . "'Payment approved, Transaction ID: " . $_SESSION['paymill']['transaction_id'] . "'"
-              . ")";
+        $sql_data_array = array('orders_id' => $insert_id,
+                                'orders_status_id' => $order_status_id,
+                                'date_added' => 'now()',
+                                'customer_notified' => '0',
+                                'comments' => 'Payment approved, Transaction ID: ' . $_SESSION['paymill']['transaction_id']);
 
+        tep_db_perform(TABLE_ORDERS_STATUS_HISTORY, $sql_data_array);
 
-        tep_db_query($sql);
-        
         unset($_SESSION['paymill']);
     }
 
