@@ -1,4 +1,5 @@
 <?php
+define('TEXT_INFO_API_VERSION', 'API Version');
 define('MODULE_PAYMENT_PAYMILL_ELV_TEXT_TITLE', 'Paymill Direct Debit');
 define('MODULE_PAYMENT_PAYMILL_ELV_STATUS_TITLE', 'Activate Direct Debit');
 define('MODULE_PAYMENT_PAYMILL_ELV_STATUS_DESC', '');

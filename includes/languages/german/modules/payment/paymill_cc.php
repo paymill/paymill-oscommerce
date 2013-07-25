@@ -1,4 +1,5 @@
 <?php
+define('TEXT_INFO_API_VERSION', 'API Version');
 define('MODULE_PAYMENT_PAYMILL_CC_ACCEPTED_CARDS', 'Akzeptierte Kreditkarten');
 define('MODULE_PAYMENT_PAYMILL_CC_STATUS_TITLE', 'Kreditkartenmodul aktivieren');
 define('MODULE_PAYMENT_PAYMILL_CC_STATUS_DESC', '');

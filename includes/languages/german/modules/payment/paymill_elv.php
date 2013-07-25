@@ -1,4 +1,5 @@
 <?php
+define('TEXT_INFO_API_VERSION', 'API Version');
 define('MODULE_PAYMENT_PAYMILL_ELV_TEXT_TITLE', ' Paymill Elektronische Lastschriftverfahren');
 define('MODULE_PAYMENT_PAYMILL_ELV_STATUS_TITLE', 'ELV Modul aktivieren');
 define('MODULE_PAYMENT_PAYMILL_ELV_STATUS_DESC', '');
