@@ -52,8 +52,6 @@ class paymill_elv extends paymill_abstract
 
     function confirmation()
     {
-        global $order;
-
         $confirmation = array('fields' => array(array('title' => MODULE_PAYMENT_PAYMILL_ELV_TEXT_ACCOUNT_HOLDER,
                                                       'field' => '<span id="account-name-field"></span>'),
                                                 array('title' => MODULE_PAYMENT_PAYMILL_ELV_TEXT_ACCOUNT,
@@ -77,6 +75,8 @@ class paymill_elv extends paymill_abstract
     {
         global $language;
 
+        parent::install();
+        
         include(DIR_FS_CATALOG . DIR_WS_LANGUAGES . $language . '/modules/payment/paymill_elv.php');
 
         tep_db_query("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_description, configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) VALUES ('" . MODULE_PAYMENT_PAYMILL_ELV_STATUS_TITLE . "', '" . MODULE_PAYMENT_PAYMILL_ELV_STATUS_DESC . "', 'MODULE_PAYMENT_PAYMILL_ELV_STATUS', 'True', '6', '1', 'tep_cfg_select_option(array(\'True\', \'False\'), ', now())");

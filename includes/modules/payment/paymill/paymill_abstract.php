@@ -205,6 +205,19 @@ class paymill_abstract implements Services_Paymill_LoggingInterface
         return number_format(tep_round($number * $currency_value, $currencies->currencies[$currency_code]['decimal_places']), $currencies->currencies[$currency_code]['decimal_places'], '', '');
     }
 
+    function install()
+    {
+        tep_db_query(
+            "CREATE TABLE IF NOT EXISTS `pi_paymill_fastcheckout` ("
+           . "`userID` varchar(100),"
+           . "`clientID` varchar(100),"
+           . "`paymentID_CC` varchar(100),"
+           . "`paymentID_ELV` varchar(100),"
+           . "PRIMARY KEY (`userID`)"
+         . ")"
+        );
+    }
+    
 }
 
 ?>
