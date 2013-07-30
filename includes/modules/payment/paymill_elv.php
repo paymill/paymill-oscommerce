@@ -10,7 +10,7 @@ class paymill_elv extends paymill_abstract
         global $order;
 
         $this->code = 'paymill_elv';
-        $this->version = '1.1.0';
+        $this->version = '1.1.1';
         $this->api_version = '2';
         $this->title = MODULE_PAYMENT_PAYMILL_ELV_TEXT_TITLE;
         $this->public_title = MODULE_PAYMENT_PAYMILL_ELV_TEXT_PUBLIC_TITLE;
@@ -21,7 +21,7 @@ class paymill_elv extends paymill_abstract
             $this->privateKey = trim(MODULE_PAYMENT_PAYMILL_ELV_PRIVATEKEY);
             $this->logging = ((MODULE_PAYMENT_PAYMILL_ELV_LOGGING == 'True') ? true : false);
             $this->publicKey = MODULE_PAYMENT_PAYMILL_ELV_PUBLICKEY;
-
+            $this->payments = new Services_Paymill_Payments($this->privateKey, $this->apiUrl);
             if ((int) MODULE_PAYMENT_PAYMILL_ELV_ORDER_STATUS_ID > 0) {
                 $this->order_status = MODULE_PAYMENT_PAYMILL_ELV_ORDER_STATUS_ID;
             }
@@ -38,19 +38,41 @@ class paymill_elv extends paymill_abstract
 
         $oscTemplate->addBlock('<script type="text/javascript" src="ext/modules/payment/paymill/public/javascript/elv.js"></script>', 'header_tags');
 
+        $payment = $this->getPayment($_SESSION['customer_id']);
+        
         $script = '<script type="text/javascript">'
                 . 'var elvlogging = "' . MODULE_PAYMENT_PAYMILL_ELV_LOGGING . '";'
                 . 'var elv_account_number_invalid = "' . utf8_decode(MODULE_PAYMENT_PAYMILL_ELV_TEXT_ACCOUNT_INVALID) . '";'
                 . 'var elv_bank_code_invalid = "' . utf8_decode(MODULE_PAYMENT_PAYMILL_ELV_TEXT_BANKCODE_INVALID) . '";'
                 . 'var elv_bank_owner_invalid = "' . utf8_decode(MODULE_PAYMENT_PAYMILL_ELV_TEXT_ACCOUNT_HOLDER_INVALID) . '";'
                 . 'var paymill_account_name = ' . json_encode(tep_output_string_protected($order->billing['firstname'] . ' ' . $order->billing['lastname'])) . ';'
+                . 'var paymill_elv_code = "' . $payment['code'] . '";'
+                . 'var paymill_elv_holder = "' . $payment['holder'] . '";'
+                . 'var paymill_elv_account = "' . $payment['account'] . '";'
                 . '</script>';
 
         $oscTemplate->addBlock($script, 'header_tags');
 
         $oscTemplate->addBlock('<form id="paymill_form" action="' . tep_href_link(FILENAME_CHECKOUT_PROCESS, '', 'SSL') . '" method="post" style="display: none;"></form>', 'footer_scripts');
     }
-
+    
+        
+    function getPayment($userId)
+    {
+        $payment = array(
+            'code' => '',
+            'holder' => '',
+            'account' => ''
+        );
+        
+        if ($this->fastCheckout->hasElvPaymentId($userId)) {
+            $data = $this->fastCheckout->loadFastCheckoutData($userId);
+            $payment = $this->payments->getOne($data['paymentID_ELV']);
+        }
+        
+        return $payment;
+    }
+    
     function confirmation()
     {
         $confirmation = array('fields' => array(array('title' => MODULE_PAYMENT_PAYMILL_ELV_TEXT_ACCOUNT_HOLDER,

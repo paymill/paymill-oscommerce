@@ -10,9 +10,9 @@ $(document).ready(function () {
         };
     }
 
-    $('#account-name-field').html('<input type="text" value="' + paymill_account_name + '" id="bank-owner" class="form-row-paymill" />');
-    $('#account-number-field').html('<input type="text" id="account-number" class="form-row-paymill" />');
-    $('#bank-code-field').html('<input type="text" id="bank-code" class="form-row-paymill" />');
+    $('#account-name-field').html('<input type="text" value="' + paymill_elv_holder + '" id="bank-owner" class="form-row-paymill" />');
+    $('#account-number-field').html('<input type="text" value="' + paymill_elv_account + '" id="account-number" class="form-row-paymill" />');
+    $('#bank-code-field').html('<input type="text" value="' + paymill_elv_bank + '" id="bank-code" class="form-row-paymill" />');
 
     $('form[name="checkout_confirmation"]').submit(function () {
         if (!isElvSubmitted) {

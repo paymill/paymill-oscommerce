@@ -10,18 +10,18 @@ class paymill_cc extends paymill_abstract
         global $order;
 
         $this->code = 'paymill_cc';
-        $this->version = '1.1.0';
+        $this->version = '1.1.1';
         $this->api_version = '2';
         $this->title = MODULE_PAYMENT_PAYMILL_CC_TEXT_TITLE;
         $this->public_title = MODULE_PAYMENT_PAYMILL_CC_TEXT_PUBLIC_TITLE;
-
+        
         if (defined('MODULE_PAYMENT_PAYMILL_CC_STATUS')) {
             $this->enabled = ((MODULE_PAYMENT_PAYMILL_CC_STATUS == 'True') ? true : false);
             $this->sort_order = MODULE_PAYMENT_PAYMILL_CC_SORT_ORDER;
             $this->privateKey = trim(MODULE_PAYMENT_PAYMILL_CC_PRIVATEKEY);
             $this->logging = ((MODULE_PAYMENT_PAYMILL_CC_LOGGING == 'True') ? true : false);
             $this->publicKey = MODULE_PAYMENT_PAYMILL_CC_PUBLICKEY;
-
+            $this->payments = new Services_Paymill_Payments($this->privateKey, $this->apiUrl);
             if ((int) MODULE_PAYMENT_PAYMILL_CC_ORDER_STATUS_ID > 0) {
                 $this->order_status = MODULE_PAYMENT_PAYMILL_CC_ORDER_STATUS_ID;
             }
@@ -54,7 +54,8 @@ class paymill_cc extends paymill_abstract
         } 
         
         $payment = $this->getPayment($_SESSION['customer_id']);
-
+        
+        
         $script = '<script type="text/javascript">'
                 . 'var cclogging = "' . MODULE_PAYMENT_PAYMILL_CC_LOGGING . '";'
                 . 'var cc_expiery_invalid = "' . utf8_decode(MODULE_PAYMENT_PAYMILL_CC_TEXT_CREDITCARD_EXPIRY_INVALID) . '";'
@@ -62,14 +63,13 @@ class paymill_cc extends paymill_abstract
                 . 'var cc_cvc_number_invalid = "' . utf8_decode(MODULE_PAYMENT_PAYMILL_CC_TEXT_CREDITCARD_CVC_INVALID) . '";'
                 . 'var paymill_total = ' . json_encode($this->format_raw($order->info['total'])) . ';'
                 . 'var paymill_currency = ' . json_encode(strtoupper($order->info['currency'])) . ';'
-                . 'var paymill_card_owner = ' . json_encode(tep_output_string_protected($order->billing['firstname'] . ' ' . $order->billing['lastname'])) . ';'
                 . 'var paymill_cc_months = ' . json_encode($months_array) . ';'
                 . 'var paymill_cc_years = ' . json_encode($years_array) . ';'
-                . 'var paymill_cc_number_val = ' . $payment['key'] . ';'
-                . 'var paymill_cc_cvc_val = ' . $payment['key'] . ';'
-                . 'var paymill_cc_holder_val = ' . $payment['key'] . ';'
-                . 'var paymill_cc_expiry_month_val = ' . $payment['key'] . ';'
-                . 'var paymill_cc_expiry_year_val = ' . $payment['key'] . ';'
+                . 'var paymill_cc_number_val = "' . $payment['last4'] . '";'
+                . 'var paymill_cc_cvc_val = "' . $payment['cvc'] . '";'
+                . 'var paymill_cc_holder_val = "' . $payment['card_holder'] . '";'
+                . 'var paymill_cc_expiry_month_val = "' . $payment['expire_month'] . '";'
+                . 'var paymill_cc_expiry_year_val = "' . $payment['expire_year'] . '";'
                 . '</script>';
 
         $oscTemplate->addBlock($script, 'header_tags');
@@ -80,12 +80,27 @@ class paymill_cc extends paymill_abstract
         
     function getPayment($userId)
     {
-        if ($this->fastCheckout->hasCcPaymentId($userId)) {
-            $data = $this->fastCheckout->loadFastCheckoutData($userId);   
-            return $this->payments->getOne($data['paymentID_CC']);
-        }
+        $payment = array(
+            'last4' => '',
+            'cvc' => '',
+            'card_holder' => '',
+            'expire_month' => '',
+            'expire_year' => '',
+            'card_type' => '',
+        );
         
-        return array();
+        if ($this->fastCheckout->hasCcPaymentId($userId)) {
+            $data = $this->fastCheckout->loadFastCheckoutData($userId);
+            
+            $payment = $this->payments->getOne($data['paymentID_CC']);
+            
+            $payment['last4'] = '************' . $payment['last4'];
+            $payment['cvc'] = '***';
+        } 
+        
+
+        
+        return $payment;
     }
 
 

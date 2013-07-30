@@ -28,7 +28,6 @@ class paymill_abstract implements Services_Paymill_LoggingInterface
     function paymill_abstract()
     {
         $this->fastCheckout = new FastCheckout();
-        $this->payments = new Services_Paymill_Payments();
     }
     
     /**
