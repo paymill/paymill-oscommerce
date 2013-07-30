@@ -2,6 +2,8 @@
 
 require_once(DIR_FS_CATALOG . 'ext/modules/payment/paymill/lib/Services/Paymill/PaymentProcessor.php');
 require_once(DIR_FS_CATALOG . 'ext/modules/payment/paymill/lib/Services/Paymill/LoggingInterface.php');
+require_once(DIR_FS_CATALOG . 'ext/modules/payment/paymill/lib/Services/Paymill/Payments.php');
+require_once(DIR_FS_CATALOG . 'ext/modules/payment/paymill/FastCheckout.php');
 
 /**
  * Paymill payment plugin
@@ -12,7 +14,31 @@ class paymill_abstract implements Services_Paymill_LoggingInterface
     var $code, $title, $description = '', $enabled, $privateKey, $logging;
     var $bridgeUrl = 'https://bridge.paymill.com/';
     var $apiUrl = 'https://api.paymill.com/v2/';
+    
+    /**
+     * @var FastCheckout
+     */
+    var $fastCheckout;
+    
+    /**
+     * @var Services_Paymill_Payments
+     */
+    var $payments;
 
+    function paymill_abstract()
+    {
+        $this->fastCheckout = new FastCheckout();
+        $this->payments = new Services_Paymill_Payments();
+    }
+    
+    /**
+     * @return FastCheckout
+     */
+    function getFastCheckout()
+    {
+        return $this->fastCheckout;
+    }
+    
     function update_status()
     {
         global $order;

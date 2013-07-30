@@ -6,6 +6,7 @@ class paymill_cc extends paymill_abstract
 
     function paymill_cc()
     {
+        parent::paymill_abstract();
         global $order;
 
         $this->code = 'paymill_cc';
@@ -50,7 +51,9 @@ class paymill_cc extends paymill_abstract
         for ($i=$today['year']; $i < $today['year']+10; $i++) {
             $years_array[$i] = array(tep_output_string(strftime('%Y',mktime(0,0,0,1,1,$i))),
                                      tep_output_string_protected(strftime('%Y',mktime(0,0,0,1,1,$i))));
-        }
+        } 
+        
+        $payment = $this->getPayment($_SESSION['customer_id']);
 
         $script = '<script type="text/javascript">'
                 . 'var cclogging = "' . MODULE_PAYMENT_PAYMILL_CC_LOGGING . '";'
@@ -62,12 +65,29 @@ class paymill_cc extends paymill_abstract
                 . 'var paymill_card_owner = ' . json_encode(tep_output_string_protected($order->billing['firstname'] . ' ' . $order->billing['lastname'])) . ';'
                 . 'var paymill_cc_months = ' . json_encode($months_array) . ';'
                 . 'var paymill_cc_years = ' . json_encode($years_array) . ';'
+                . 'var paymill_cc_number_val = ' . $payment['key'] . ';'
+                . 'var paymill_cc_cvc_val = ' . $payment['key'] . ';'
+                . 'var paymill_cc_holder_val = ' . $payment['key'] . ';'
+                . 'var paymill_cc_expiry_month_val = ' . $payment['key'] . ';'
+                . 'var paymill_cc_expiry_year_val = ' . $payment['key'] . ';'
                 . '</script>';
 
         $oscTemplate->addBlock($script, 'header_tags');
 
         $oscTemplate->addBlock('<form id="paymill_form" action="' . tep_href_link(FILENAME_CHECKOUT_PROCESS, '', 'SSL') . '" method="post" style="display: none;"></form>', 'footer_scripts');
     }
+    
+        
+    function getPayment($userId)
+    {
+        if ($this->fastCheckout->hasCcPaymentId($userId)) {
+            $data = $this->fastCheckout->loadFastCheckoutData($userId);   
+            return $this->payments->getOne($data['paymentID_CC']);
+        }
+        
+        return array();
+    }
+
 
     function confirmation()
     {

@@ -6,6 +6,7 @@ class paymill_elv extends paymill_abstract
 
     function paymill_elv()
     {
+        parent::paymill_abstract();
         global $order;
 
         $this->code = 'paymill_elv';
