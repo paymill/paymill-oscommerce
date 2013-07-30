@@ -34,6 +34,15 @@ $(document).ready(function () {
 	$('#card-expiry-year').val(paymill_cc_expiry_year_val);
 
     $('form[name="checkout_confirmation"]').submit(function () {
+		if (!paymill_cc_fastcheckout) {
+			paymillCcPaymentAction();
+		} else {
+			$('#paymill_form').html('<input type="hidden" name="paymill_token" value="dummyToken" />').submit();
+		}
+    });
+	
+	function paymillCcPaymentAction()
+	{
         if (!isCcSubmitted) {
             if (!paymill.validateExpiry($("#card-expiry-month option:selected").val(), $("#card-expiry-year option:selected").val())) {
                 alert(cc_expiery_invalid);
@@ -62,7 +71,7 @@ $(document).ready(function () {
 
             return false; 
         }
-    });
+	}
 
     function PaymillCcResponseHandler(error, result) 
     { 

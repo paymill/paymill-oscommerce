@@ -49,6 +49,7 @@ class paymill_elv extends paymill_abstract
                 . 'var paymill_elv_code = "' . $payment['code'] . '";'
                 . 'var paymill_elv_holder = "' . $payment['holder'] . '";'
                 . 'var paymill_elv_account = "' . $payment['account'] . '";'
+                . 'var paymill_elv_fastcheckout = ' . $this->fastCheckout->canCustomerFastCheckoutElvTemplate($_SESSION['customer_id']) . ';'
                 . '</script>';
 
         $oscTemplate->addBlock($script, 'header_tags');
@@ -103,6 +104,7 @@ class paymill_elv extends paymill_abstract
         include(DIR_FS_CATALOG . DIR_WS_LANGUAGES . $language . '/modules/payment/paymill_elv.php');
 
         tep_db_query("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_description, configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) VALUES ('" . MODULE_PAYMENT_PAYMILL_ELV_STATUS_TITLE . "', '" . MODULE_PAYMENT_PAYMILL_ELV_STATUS_DESC . "', 'MODULE_PAYMENT_PAYMILL_ELV_STATUS', 'True', '6', '1', 'tep_cfg_select_option(array(\'True\', \'False\'), ', now())");
+        tep_db_query("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_description, configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) VALUES ('" . MODULE_PAYMENT_PAYMILL_ELV_FASTCHECKOUT_TITLE . "', '" . MODULE_PAYMENT_PAYMILL_ELV_FASTCHECKOUT_DESC . "', 'MODULE_PAYMENT_PAYMILL_ELV_FASTCHECKOUT', 'False', '6', '1', 'tep_cfg_select_option(array(\'True\', \'False\'), ', now())");
         tep_db_query("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_description, configuration_key, configuration_value, configuration_group_id, sort_order, date_added) VALUES ('" . MODULE_PAYMENT_PAYMILL_ELV_SORT_ORDER_TITLE . "', '" . MODULE_PAYMENT_PAYMILL_ELV_SORT_ORDER_DESC . "', 'MODULE_PAYMENT_PAYMILL_ELV_SORT_ORDER', '0', '6', '0', now())");
         tep_db_query("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_description, configuration_key, configuration_value, configuration_group_id, sort_order, date_added) VALUES ('" . MODULE_PAYMENT_PAYMILL_ELV_PRIVATEKEY_TITLE . "', '" . MODULE_PAYMENT_PAYMILL_ELV_PRIVATEKEY_DESC . "', 'MODULE_PAYMENT_PAYMILL_ELV_PRIVATEKEY', '0', '6', '0', now())");
         tep_db_query("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_description, configuration_key, configuration_value, configuration_group_id, sort_order, date_added) VALUES ('" . MODULE_PAYMENT_PAYMILL_ELV_PUBLICKEY_TITLE . "', '" . MODULE_PAYMENT_PAYMILL_ELV_PUBLICKEY_DESC . "', 'MODULE_PAYMENT_PAYMILL_ELV_PUBLICKEY', '0', '6', '0', now())");
@@ -116,6 +118,7 @@ class paymill_elv extends paymill_abstract
     {
         return array(
             'MODULE_PAYMENT_PAYMILL_ELV_STATUS',
+            'MODULE_PAYMENT_PAYMILL_ELV_FASTCHECKOUT',
             'MODULE_PAYMENT_PAYMILL_ELV_PRIVATEKEY',
             'MODULE_PAYMENT_PAYMILL_ELV_PUBLICKEY',
             'MODULE_PAYMENT_PAYMILL_ELV_ORDER_STATUS_ID',

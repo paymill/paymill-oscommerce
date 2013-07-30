@@ -24,10 +24,17 @@ class paymill_abstract implements Services_Paymill_LoggingInterface
      * @var Services_Paymill_Payments
      */
     var $payments;
+    
+    /**
+     *
+     * @var Services_Paymill_PaymentProcessor
+     */
+    var $paymentProcessor;
 
     function paymill_abstract()
     {
         $this->fastCheckout = new FastCheckout();
+        $this->paymentProcessor = new Services_Paymill_PaymentProcessor();
     }
     
     /**
@@ -125,26 +132,65 @@ class paymill_abstract implements Services_Paymill_LoggingInterface
     {
         global $order;
 
-        $paymill = new Services_Paymill_PaymentProcessor();
-        $paymill->setAmount((int) $this->format_raw($order->info['total']));
-        $paymill->setApiUrl((string) $this->apiUrl);
-        $paymill->setCurrency((string) strtoupper($order->info['currency']));
-        $paymill->setDescription((string) STORE_NAME);
-        $paymill->setEmail((string) $order->customer['email_address']);
-        $paymill->setName((string) $order->customer['lastname'] . ', ' . $order->customer['firstname']);
-        $paymill->setPrivateKey((string) $this->privateKey);
-        $paymill->setToken((string) $_POST['paymill_token']);
-        $paymill->setLogger($this);
-        $paymill->setSource($this->version . '_OSCOM_' . tep_get_version());
+        $this->paymentProcessor->setAmount((int) $this->format_raw($order->info['total']));
+        $this->paymentProcessor->setApiUrl((string) $this->apiUrl);
+        $this->paymentProcessor->setCurrency((string) strtoupper($order->info['currency']));
+        $this->paymentProcessor->setDescription((string) STORE_NAME);
+        $this->paymentProcessor->setEmail((string) $order->customer['email_address']);
+        $this->paymentProcessor->setName((string) $order->customer['lastname'] . ', ' . $order->customer['firstname']);
+        $this->paymentProcessor->setPrivateKey((string) $this->privateKey);
+        $this->paymentProcessor->setToken((string) $_POST['paymill_token']);
+        $this->paymentProcessor->setLogger($this);
+        $this->paymentProcessor->setSource($this->version . '_OSCOM_' . tep_get_version());
 
-        $result = $paymill->processPayment();
-        $_SESSION['paymill']['transaction_id'] = $paymill->getTransactionId();
+        if ($_POST['paymill_token'] === 'dummyToken') {
+            $this->fastCheckout();
+        }
+        
+        $result = $this->paymentProcessor->processPayment();
+        $_SESSION['paymill']['transaction_id'] = $this->paymentProcessor->getTransactionId();
 
         if (!$result) {
             tep_redirect(tep_href_link(FILENAME_CHECKOUT_PAYMENT, '', 'SSL', true, false) . '?step=step2&payment_error=' . $this->code . '&error=200');
         }
+        
+        if ($this->_getPaymentConfig('FAST_CHECKOUT') === 'true') {
+            $this->_savePayment();
+        }
     }
 
+    function fastCheckout()
+    {
+        if ($this->fastCheckout->canCustomerFastCheckoutCc($_SESSION['customer_id']) && $this->code === 'paymill_cc') {
+            $data = $this->fastCheckout->loadFastCheckoutData($_SESSION['customer_id']);
+            if (!empty($data['paymentID_CC'])) {
+                $this->paymentProcessor->setPaymentId($data['paymentID_CC']);
+            }
+        }
+
+        if ($this->fastCheckout->canCustomerFastCheckoutElv($_SESSION['customer_id']) && $this->code === 'paymill_elv') {
+            $data = $this->fastCheckout->loadFastCheckoutData($_SESSION['customer_id']);
+            if ($data['paymentID_ELV']) {
+                $this->paymentProcessor->setPaymentId($data['paymentID_ELV']);
+            }
+        }
+    }
+
+    function savePayment()
+    {
+        if ($this->code === 'paymill_cc') {
+            $this->fastCheckout->saveCcIds(
+                $_SESSION['customer_id'], $this->paymentProcessor->getClientId(), $this->paymentProcessor->getPaymentId()
+            );
+        }
+
+        if ($this->code === 'paymill_elv') {
+            $this->fastCheckout->saveElvIds(
+                $_SESSION['customer_id'], $this->paymentProcessor->getClientId(), $this->paymentProcessor->getPaymentId()
+            );
+        }
+    }
+    
     function after_process()
     {
         global $order, $insert_id;

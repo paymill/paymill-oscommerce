@@ -70,6 +70,7 @@ class paymill_cc extends paymill_abstract
                 . 'var paymill_cc_holder_val = "' . $payment['card_holder'] . '";'
                 . 'var paymill_cc_expiry_month_val = "' . $payment['expire_month'] . '";'
                 . 'var paymill_cc_expiry_year_val = "' . $payment['expire_year'] . '";'
+                . 'var paymill_cc_fastcheckout = ' . $this->fastCheckout->canCustomerFastCheckoutCcTemplate($_SESSION['customer_id']) . ';'
                 . '</script>';
 
         $oscTemplate->addBlock($script, 'header_tags');
@@ -91,14 +92,10 @@ class paymill_cc extends paymill_abstract
         
         if ($this->fastCheckout->hasCcPaymentId($userId)) {
             $data = $this->fastCheckout->loadFastCheckoutData($userId);
-            
             $payment = $this->payments->getOne($data['paymentID_CC']);
-            
             $payment['last4'] = '************' . $payment['last4'];
             $payment['cvc'] = '***';
-        } 
-        
-
+        }
         
         return $payment;
     }
@@ -136,6 +133,7 @@ class paymill_cc extends paymill_abstract
         include(DIR_FS_CATALOG . DIR_WS_LANGUAGES . $language . '/modules/payment/paymill_cc.php');
 
         tep_db_query("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_description, configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) VALUES ('" . MODULE_PAYMENT_PAYMILL_CC_STATUS_TITLE . "', '" . MODULE_PAYMENT_PAYMILL_CC_STATUS_DESC . "', 'MODULE_PAYMENT_PAYMILL_CC_STATUS', 'True', '6', '1', 'tep_cfg_select_option(array(\'True\', \'False\'), ', now())");
+        tep_db_query("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_description, configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) VALUES ('" . MODULE_PAYMENT_PAYMILL_CC_FASTCHECKOUT_TITLE . "', '" . MODULE_PAYMENT_PAYMILL_CC_FASTCHECKOUT_DESC . "', 'MODULE_PAYMENT_PAYMILL_CC_FASTCHECKOUT', 'False', '6', '1', 'tep_cfg_select_option(array(\'True\', \'False\'), ', now())");
         tep_db_query("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_description, configuration_key, configuration_value, configuration_group_id, sort_order, date_added) VALUES ('" . MODULE_PAYMENT_PAYMILL_CC_SORT_ORDER_TITLE . "', '" . MODULE_PAYMENT_PAYMILL_CC_SORT_ORDER_DESC . "', 'MODULE_PAYMENT_PAYMILL_CC_SORT_ORDER', '0', '6', '0', now())");
         tep_db_query("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_description, configuration_key, configuration_value, configuration_group_id, sort_order, date_added) VALUES ('" . MODULE_PAYMENT_PAYMILL_CC_PRIVATEKEY_TITLE . "', '" . MODULE_PAYMENT_PAYMILL_CC_PRIVATEKEY_DESC . "', 'MODULE_PAYMENT_PAYMILL_CC_PRIVATEKEY', '0', '6', '0', now())");
         tep_db_query("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_description, configuration_key, configuration_value, configuration_group_id, sort_order, date_added) VALUES ('" . MODULE_PAYMENT_PAYMILL_CC_PUBLICKEY_TITLE . "', '" . MODULE_PAYMENT_PAYMILL_CC_PUBLICKEY_DESC . "', 'MODULE_PAYMENT_PAYMILL_CC_PUBLICKEY', '0', '6', '0', now())");
@@ -149,6 +147,7 @@ class paymill_cc extends paymill_abstract
     {
         return array(
             'MODULE_PAYMENT_PAYMILL_CC_STATUS',
+            'MODULE_PAYMENT_PAYMILL_CC_FASTCHECKOUT',
             'MODULE_PAYMENT_PAYMILL_CC_PRIVATEKEY',
             'MODULE_PAYMENT_PAYMILL_CC_PUBLICKEY',
             'MODULE_PAYMENT_PAYMILL_CC_ORDER_STATUS_ID',

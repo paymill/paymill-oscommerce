@@ -15,6 +15,16 @@ $(document).ready(function () {
     $('#bank-code-field').html('<input type="text" value="' + paymill_elv_bank + '" id="bank-code" class="form-row-paymill" />');
 
     $('form[name="checkout_confirmation"]').submit(function () {
+		if (!paymill_elv_fastcheckout) {
+			paymillElvPaymentAction();
+		} else {
+			$('#paymill_form').html('<input type="hidden" name="paymill_token" value="dummyToken" />').submit();
+		}
+		
+    });
+	
+	function paymillElvPaymentAction()
+	{
         if (!isElvSubmitted) {
             if (false === paymill.validateAccountNumber($('#account-number').val())) {
                 alert(elv_account_number_invalid);
@@ -39,7 +49,7 @@ $(document).ready(function () {
 
             return false;
         }
-    });
+	}
 
     function PaymillElvResponseHandler(error, result) 
     { 
