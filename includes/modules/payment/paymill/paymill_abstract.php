@@ -3,6 +3,7 @@
 require_once(DIR_FS_CATALOG . 'ext/modules/payment/paymill/lib/Services/Paymill/PaymentProcessor.php');
 require_once(DIR_FS_CATALOG . 'ext/modules/payment/paymill/lib/Services/Paymill/LoggingInterface.php');
 require_once(DIR_FS_CATALOG . 'ext/modules/payment/paymill/lib/Services/Paymill/Payments.php');
+require_once(DIR_FS_CATALOG . 'ext/modules/payment/paymill/lib/Services/Paymill/Clients.php');
 require_once(DIR_FS_CATALOG . 'ext/modules/payment/paymill/FastCheckout.php');
 
 /**
@@ -147,7 +148,11 @@ class paymill_abstract implements Services_Paymill_LoggingInterface
         
         if ($_POST['paymill_token'] === 'dummyToken') {
             $this->fastCheckout();
-
+        }
+        
+        $data = $this->fastCheckout->loadFastCheckoutData($_SESSION['customer_id']);
+        if (!empty($data['clientID'])) {
+            $this->existingClient($data);
         }
         
         $result = $this->paymentProcessor->processPayment();
@@ -162,6 +167,23 @@ class paymill_abstract implements Services_Paymill_LoggingInterface
         }
     }
 
+    function existingClient($data)
+    {
+        global $order;
+        
+        $client = $this->clients->getOne($data['clientID']);
+        if ($client['email'] !== $order->customer['email_address']) {
+            $this->clients->update(
+                array(
+                    'id' => $data['clientID'],
+                    'email' => $order->customer['email_address']
+                )
+            );
+        }
+
+        $this->paymentProcessor->setClientId($client['id']);
+    }
+    
     function fastCheckout()
     {
         if ($this->fastCheckout->canCustomerFastCheckoutCc($_SESSION['customer_id']) && $this->code === 'paymill_cc') {

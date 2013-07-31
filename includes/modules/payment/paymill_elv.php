@@ -23,6 +23,7 @@ class paymill_elv extends paymill_abstract
             $this->publicKey = MODULE_PAYMENT_PAYMILL_ELV_PUBLICKEY;
             $this->fastCheckoutFlag = ((MODULE_PAYMENT_PAYMILL_ELV_FASTCHECKOUT == 'True') ? true : false);
             $this->payments = new Services_Paymill_Payments($this->privateKey, $this->apiUrl);
+            $this->clients = new Services_Paymill_Clients(trim($this->privateKey), $this->apiUrl);
             if ((int) MODULE_PAYMENT_PAYMILL_ELV_ORDER_STATUS_ID > 0) {
                 $this->order_status = MODULE_PAYMENT_PAYMILL_ELV_ORDER_STATUS_ID;
             }
