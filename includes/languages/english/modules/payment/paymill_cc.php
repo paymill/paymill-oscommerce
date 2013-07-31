@@ -3,6 +3,8 @@ define('TEXT_INFO_API_VERSION', 'API Version');
 define('MODULE_PAYMENT_PAYMILL_CC_ACCEPTED_CARDS', 'Accepted Creditcards');
 define('MODULE_PAYMENT_PAYMILL_CC_STATUS_TITLE', 'Activate Creditcard Module');
 define('MODULE_PAYMENT_PAYMILL_CC_STATUS_DESC', '');
+define('MODULE_PAYMENT_PAYMILL_CC_FASTCHECKOUT_TITLE', 'Fast Checkout');
+define('MODULE_PAYMENT_PAYMILL_CC_FASTCHECKOUT_DESC', '');
 define('MODULE_PAYMENT_PAYMILL_CC_SORT_ORDER_TITLE', 'Sort Order');
 define('MODULE_PAYMENT_PAYMILL_CC_SORT_ORDER_DESC', 'Sort Order. Smallest Number will be shown first.');
 define('MODULE_PAYMENT_PAYMILL_CC_PRIVATEKEY_TITLE', 'Private API Key');

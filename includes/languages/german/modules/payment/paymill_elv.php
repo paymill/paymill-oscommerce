@@ -3,6 +3,8 @@ define('TEXT_INFO_API_VERSION', 'API Version');
 define('MODULE_PAYMENT_PAYMILL_ELV_TEXT_TITLE', ' Paymill Elektronische Lastschriftverfahren');
 define('MODULE_PAYMENT_PAYMILL_ELV_STATUS_TITLE', 'ELV Modul aktivieren');
 define('MODULE_PAYMENT_PAYMILL_ELV_STATUS_DESC', '');
+define('MODULE_PAYMENT_PAYMILL_ELV_FASTCHECKOUT_TITLE', 'Fast Checkout');
+define('MODULE_PAYMENT_PAYMILL_ELV_FASTCHECKOUT_DESC', '');
 define('MODULE_PAYMENT_PAYMILL_ELV_SORT_ORDER_TITLE', 'Anzeigereihenfolge');
 define('MODULE_PAYMENT_PAYMILL_ELV_SORT_ORDER_DESC', 'Reihenfolge der Anzeige. Kleinste Ziffer wird zuerst angezeigt.');
 define('MODULE_PAYMENT_PAYMILL_ELV_PRIVATEKEY_TITLE', 'Geheimer API Key');

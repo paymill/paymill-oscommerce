@@ -23,6 +23,21 @@ $(document).ready(function () {
 		
     });
 	
+	$('#bank-owner').focus(function() {
+        paymill_elv_fastcheckout = false;
+        $('#bank-owner').val('');
+    });
+    
+    $('#account-number').focus(function() {
+		$('#account-number').val('');
+        paymill_elv_fastcheckout = false;
+    });
+    
+    $('#bank-code').focus(function() {
+		$('#bank-code').val('');
+        paymill_elv_fastcheckout = false;
+    });
+	
 	function paymillElvPaymentAction()
 	{
         if (!isElvSubmitted) {

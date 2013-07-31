@@ -11,7 +11,7 @@ require_once(DIR_FS_CATALOG . 'ext/modules/payment/paymill/FastCheckout.php');
 class paymill_abstract implements Services_Paymill_LoggingInterface
 {
 
-    var $code, $title, $description = '', $enabled, $privateKey, $logging;
+    var $code, $title, $description = '', $enabled, $privateKey, $logging, $fastCheckoutFlag;
     var $bridgeUrl = 'https://bridge.paymill.com/';
     var $apiUrl = 'https://api.paymill.com/v2/';
     
@@ -34,6 +34,8 @@ class paymill_abstract implements Services_Paymill_LoggingInterface
     function paymill_abstract()
     {
         $this->fastCheckout = new FastCheckout();
+        $this->fastCheckout->setFastCheckoutFlag($this->fastCheckoutFlag);
+        
         $this->paymentProcessor = new Services_Paymill_PaymentProcessor();
     }
     
@@ -154,7 +156,7 @@ class paymill_abstract implements Services_Paymill_LoggingInterface
             tep_redirect(tep_href_link(FILENAME_CHECKOUT_PAYMENT, '', 'SSL', true, false) . '?step=step2&payment_error=' . $this->code . '&error=200');
         }
         
-        if ($this->_getPaymentConfig('FAST_CHECKOUT') === 'true') {
+        if ($this->fastCheckoutFlag) {
             $this->_savePayment();
         }
     }

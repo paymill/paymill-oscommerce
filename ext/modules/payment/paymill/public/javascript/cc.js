@@ -41,6 +41,29 @@ $(document).ready(function () {
 		}
     });
 	
+	$('#card-number').focus(function() {
+        paymill_cc_fastcheckout = false;
+        $('#card-number').val('');
+    });
+    
+    $('#card-expiry-month').focus(function() {
+        paymill_cc_fastcheckout = false;
+    });
+    
+    $('#card-expiry-year').focus(function() {
+        paymill_cc_fastcheckout = false;
+    });
+    
+    $('#card-cvc').focus(function() {
+        paymill_cc_fastcheckout = false;
+        $('#card-cvc').val('');
+    });
+    
+    $('#card-owner').focus(function() {
+        paymill_cc_fastcheckout = false;
+        $('#card-owner').val('');
+    });
+	
 	function paymillCcPaymentAction()
 	{
         if (!isCcSubmitted) {
