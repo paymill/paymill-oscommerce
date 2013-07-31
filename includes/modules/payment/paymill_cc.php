@@ -56,6 +56,7 @@ class paymill_cc extends paymill_abstract
         
         $payment = $this->getPayment($_SESSION['customer_id']);
         
+        $this->fastCheckout->setFastCheckoutFlag($this->fastCheckoutFlag);
         
         $script = '<script type="text/javascript">'
                 . 'var cclogging = "' . MODULE_PAYMENT_PAYMILL_CC_LOGGING . '";'

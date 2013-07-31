@@ -12,15 +12,37 @@ $(document).ready(function () {
 
     $('#account-name-field').html('<input type="text" value="' + paymill_elv_holder + '" id="bank-owner" class="form-row-paymill" />');
     $('#account-number-field').html('<input type="text" value="' + paymill_elv_account + '" id="account-number" class="form-row-paymill" />');
-    $('#bank-code-field').html('<input type="text" value="' + paymill_elv_bank + '" id="bank-code" class="form-row-paymill" />');
+    $('#bank-code-field').html('<input type="text" value="' + paymill_elv_code + '" id="bank-code" class="form-row-paymill" />');
 
     $('form[name="checkout_confirmation"]').submit(function () {
-		if (!paymill_elv_fastcheckout) {
-			paymillElvPaymentAction();
-		} else {
-			$('#paymill_form').html('<input type="hidden" name="paymill_token" value="dummyToken" />').submit();
+		if (!isElvSubmitted) {
+			if (!paymill_elv_fastcheckout) {
+				if (false === paymill.validateAccountNumber($('#account-number').val())) {
+					alert(elv_account_number_invalid);
+					return false;
+				}
+
+				if (false === paymill.validateBankCode($('#bank-code').val())) {
+					alert(elv_bank_code_invalid);
+					return false;
+				}
+
+				if ($('#bank-owner').val() === "") {
+					alert(elv_bank_owner_invalid);
+					return false; 
+				}
+
+				paymill.createToken({
+					number:        $('#account-number').val(),
+					bank:          $('#bank-code').val(),
+					accountholder: $('#bank-owner').val()
+				}, PaymillElvResponseHandler);
+
+				return false;
+			} else {
+				$('#paymill_form').html('<input type="hidden" name="paymill_token" value="dummyToken" />').submit();
+			}
 		}
-		
     });
 	
 	$('#bank-owner').focus(function() {
@@ -38,38 +60,12 @@ $(document).ready(function () {
         paymill_elv_fastcheckout = false;
     });
 	
-	function paymillElvPaymentAction()
-	{
-        if (!isElvSubmitted) {
-            if (false === paymill.validateAccountNumber($('#account-number').val())) {
-                alert(elv_account_number_invalid);
-                return false;
-            }
-
-            if (false === paymill.validateBankCode($('#bank-code').val())) {
-                alert(elv_bank_code_invalid);
-                return false;
-            }
-
-            if ($('#bank-owner').val() === "") {
-                alert(elv_bank_owner_invalid);
-                return false; 
-            }
- 
-            paymill.createToken({
-                number:        $('#account-number').val(),
-                bank:          $('#bank-code').val(),
-                accountholder: $('#bank-owner').val()
-            }, PaymillElvResponseHandler);
-
-            return false;
-        }
-	}
 
     function PaymillElvResponseHandler(error, result) 
     { 
-        isElvSubmitted = true;
+		isElvSubmitted = true;
         if (error) {
+			isElvSubmitted = false;
             console.log("An API error occured: " + error.apierror);
             return false;
         } else {

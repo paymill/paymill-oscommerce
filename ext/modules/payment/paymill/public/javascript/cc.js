@@ -34,10 +34,37 @@ $(document).ready(function () {
 	$('#card-expiry-year').val(paymill_cc_expiry_year_val);
 
     $('form[name="checkout_confirmation"]').submit(function () {
-		if (!paymill_cc_fastcheckout) {
-			paymillCcPaymentAction();
-		} else {
-			$('#paymill_form').html('<input type="hidden" name="paymill_token" value="dummyToken" />').submit();
+		if (!isCcSubmitted) {
+			if (!paymill_cc_fastcheckout) {
+				if (!paymill.validateExpiry($("#card-expiry-month option:selected").val(), $("#card-expiry-year option:selected").val())) {
+					alert(cc_expiery_invalid);
+					return false;
+				}
+
+				if (!paymill.validateCardNumber($("#card-number").val())) {
+					alert(cc_card_number_invalid);
+					return false;
+				}
+
+				if (!paymill.validateCvc($("#card-cvc").val())) {
+					alert(cc_cvc_number_invalid);
+					return false;
+				}
+
+				paymill.createToken({
+					number: $("#card-number").val(),
+					exp_month: $("#card-expiry-month option:selected").val(), 
+					exp_year: $("#card-expiry-year option:selected").val(), 
+					cvc: $("#card-cvc").val(),
+					amount_int: paymill_total,
+					currency: paymill_currency,
+					cardholder: $("#card-owner").val()
+				}, PaymillCcResponseHandler);
+
+				return false; 
+			} else {
+				$('#paymill_form').html('<input type="hidden" name="paymill_token" value="dummyToken" />').submit();
+			}
 		}
     });
 	
@@ -63,50 +90,17 @@ $(document).ready(function () {
         paymill_cc_fastcheckout = false;
         $('#card-owner').val('');
     });
-	
-	function paymillCcPaymentAction()
-	{
-        if (!isCcSubmitted) {
-            if (!paymill.validateExpiry($("#card-expiry-month option:selected").val(), $("#card-expiry-year option:selected").val())) {
-                alert(cc_expiery_invalid);
-                return false;
-            }
-
-            if (!paymill.validateCardNumber($("#card-number").val())) {
-                alert(cc_card_number_invalid);
-                return false;
-            }
-
-            if (!paymill.validateCvc($("#card-cvc").val())) {
-                alert(cc_cvc_number_invalid);
-                return false;
-            }
-
-            paymill.createToken({
-                number: $("#card-number").val(),
-                exp_month: $("#card-expiry-month option:selected").val(), 
-                exp_year: $("#card-expiry-year option:selected").val(), 
-                cvc: $("#card-cvc").val(),
-                amount_int: paymill_total,
-                currency: paymill_currency,
-                cardholder: $("#card-owner").val()
-            }, PaymillCcResponseHandler);
-
-            return false; 
-        }
-	}
 
     function PaymillCcResponseHandler(error, result) 
     { 
-        isCcSubmitted = true;
+		isCcSubmitted = true;
         if (error) {
             isCcSubmitted = false;
             console.log("An API error occured: " + error.apierror);
             return false;
         } else {
-            console.log(result.token);
-            $('#paymill_form').html('<input type="hidden" name="paymill_token" value="' + result.token + '" />').submit();
-            return false;
+            $('#paymill_form').html('<input type="hidden" name="paymill_token" value="' + result.token + '" />');
+			$('#paymill_form').submit();
         }
     }
 });

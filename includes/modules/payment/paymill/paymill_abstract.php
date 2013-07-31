@@ -34,8 +34,6 @@ class paymill_abstract implements Services_Paymill_LoggingInterface
     function paymill_abstract()
     {
         $this->fastCheckout = new FastCheckout();
-        $this->fastCheckout->setFastCheckoutFlag($this->fastCheckoutFlag);
-        
         $this->paymentProcessor = new Services_Paymill_PaymentProcessor();
     }
     
@@ -145,8 +143,11 @@ class paymill_abstract implements Services_Paymill_LoggingInterface
         $this->paymentProcessor->setLogger($this);
         $this->paymentProcessor->setSource($this->version . '_OSCOM_' . tep_get_version());
 
+        $this->fastCheckout->setFastCheckoutFlag($this->fastCheckoutFlag);
+        
         if ($_POST['paymill_token'] === 'dummyToken') {
             $this->fastCheckout();
+
         }
         
         $result = $this->paymentProcessor->processPayment();
@@ -157,7 +158,7 @@ class paymill_abstract implements Services_Paymill_LoggingInterface
         }
         
         if ($this->fastCheckoutFlag) {
-            $this->_savePayment();
+            $this->savePayment();
         }
     }
 
@@ -169,10 +170,11 @@ class paymill_abstract implements Services_Paymill_LoggingInterface
                 $this->paymentProcessor->setPaymentId($data['paymentID_CC']);
             }
         }
-
+        
         if ($this->fastCheckout->canCustomerFastCheckoutElv($_SESSION['customer_id']) && $this->code === 'paymill_elv') {
             $data = $this->fastCheckout->loadFastCheckoutData($_SESSION['customer_id']);
-            if ($data['paymentID_ELV']) {
+            
+            if (!empty($data['paymentID_ELV'])) {
                 $this->paymentProcessor->setPaymentId($data['paymentID_ELV']);
             }
         }

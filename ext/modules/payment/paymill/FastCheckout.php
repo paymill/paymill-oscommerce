@@ -30,7 +30,7 @@ class FastCheckout
     }
     
     public function canCustomerFastCheckoutElv($userId)
-    {
+    {   
         return $this->hasElvPaymentId($userId) && $this->_fastCheckoutFlag;
     }
     
@@ -72,14 +72,14 @@ class FastCheckout
     public function hasElvPaymentId($userId)
     {
         $data = $this->loadFastCheckoutData($userId);
-        return array_key_exists('paymentID_ELV', $data) && !empty($data['paymentID_ELV']);
+        return $data && array_key_exists('paymentID_ELV', $data) && !empty($data['paymentID_ELV']);
     }
     
     public function hasCcPaymentId($userId)
     {
         $data = $this->loadFastCheckoutData($userId);
         
-        return array_key_exists('paymentID_CC', $data) && !empty($data['paymentID_CC']);
+        return $data && array_key_exists('paymentID_CC', $data) && !empty($data['paymentID_CC']);
     }
 
     public function setFastCheckoutFlag($fastCheckoutFlag)

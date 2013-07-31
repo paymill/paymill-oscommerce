@@ -41,6 +41,8 @@ class paymill_elv extends paymill_abstract
 
         $payment = $this->getPayment($_SESSION['customer_id']);
         
+        $this->fastCheckout->setFastCheckoutFlag($this->fastCheckoutFlag);
+        
         $script = '<script type="text/javascript">'
                 . 'var elvlogging = "' . MODULE_PAYMENT_PAYMILL_ELV_LOGGING . '";'
                 . 'var elv_account_number_invalid = "' . utf8_decode(MODULE_PAYMENT_PAYMILL_ELV_TEXT_ACCOUNT_INVALID) . '";'
