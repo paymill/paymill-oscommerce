@@ -64,6 +64,7 @@ class paymill_cc extends paymill_abstract
                 . 'var cc_expiery_invalid = "' . utf8_decode(MODULE_PAYMENT_PAYMILL_CC_TEXT_CREDITCARD_EXPIRY_INVALID) . '";'
                 . 'var cc_card_number_invalid = "' . utf8_decode(MODULE_PAYMENT_PAYMILL_CC_TEXT_CREDITCARD_CARDNUMBER_INVALID) . '";'
                 . 'var cc_cvc_number_invalid = "' . utf8_decode(MODULE_PAYMENT_PAYMILL_CC_TEXT_CREDITCARD_CVC_INVALID) . '";'
+                . 'var brand = "' . $payment['card_type'] . '";'
                 . 'var paymill_total = ' . json_encode($this->format_raw($order->info['total'])) . ';'
                 . 'var paymill_currency = ' . json_encode(strtoupper($order->info['currency'])) . ';'
                 . 'var paymill_cc_months = ' . json_encode($months_array) . ';'

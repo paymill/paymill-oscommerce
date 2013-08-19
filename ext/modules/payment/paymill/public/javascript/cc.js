@@ -75,6 +75,12 @@ $(document).ready(function () {
 
 		$('.card-icon :first-child').css('position', 'absolute');
 	});
+	
+	if (brand !== '') {
+		$('.card-icon').html('<img src="ext/modules/payment/paymill/public/images/32x20_' + brand + '.png" >');
+		$('.card-icon').show();
+		$('.card-icon :first-child').css('position', 'absolute');
+	}
 
     $('form[name="checkout_confirmation"]').submit(function () {
 		if (!isCcSubmitted) {
