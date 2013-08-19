@@ -109,7 +109,7 @@ class paymill_cc extends paymill_abstract
         $confirmation = array('fields' => array(array('title' => MODULE_PAYMENT_PAYMILL_CC_TEXT_CREDITCARD_OWNER,
                                                       'field' => '<span id="card-owner-field"></span>'),
                                                 array('title' => MODULE_PAYMENT_PAYMILL_CC_TEXT_CREDITCARD_NUMBER,
-                                                      'field' => '<span id="card-number-field"></span>'),
+                                                      'field' => '<span id="card-number-field"></span><span class="card-icon"></span>'),
                                                 array('title' => MODULE_PAYMENT_PAYMILL_CC_TEXT_CREDITCARD_EXPIRY,
                                                       'field' => '<span class="paymill-expiry"><span id="card-expiry-month-field"></span>&nbsp;<span id="card-expiry-year-field"></span></span>'),
                                                 array('title' => MODULE_PAYMENT_PAYMILL_CC_TEXT_CREDITCARD_CVC,

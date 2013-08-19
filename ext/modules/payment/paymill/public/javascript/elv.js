@@ -10,32 +10,32 @@ $(document).ready(function () {
         };
     }
 
-    $('#account-name-field').html('<input type="text" value="' + paymill_elv_holder + '" id="bank-owner" class="form-row-paymill" />');
-    $('#account-number-field').html('<input type="text" value="' + paymill_elv_account + '" id="account-number" class="form-row-paymill" />');
-    $('#bank-code-field').html('<input type="text" value="' + paymill_elv_code + '" id="bank-code" class="form-row-paymill" />');
+    $('#account-name-field').html('<input type="text" value="' + paymill_elv_holder + '" id="paymill-bank-owner" class="form-row-paymill" />');
+    $('#account-number-field').html('<input type="text" value="' + paymill_elv_account + '" id="paymill-account-number" class="form-row-paymill" />');
+    $('#bank-code-field').html('<input type="text" value="' + paymill_elv_code + '" id="paymill-bank-code" class="form-row-paymill" />');
 
     $('form[name="checkout_confirmation"]').submit(function () {
 		if (!isElvSubmitted) {
 			if (!paymill_elv_fastcheckout) {
-				if (false === paymill.validateAccountNumber($('#account-number').val())) {
+				if (false === paymill.validateAccountNumber($('#paymill-account-number').val())) {
 					alert(elv_account_number_invalid);
 					return false;
 				}
 
-				if (false === paymill.validateBankCode($('#bank-code').val())) {
+				if (false === paymill.validateBankCode($('#paymill-bank-code').val())) {
 					alert(elv_bank_code_invalid);
 					return false;
 				}
 
-				if ($('#bank-owner').val() === "") {
+				if ($('#paymill-bank-owner').val() === "") {
 					alert(elv_bank_owner_invalid);
 					return false; 
 				}
 
 				paymill.createToken({
-					number:        $('#account-number').val(),
-					bank:          $('#bank-code').val(),
-					accountholder: $('#bank-owner').val()
+					number:        $('#paymill-account-number').val(),
+					bank:          $('#paymill-bank-code').val(),
+					accountholder: $('#paymill-bank-owner').val()
 				}, PaymillElvResponseHandler);
 
 				return false;
@@ -45,18 +45,18 @@ $(document).ready(function () {
 		}
     });
 	
-	$('#bank-owner').focus(function() {
+	$('#paymill-bank-owner').focus(function() {
         paymill_elv_fastcheckout = false;
-        $('#bank-owner').val('');
+        $('#paymill-bank-owner').val('');
     });
     
-    $('#account-number').focus(function() {
-		$('#account-number').val('');
+    $('#paymill-account-number').focus(function() {
+		$('#paymill-account-number').val('');
         paymill_elv_fastcheckout = false;
     });
     
-    $('#bank-code').focus(function() {
-		$('#bank-code').val('');
+    $('#paymill-bank-code').focus(function() {
+		$('#paymill-bank-code').val('');
         paymill_elv_fastcheckout = false;
     });
 	

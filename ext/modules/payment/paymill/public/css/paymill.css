@@ -39,12 +39,12 @@
     width: 250px;
 }
 
-#card-expiry-month
+#paymill-card-expiry-month
 {
     width: 160px;
 }
 
-#card-expiry-year
+#paymill-card-expiry-year
 {
     width: 90px;
 }
@@ -61,4 +61,10 @@
     font-weight:bold;
     text-align:center;
     display: none;
+}
+
+.card-icon
+{
+    margin-left: 5px;
+    position: absolute;
 }
