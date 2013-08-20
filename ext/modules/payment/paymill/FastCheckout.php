@@ -59,7 +59,7 @@ class FastCheckout
     private function _canUpdate($userId)
     {
         $data = $this->loadFastCheckoutData($userId);
-        return !empty($data['paymentID_CC']) || !empty($data['paymentID_ELV']);
+        return $data;
     }
     
     public function loadFastCheckoutData($userId)

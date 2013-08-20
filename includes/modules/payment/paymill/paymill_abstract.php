@@ -164,6 +164,8 @@ class paymill_abstract implements Services_Paymill_LoggingInterface
         
         if ($this->fastCheckoutFlag) {
             $this->savePayment();
+        } else {
+            $this->saveClient();
         }
     }
 
@@ -213,6 +215,21 @@ class paymill_abstract implements Services_Paymill_LoggingInterface
         if ($this->code === 'paymill_elv') {
             $this->fastCheckout->saveElvIds(
                 $_SESSION['customer_id'], $this->paymentProcessor->getClientId(), $this->paymentProcessor->getPaymentId()
+            );
+        }
+    }
+    
+    function saveClient()
+    {
+        if ($this->code === 'paymill_cc') {
+            $this->fastCheckout->saveCcIds(
+                $_SESSION['customer_id'], $this->paymentProcessor->getClientId(), ''
+            );
+        }
+
+        if ($this->code === 'paymill_elv') {
+            $this->fastCheckout->saveElvIds(
+                $_SESSION['customer_id'], $this->paymentProcessor->getClientId(), ''
             );
         }
     }
