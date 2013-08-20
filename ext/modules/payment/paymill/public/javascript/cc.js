@@ -95,8 +95,8 @@ $(document).ready(function () {
 					return false;
 				}
 
-				if (!paymill.validateCvc($("#paymill-card-owner").val())) {
-					alert(cc_cvc_number_invalid);
+				if ($("#paymill-card-owner").val() === '') {
+					alert(cc_owner_invalid);
 					return false;
 				}
 				
@@ -150,6 +150,7 @@ $(document).ready(function () {
 		isCcSubmitted = true;
         if (error) {
             isCcSubmitted = false;
+			alert("An API error occured!");
             console.log("An API error occured: " + error.apierror);
             return false;
         } else {

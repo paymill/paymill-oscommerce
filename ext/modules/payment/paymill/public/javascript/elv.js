@@ -66,6 +66,7 @@ $(document).ready(function () {
 		isElvSubmitted = true;
         if (error) {
 			isElvSubmitted = false;
+			alert("An API error occured!");
             console.log("An API error occured: " + error.apierror);
             return false;
         } else {
