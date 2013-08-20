@@ -15,7 +15,7 @@ class paymill_elv extends paymill_abstract
         $this->title = MODULE_PAYMENT_PAYMILL_ELV_TEXT_TITLE;
         $this->public_title = MODULE_PAYMENT_PAYMILL_ELV_TEXT_PUBLIC_TITLE;
 
-        if (defined('MODULE_PAYMENT_PAYMILL_CC_STATUS')) {
+        if (defined('MODULE_PAYMENT_PAYMILL_ELV_STATUS')) {
             $this->enabled = ((MODULE_PAYMENT_PAYMILL_ELV_STATUS == 'True') ? true : false);
             $this->sort_order = MODULE_PAYMENT_PAYMILL_ELV_SORT_ORDER;
             $this->privateKey = trim(MODULE_PAYMENT_PAYMILL_ELV_PRIVATEKEY);
