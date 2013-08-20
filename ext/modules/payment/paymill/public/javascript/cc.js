@@ -95,6 +95,11 @@ $(document).ready(function () {
 					return false;
 				}
 
+				if (!paymill.validateCvc($("#paymill-card-owner").val())) {
+					alert(cc_cvc_number_invalid);
+					return false;
+				}
+				
 				if (!paymill.validateCvc($("#paymill-card-cvc").val())) {
 					alert(cc_cvc_number_invalid);
 					return false;
