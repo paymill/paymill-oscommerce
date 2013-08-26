@@ -20,7 +20,7 @@ class paymill_cc extends paymill_abstract
             $this->sort_order = MODULE_PAYMENT_PAYMILL_CC_SORT_ORDER;
             $this->privateKey = trim(MODULE_PAYMENT_PAYMILL_CC_PRIVATEKEY);
             $this->logging = ((MODULE_PAYMENT_PAYMILL_CC_LOGGING == 'True') ? true : false);
-            $this->logging = ((MODULE_PAYMENT_PAYMILL_CC_LABEL == 'True') ? true : false);
+            $this->label = ((MODULE_PAYMENT_PAYMILL_CC_LABEL == 'True') ? true : false);
             $this->publicKey = MODULE_PAYMENT_PAYMILL_CC_PUBLICKEY;
             $this->fastCheckoutFlag = ((MODULE_PAYMENT_PAYMILL_CC_FASTCHECKOUT == 'True') ? true : false);
             $this->payments = new Services_Paymill_Payments(trim($this->privateKey), $this->apiUrl);
@@ -184,7 +184,7 @@ class paymill_cc extends paymill_abstract
         return array(
             'MODULE_PAYMENT_PAYMILL_CC_STATUS',
             'MODULE_PAYMENT_PAYMILL_CC_FASTCHECKOUT',
-            'MODULE_PAYMENT_PAYMILL_ELV_LABEL_TITLE',
+            'MODULE_PAYMENT_PAYMILL_CC_LABEL',
             'MODULE_PAYMENT_PAYMILL_CC_PRIVATEKEY',
             'MODULE_PAYMENT_PAYMILL_CC_PUBLICKEY',
             'MODULE_PAYMENT_PAYMILL_CC_ORDER_STATUS_ID',

@@ -20,7 +20,7 @@ class paymill_elv extends paymill_abstract
             $this->sort_order = MODULE_PAYMENT_PAYMILL_ELV_SORT_ORDER;
             $this->privateKey = trim(MODULE_PAYMENT_PAYMILL_ELV_PRIVATEKEY);
             $this->logging = ((MODULE_PAYMENT_PAYMILL_ELV_LOGGING == 'True') ? true : false);
-            $this->logging = ((MODULE_PAYMENT_PAYMILL_ELV_LABEL == 'True') ? true : false);
+            $this->label = ((MODULE_PAYMENT_PAYMILL_ELV_LABEL == 'True') ? true : false);
             $this->publicKey = MODULE_PAYMENT_PAYMILL_ELV_PUBLICKEY;
             $this->fastCheckoutFlag = ((MODULE_PAYMENT_PAYMILL_ELV_FASTCHECKOUT == 'True') ? true : false);
             $this->payments = new Services_Paymill_Payments($this->privateKey, $this->apiUrl);
@@ -154,7 +154,7 @@ class paymill_elv extends paymill_abstract
         return array(
             'MODULE_PAYMENT_PAYMILL_ELV_STATUS',
             'MODULE_PAYMENT_PAYMILL_ELV_FASTCHECKOUT',
-            'MODULE_PAYMENT_PAYMILL_ELV_LABEL_TITLE',
+            'MODULE_PAYMENT_PAYMILL_ELV_LABEL',
             'MODULE_PAYMENT_PAYMILL_ELV_PRIVATEKEY',
             'MODULE_PAYMENT_PAYMILL_ELV_PUBLICKEY',
             'MODULE_PAYMENT_PAYMILL_ELV_ORDER_STATUS_ID',
