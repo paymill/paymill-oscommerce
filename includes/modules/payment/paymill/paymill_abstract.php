@@ -294,13 +294,7 @@ class paymill_abstract implements Services_Paymill_LoggingInterface
     function log($messageInfo, $debugInfo)
     {
         if ($this->logging) {
-            $logfile = dirname(__FILE__) . '/log.txt';
-            if (file_exists($logfile) && is_writable($logfile)) {
-                $handle = fopen($logfile, 'a');
-                fwrite($handle, "[" . date(DATE_RFC822) . "] " . $messageInfo . "\n");
-                fwrite($handle, "[" . date(DATE_RFC822) . "] " . $debugInfo . "\n");
-                fclose($handle);
-            }
+            tep_db_query("INSERT INTO `pi_paymill_logging` (debug, message) VALUES('" . tep_db_input($debugInfo) . "', '" . tep_db_input($messageInfo) . "')");
         }
     }
 
@@ -321,6 +315,16 @@ class paymill_abstract implements Services_Paymill_LoggingInterface
 
     function install()
     {
+        tep_db_query(
+            "CREATE TABLE IF NOT EXISTS `pi_paymill_logging` ("
+          . "`id` int(11) NOT NULL AUTO_INCREMENT,"
+          . "`debug` text NOT NULL,"
+          . "`message` text NOT NULL,"
+          . "`date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,"
+          . "PRIMARY KEY (`id`)"
+        . ") AUTO_INCREMENT=1"
+        );
+        
         tep_db_query(
             "CREATE TABLE IF NOT EXISTS `pi_paymill_fastcheckout` ("
            . "`userID` varchar(100),"
