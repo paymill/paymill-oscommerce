@@ -76,6 +76,11 @@ class paymill_abstract implements Services_Paymill_LoggingInterface
                 $this->enabled = false;
             }
         }
+        
+        
+        if (empty($this->privateKey) || empty($this->publicKey)) {
+            $this->enabled = false;
+        }
     }
 
     function pre_confirmation_check()
