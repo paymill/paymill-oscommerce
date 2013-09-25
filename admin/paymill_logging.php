@@ -3,24 +3,22 @@ require_once('includes/application_top.php');
 require_once (DIR_FS_CATALOG . 'ext/modules/payment/paymill/lib/Services/Paymill/Log.php');
 
 $recordLimit = 10;
+$page = $_GET['seite'];
+if(!isset($_GET['seite'])) {
+   $page = 1;
+} 
 
-if (isset($_GET['page'])) {
-    $page = $_GET['page'] + 1;
-    $offset = $recordLimit * $page;
-} else {
-    $page = 0;
-    $offset = 0;
-}
+$start = $page * $recordLimit - $recordLimit;
 
-$sql = "SELECT * FROM `pi_paymill_logging`";
+$sql = "SELECT * FROM `pi_paymill_logging` LIMIT $start, $recordLimit";
 if (isset($_POST['submit'])) {
-    $sql = "SELECT * FROM `pi_paymill_logging` WHERE debug like '%" . xtc_db_input($_POST['search_key']) . "%' LIMIT $offset, $recordLimit";
+    $sql = "SELECT * FROM `pi_paymill_logging` WHERE debug like '%" . tep_db_input($_POST['search_key']) . "%' LIMIT $start, $recordLimit";
 }
 
-$logs = xtc_db_query($sql);
-$recordCount = xtc_db_num_rows($logs);
-$leftRecords = $recordCount - ($page * $recordLimit);
-$logModel = new Services_Paymill_Log();
+$logs        = tep_db_query($sql);
+$recordCount = tep_db_num_rows($logs);
+$pageCount = $recordCount / $recordLimit;
+$logModel    = new Services_Paymill_Log();
 require(DIR_WS_INCLUDES . 'template_top.php');
 ?>
 <table border="0" width="100%" cellspacing="2" cellpadding="2">
@@ -39,26 +37,27 @@ require(DIR_WS_INCLUDES . 'template_top.php');
                 </tr>
                 <tr>
                     <td>
+                        <div>
+                            <b>Page: </b>
+                            <?php for ($a = 0; $a < $pageCount; $a++) : ?>
+                                <?php $b = $a + 1; ?>
+                                <?php if ($page == $b) : ?>
+                                    <b><?php echo $b; ?></b>
+                                <?php else : ?>
+                                    <a href="<?php echo tep_href_link('paymill_logging.php'); ?>?seite=<?php echo $b; ?>"><?php echo $b; ?></a>
+                                <?php endif; ?>
+                            <?php endfor; ?>
+                        </div>
                         <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="POST">
                             <input value="" name="search_key"/><input type="submit" value="Search..." name="submit"/>
                         </form>
-                        <?php if( $page > 0 ) : ?>
-                           <?php $last = $page - 2; ?>
-                           <a href="<?php echo $_SERVER['PHP_SELF']; ?>?page=<?php echo $last; ?>">Last 10 Records</a> |
-                           <a href="<?php echo $_SERVER['PHP_SELF']; ?>?page=<?php echo $page; ?>">Next 10 Records</a>
-                        <?php elseif( $page == 0 ): ?>
-                           <a href="<?php echo $_SERVER['PHP_SELF']; ?>?page=<?php echo $page; ?>">Next 10 Records</a>
-                        <?php elseif( $leftRecords < $recordLimit ): ?>
-                           <?php $last = $page - 2; ?>
-                           <a href="<?php echo $_SERVER['PHP_SELF']; ?>?page=<?php echo $last; ?>">Last 10 Records</a>
-                        <?php endif; ?>
                         <table>
                             <tr class="dataTableHeadingRow">
                                 <th class="dataTableHeadingContent">ID</th>
                                 <th class="dataTableHeadingContent">Debug</th>
                                 <th class="dataTableHeadingContent">Date</th>
                             </tr>
-                            <?php while ($log = xtc_db_fetch_array($logs)): ?>
+                            <?php while ($log = tep_db_fetch_array($logs)): ?>
                             <tr class="dataTableRow">
                                 <td class="dataTableContent"><?php echo $log['id']; ?></td>
                                 <td class="dataTableContent">
@@ -72,10 +71,10 @@ require(DIR_WS_INCLUDES . 'template_top.php');
                                         <tr class="dataTableRow">
                                             <?php foreach ($logModel->toArray() as $key => $value): ?>
                                             <td class="dataTableContent">
-                                                <?php if (strlen($value) > 300): ?>
-                                                    <a href="<?php echo xtc_href_link('paymill_log.php', 'id=' . $log['id'] . '&key=' . $key, 'SSL', true, false); ?>">See more</a>
+                                                <?php if (strlen($value['debug']) > 300): ?>
+                                                    <center><a href="<?php echo tep_href_link('paymill_log.php', 'id=' . $log['id'] . '&key=' . $key, 'SSL', true, false); ?>">See more</a></center>
                                                 <?php else: ?>
-                                                    <pre><?php echo $value; ?></pre>
+                                                    <pre><?php echo $value['message']; ?><hr/><?php echo $value['debug']; ?></pre>
                                                 <?php endif; ?>
                                             </td>
                                             <?php endforeach; ?>
@@ -89,16 +88,17 @@ require(DIR_WS_INCLUDES . 'template_top.php');
                         <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="POST">
                             <input value="" name="search_key"/><input type="submit" value="Search..." name="submit"/>
                         </form>
-                        <?php if( $page > 0 ) : ?>
-                           <?php $last = $page - 2; ?>
-                           <a href="<?php echo $_SERVER['PHP_SELF']; ?>?page=<?php echo $last; ?>">Last 10 Records</a> |
-                           <a href="<?php echo $_SERVER['PHP_SELF']; ?>?page=<?php echo $page; ?>">Next 10 Records</a>
-                        <?php elseif( $page == 0 ): ?>
-                           <a href="<?php echo $_SERVER['PHP_SELF']; ?>?page=<?php echo $page; ?>">Next 10 Records</a>
-                        <?php elseif( $leftRecords < $recordLimit ): ?>
-                           <?php $last = $page - 2; ?>
-                           <a href="<?php echo $_SERVER['PHP_SELF']; ?>?page=<?php echo $last; ?>">Last 10 Records</a>
-                        <?php endif; ?>
+                        <div>
+                            <b>Page: </b>
+                            <?php for ($a = 0; $a < $pageCount; $a++) : ?>
+                                <?php $b = $a + 1; ?>
+                                <?php if ($page == $b) : ?>
+                                    <b><?php echo $b; ?></b>
+                                <?php else : ?>
+                                    <a href="<?php echo tep_href_link('paymill_logging.php'); ?>?seite=<?php echo $b; ?>"><?php echo $b; ?></a>
+                                <?php endif; ?>
+                            <?php endfor; ?>
+                        </div>
                     </td>
                 </tr>
             </table>
