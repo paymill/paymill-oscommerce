@@ -314,7 +314,7 @@ class paymill_abstract implements Services_Paymill_LoggingInterface
         
         if ($this->logging) {
             if (array_key_exists('log_id', $_SESSION)) {
-                $data = tep_db_fetch_array(tep_db_query('SELECT debug from `pi_paymill_logging` WHERE ' . $_SESSION['log_id']));
+                $data = tep_db_fetch_array(tep_db_query('SELECT debug from `pi_paymill_logging` WHERE id = ' . $_SESSION['log_id']));
                 $log->fill($data['debug']);
                 tep_db_query("UPDATE `pi_paymill_logging` SET debug = '" . tep_db_input($log->toJson()) . "' WHERE id = " . $_SESSION['log_id']);
             } else {
