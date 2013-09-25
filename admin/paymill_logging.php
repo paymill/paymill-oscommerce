@@ -2,7 +2,7 @@
 require_once('includes/application_top.php');
 require_once (DIR_FS_CATALOG . 'ext/modules/payment/paymill/lib/Services/Paymill/Log.php');
 
-$recordLimit = 3;
+$recordLimit = 10;
 $page = $_GET['seite'];
 if(!isset($_GET['seite'])) {
    $page = 1;
