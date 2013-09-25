@@ -1,10 +1,9 @@
 <?php
 require_once ('includes/application_top.php');
-require_once (DIR_FS_CATALOG . 'ext/modules/payment/paymill/lib/Services/Paymill/Log.php');
 
 $sql = "SELECT * FROM `pi_paymill_logging` WHERE id = '" . tep_db_input($_GET['id']) . "'";
-$logs = tep_db_query($sql);
-$logModel = new Services_Paymill_Log();
+$logs = tep_db_fetch_array(tep_db_query($sql));
+
 require(DIR_WS_INCLUDES . 'template_top.php'); 
 ?>
 <table border="0" width="100%" cellspacing="2" cellpadding="2">
@@ -25,11 +24,7 @@ require(DIR_WS_INCLUDES . 'template_top.php');
                 </tr>
                 <tr>
                     <td>
-                        <?php while ($log = tep_db_fetch_array($logs)): ?>
-                            <?php $logModel->fill($log['debug']) ?>
-                            <?php $data = $logModel->toArray(); ?>
-                            <pre><?php echo $data[$_GET['key']]['message']; ?><hr/><?php echo $data[$_GET['key']]['debug']; ?></pre>
-                        <?php endwhile; ?>
+                        <pre><?php echo $logs['message']; ?><hr/><?php echo $logs['debug']; ?></pre>
                     </td>
                 </tr>
                 <tr>

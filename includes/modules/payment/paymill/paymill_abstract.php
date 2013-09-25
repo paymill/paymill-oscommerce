@@ -1,6 +1,5 @@
 <?php
 
-require_once(DIR_FS_CATALOG . 'ext/modules/payment/paymill/lib/Services/Paymill/Log.php');
 require_once(DIR_FS_CATALOG . 'ext/modules/payment/paymill/lib/Services/Paymill/PaymentProcessor.php');
 require_once(DIR_FS_CATALOG . 'ext/modules/payment/paymill/lib/Services/Paymill/LoggingInterface.php');
 require_once(DIR_FS_CATALOG . 'ext/modules/payment/paymill/lib/Services/Paymill/Payments.php');
@@ -137,9 +136,9 @@ class paymill_abstract implements Services_Paymill_LoggingInterface
 
     function before_process()
     {
-        unset($_SESSION['log_id']);
         global $order;
 
+        $_SESSION['paymill_identifier'] = time();
         $this->paymentProcessor->setAmount((int) $this->format_raw($order->info['total']));
         $this->paymentProcessor->setApiUrl((string) $this->apiUrl);
         $this->paymentProcessor->setCurrency((string) strtoupper($order->info['currency']));
@@ -166,6 +165,7 @@ class paymill_abstract implements Services_Paymill_LoggingInterface
         $_SESSION['paymill']['transaction_id'] = $this->paymentProcessor->getTransactionId();
 
         if (!$result) {
+            unset($_SESSION['paymill_identifier']);
             tep_redirect(tep_href_link(FILENAME_CHECKOUT_PAYMENT, '', 'SSL', true, false) . '?step=step2&payment_error=' . $this->code . '&error=200');
         }
         
@@ -174,6 +174,8 @@ class paymill_abstract implements Services_Paymill_LoggingInterface
         } else {
             $this->saveClient();
         }
+        
+        unset($_SESSION['paymill_identifier']);
     }
 
     function existingClient($data)
@@ -300,27 +302,16 @@ class paymill_abstract implements Services_Paymill_LoggingInterface
 
     function log($messageInfo, $debugInfo)
     {
-        $log = new Services_Paymill_Log();
-        
-        $param = $this->paramName;
-        if (is_null($param)) {
-            $param = 'default';
-        }
-        
-        $log->$param = array(
-            'debug' => $debugInfo,
-            'message' => $messageInfo
-        );
-        
         if ($this->logging) {
-            if (array_key_exists('log_id', $_SESSION)) {
-                $data = tep_db_fetch_array(tep_db_query('SELECT debug from `pi_paymill_logging` WHERE id = ' . $_SESSION['log_id']));
-                $log->fill($data['debug']);
-                tep_db_query("UPDATE `pi_paymill_logging` SET debug = '" . tep_db_input($log->toJson()) . "' WHERE id = " . $_SESSION['log_id']);
-            } else {
-                tep_db_query("INSERT INTO `pi_paymill_logging` (debug) VALUES('" . tep_db_input($log->toJson()) . "')");
-                $data = tep_db_fetch_array(tep_db_query("SELECT LAST_INSERT_ID();"));
-                $_SESSION['log_id'] = $data['LAST_INSERT_ID()'];
+            if (array_key_exists('paymill_identifier', $_SESSION)) {
+                 tep_db_query("INSERT INTO `pi_paymill_logging` "
+                            . "(debug, message, identifier) "
+                            . "VALUES('" 
+                              . tep_db_input($debugInfo) . "', '" 
+                              . tep_db_input($messageInfo) . "', '" 
+                              . tep_db_input($_SESSION['paymill_identifier']) 
+                            . "')"
+                );
             }
         }
     }
@@ -342,9 +333,12 @@ class paymill_abstract implements Services_Paymill_LoggingInterface
 
     function install()
     {
+        tep_db_query("DROP TABLE `pi_paymill_logging`");
+        
         tep_db_query(
             "CREATE TABLE IF NOT EXISTS `pi_paymill_logging` ("
           . "`id` int(11) NOT NULL AUTO_INCREMENT,"
+          . "`identifier` text NOT NULL,"
           . "`debug` text NOT NULL,"
           . "`message` text NOT NULL,"
           . "`date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,"

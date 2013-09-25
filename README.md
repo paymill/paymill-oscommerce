@@ -3,7 +3,7 @@ paymill-oscommerce 2.3
 
 # Update Note
 
-To update the osCommerce Paymill plugin you have reinstall the plugin to ensure 
+To update the osCommerce Paymill plugin you must reinstall the plugin to ensure 
 that all needed tables are created.
 
 osCommerce (Version 2.3) Plugin for Paymill credit card and elv payments
