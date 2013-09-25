@@ -2,7 +2,7 @@
 require_once('includes/application_top.php');
 require_once (DIR_FS_CATALOG . 'ext/modules/payment/paymill/lib/Services/Paymill/Log.php');
 
-$recordLimit = 10;
+$recordLimit = 3;
 $page = $_GET['seite'];
 if(!isset($_GET['seite'])) {
    $page = 1;
@@ -13,6 +13,7 @@ $start = $page * $recordLimit - $recordLimit;
 $sql = "SELECT * FROM `pi_paymill_logging` LIMIT $start, $recordLimit";
 if (isset($_POST['submit'])) {
     $sql = "SELECT * FROM `pi_paymill_logging` WHERE debug like '%" . tep_db_input($_POST['search_key']) . "%' LIMIT $start, $recordLimit";
+    
 }
 
 $logs        = tep_db_query($sql);
@@ -39,7 +40,7 @@ require(DIR_WS_INCLUDES . 'template_top.php');
                     <td>
                         <div>
                             <b>Page: </b>
-                            <?php for ($a = 0; $a < $pageCount; $a++) : ?>
+                            <?php for ($a = 0; $a <= $pageCount; $a++) : ?>
                                 <?php $b = $a + 1; ?>
                                 <?php if ($page == $b) : ?>
                                     <b><?php echo $b; ?></b>
@@ -90,7 +91,7 @@ require(DIR_WS_INCLUDES . 'template_top.php');
                         </form>
                         <div>
                             <b>Page: </b>
-                            <?php for ($a = 0; $a < $pageCount; $a++) : ?>
+                            <?php for ($a = 0; $a <= $pageCount; $a++) : ?>
                                 <?php $b = $a + 1; ?>
                                 <?php if ($page == $b) : ?>
                                     <b><?php echo $b; ?></b>
