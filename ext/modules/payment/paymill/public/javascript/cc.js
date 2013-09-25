@@ -30,99 +30,95 @@ $(document).ready(function () {
         $('<option/>').val(cc_year_value).text(cc_year_text).appendTo($('#paymill-card-expiry-year'));
     };
 	
-	$('#paymill-card-expiry-month').val(paymill_cc_expiry_month_val);
-	$('#paymill-card-expiry-year').val(paymill_cc_expiry_year_val);
+    $('#paymill-card-expiry-month').val(paymill_cc_expiry_month_val);
+    $('#paymill-card-expiry-year').val(paymill_cc_expiry_year_val);
 	
-	$('#paymill-card-number').keyup(function() {
-		switch (paymill.cardType($('#paymill-card-number').val()).toLowerCase()) {
-			case 'visa':
-				$('.card-icon').html('<img src="ext/modules/payment/paymill/public/images/32x20_visa.png" >');
-				$('.card-icon').show();
-				break;
-			case 'mastercard':
-				$('.card-icon').html('<img src="ext/modules/payment/paymill/public/images/32x20_mastercard.png" >');
-				$('.card-icon').show();
-				break;
-			case 'american express':
-				$('.card-icon').html('<img src="ext/modules/payment/paymill/public/images/32x20_amex.png" >');
-				$('.card-icon').show();
-				break;
-			case 'jcb':
-				$('.card-icon').html('<img src="ext/modules/payment/paymill/public/images/32x20_jcb.png" >');
-				$('.card-icon').show();
-				break;
-			case 'maestro':
-				$('.card-icon').html('<img src="ext/modules/payment/paymill/public/images/32x20_maestro.png" >');
-				$('.card-icon').show();
-				break;
-			case 'diners club':
-				$('.card-icon').html('<img src="ext/modules/payment/paymill/public/images/32x20_dinersclub.png" >');
-				$('.card-icon').show();
-				break;
-			case 'discover':
-				$('.card-icon').html('<img src="ext/modules/payment/paymill/public/images/32x20_discover.png" >');
-				$('.card-icon').show();
-				break;
-			case 'unionpay':
-				$('.card-icon').html('<img src="ext/modules/payment/paymill/public/images/32x20_unionpay.png" >');
-				$('.card-icon').show();
-				break;
-			case 'unknown':
-			default:
-				$('.card-icon').hide();
-				break;
-		}
+    var cssClass = "paymill-card-number-";
+	
+    $('#paymill-card-number').keyup(function() {
+		
+        switch (paymill.cardType($('#paymill-card-number').val()).toLowerCase()) {
+            case 'visa':
+                $('#paymill-card-number').removeClass();
+                $('#paymill-card-number').addClass('form-row-paymill ' + cssClass + 'visa');
+                break;
+            case 'mastercard':
+                $('#paymill-card-number').removeClass();
+                $('#paymill-card-number').addClass('form-row-paymill ' + cssClass + 'mastercard');
+                break;
+            case 'american express':
+                $('#paymill-card-number').removeClass();
+                $('#paymill-card-number').addClass('form-row-paymill ' + cssClass + 'amex');
+                break;
+            case 'jcb':
+                $('#paymill-card-number').removeClass();
+                $('#paymill-card-number').addClass('form-row-paymill ' + cssClass + 'jcb');
+                break;
+            case 'maestro':
+                $('#paymill-card-number').removeClass();
+                $('#paymill-card-number').addClass('form-row-paymill ' + cssClass + 'maestro');
+                break;
+            case 'diners club':
+                $('#paymill-card-number').removeClass();
+                $('#paymill-card-number').addClass('form-row-paymill ' + cssClass + 'diners');
+                break;
+            case 'discover':
+                $('#paymill-card-number').removeClass();
+                $('#paymill-card-number').addClass('form-row-paymill ' + cssClass + 'discover');
+                break;
+            case 'unionpay':
+                $('#paymill-card-number').removeClass();
+                $('#paymill-card-number').addClass('form-row-paymill ' + cssClass + 'carte-bleue');
+                break;
+        }
+    });
 
-		$('.card-icon :first-child').css('position', 'absolute');
-	});
-	
-	if (brand !== '') {
-		$('.card-icon').html('<img src="ext/modules/payment/paymill/public/images/32x20_' + brand + '.png" >');
-		$('.card-icon').show();
-		$('.card-icon :first-child').css('position', 'absolute');
-	}
+    if (brand !== '') {
+        $('#paymill-card-number').removeClass();
+        $('#paymill-card-number').addClass('form-row-paymill ' + cssClass + brand);
+    }
 
     $('form[name="checkout_confirmation"]').submit(function () {
-		if (!isCcSubmitted) {
-			if (!paymill_cc_fastcheckout) {
-				if (!paymill.validateExpiry($("#paymill-card-expiry-month option:selected").val(), $("#paymill-card-expiry-year option:selected").val())) {
-					alert(cc_expiery_invalid);
-					return false;
-				}
+        if (!isCcSubmitted) {
+            if (!paymill_cc_fastcheckout) {
+                if (!paymill.validateExpiry($("#paymill-card-expiry-month option:selected").val(), $("#paymill-card-expiry-year option:selected").val())) {
+                    alert(cc_expiery_invalid);
+                    return false;
+                }
 
-				if (!paymill.validateCardNumber($("#paymill-card-number").val())) {
-					alert(cc_card_number_invalid);
-					return false;
-				}
+                if (!paymill.validateCardNumber($("#paymill-card-number").val())) {
+                    alert(cc_card_number_invalid);
+                    return false;
+                }
 
-				if ($("#paymill-card-owner").val() === '') {
-					alert(cc_owner_invalid);
-					return false;
-				}
+                if ($("#paymill-card-owner").val() === '') {
+                    alert(cc_owner_invalid);
+                    return false;
+                }
 				
-				if (!paymill.validateCvc($("#paymill-card-cvc").val())) {
-					alert(cc_cvc_number_invalid);
-					return false;
-				}
+                if (!paymill.validateCvc($("#paymill-card-cvc").val())) {
+                    alert(cc_cvc_number_invalid);
+                    return false;
+                }
 
-				paymill.createToken({
-					number: $("#paymill-card-number").val(),
-					exp_month: $("#paymill-card-expiry-month option:selected").val(), 
-					exp_year: $("#paymill-card-expiry-year option:selected").val(), 
-					cvc: $("#paymill-card-cvc").val(),
-					amount_int: paymill_total,
-					currency: paymill_currency,
-					cardholder: $("#paymill-card-owner").val()
-				}, PaymillCcResponseHandler);
+                paymill.createToken({
+                    number: $("#paymill-card-number").val(),
+                    exp_month: $("#paymill-card-expiry-month option:selected").val(), 
+                    exp_year: $("#paymill-card-expiry-year option:selected").val(), 
+                    cvc: $("#paymill-card-cvc").val(),
+                    amount_int: paymill_total,
+                    currency: paymill_currency,
+                    cardholder: $("#paymill-card-owner").val()
+                }, PaymillCcResponseHandler);
 
-				return false; 
-			} else {
-				$('#paymill_form').html('<input type="hidden" name="paymill_token" value="dummyToken" />').submit();
-			}
-		}
+                return false; 
+            } else {
+                $('#paymill_form').html('<input type="hidden" name="paymill_token" value="dummyToken" />').submit();
+            }
+        }
     });
 	
-	$('#paymill-card-number').focus(function() {
+    $('#paymill-card-number').focus(function() {
         paymill_cc_fastcheckout = false;
         $('#paymill-card-number').val('');
     });
@@ -147,15 +143,15 @@ $(document).ready(function () {
 
     function PaymillCcResponseHandler(error, result) 
     { 
-		isCcSubmitted = true;
+        isCcSubmitted = true;
         if (error) {
             isCcSubmitted = false;
-			alert("An API error occured!");
+            alert("An API error occured!");
             console.log("An API error occured: " + error.apierror);
             return false;
         } else {
             $('#paymill_form').html('<input type="hidden" name="paymill_token" value="' + result.token + '" />');
-			$('#paymill_form').submit();
+            $('#paymill_form').submit();
         }
     }
 });

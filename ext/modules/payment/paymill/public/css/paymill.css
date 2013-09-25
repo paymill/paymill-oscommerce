@@ -37,6 +37,7 @@
 .form-row-paymill
 {
     width: 250px;
+    height: 18px;
 }
 
 #paymill-card-expiry-month
@@ -65,6 +66,49 @@
 
 .card-icon
 {
-    margin-left: 5px;
+    padding-top: 2px;
+    width: 31px;
+    height: 19px;
     position: absolute;
+}
+
+
+.paymill-card-number-visa
+{
+    background: url('../images/32x20_visa.png') no-repeat center right;
+}
+
+.paymill-card-number-mastercard
+{
+    background: url('../images/32x20_mastercard.png') no-repeat center right;
+}
+
+.paymill-card-number-amex
+{
+    background: url('../images/32x20_amex.png') no-repeat center right;
+}
+
+.paymill-card-number-jcb
+{
+    background: url('../images/32x20_jcb.png') no-repeat center right;
+}
+
+.paymill-card-number-maestro
+{
+    background: url('../images/32x20_maestro.png') no-repeat center right;
+}
+
+.paymill-card-number-carte-bleue
+{
+    background: url('../images/32x20_unionpay.png') no-repeat center right;
+}
+
+.paymill-card-number-diners
+{
+    background: url('../images/32x20_dinersclub.png') no-repeat center right;
+}
+
+.paymill-card-number-discover
+{
+    background: url('../images/32x20_discover.png') no-repeat center right;
 }
