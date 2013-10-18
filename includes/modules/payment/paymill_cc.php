@@ -148,7 +148,7 @@ class paymill_cc extends paymill_abstract
                                                       'field' => '<span id="card-number-field"></span><span class="card-icon"></span>'),
                                                 array('title' => MODULE_PAYMENT_PAYMILL_CC_TEXT_CREDITCARD_EXPIRY,
                                                       'field' => '<span class="paymill-expiry"><span id="card-expiry-month-field"></span>&nbsp;<span id="card-expiry-year-field"></span></span>'),
-                                                array('title' => MODULE_PAYMENT_PAYMILL_CC_TEXT_CREDITCARD_CVC,
+                                                array('title' => MODULE_PAYMENT_PAYMILL_CC_TEXT_CREDITCARD_CVC . '<span class="tooltip" title="' . MODULE_PAYMENT_PAYMILL_CC_TEXT_CREDITCARD_CVC_TOOLTIP . '">?</span>',
                                                       'field' => '<span id="card-cvc-field" class="card-cvc-row"></span>')));
 
         return $confirmation;

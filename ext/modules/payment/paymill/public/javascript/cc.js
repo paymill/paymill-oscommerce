@@ -91,12 +91,12 @@ $(document).ready(function () {
                     return false;
                 }
 
-                if ($("#paymill-card-owner").val() === '') {
+                if (!paymill.validateHolder($("#paymill-card-owner").val())) {
                     alert(cc_owner_invalid);
                     return false;
                 }
 				
-                if (!paymill.validateCvc($("#paymill-card-cvc").val()) && !paymill.cardType($("#paymill-card-number").val()).toLowerCase() === 'maestro') {
+                if (!paymill.validateCvc($("#paymill-card-cvc").val()) && paymill.cardType($("#paymill-card-number").val()).toLowerCase() !== 'maestro') {
                     alert(cc_cvc_number_invalid);
                     return false;
                 }
