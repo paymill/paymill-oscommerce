@@ -34,6 +34,7 @@ class paymill_abstract implements Services_Paymill_LoggingInterface
 
     function paymill_abstract()
     {
+        $this->version = '1.4.1';
         $this->fastCheckout = new FastCheckout();
         $this->paymentProcessor = new Services_Paymill_PaymentProcessor();
     }
@@ -333,7 +334,7 @@ class paymill_abstract implements Services_Paymill_LoggingInterface
 
     function install()
     {
-        tep_db_query("DROP TABLE `pi_paymill_logging`");
+        tep_db_query("DROP TABLE IF EXISTS `pi_paymill_logging`");
         
         tep_db_query(
             "CREATE TABLE IF NOT EXISTS `pi_paymill_logging` ("
