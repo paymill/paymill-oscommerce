@@ -1,4 +1,7 @@
 #Changelog
+##1.4.3
+* Fixed an issue with the error display
+
 ##1.4.2
 * Improved Feedback in all errorcases.
 

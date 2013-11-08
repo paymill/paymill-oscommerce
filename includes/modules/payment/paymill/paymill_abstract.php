@@ -34,7 +34,7 @@ class paymill_abstract implements Services_Paymill_LoggingInterface
 
     function paymill_abstract()
     {
-        $this->version = '1.4.2';
+        $this->version = '1.4.3';
         $this->fastCheckout = new FastCheckout();
         $this->paymentProcessor = new Services_Paymill_PaymentProcessor();
     }
@@ -102,7 +102,8 @@ class paymill_abstract implements Services_Paymill_LoggingInterface
             $error = urldecode($_GET['error']);
         }
 
-        $error_text['error'] = utf8_decode($error);
+        $error_text['error'] = utf8_decode(constant($error));
+
         return $error_text;
     }
 
@@ -132,42 +133,37 @@ class paymill_abstract implements Services_Paymill_LoggingInterface
         global $order;
 
         $_SESSION['paymill_identifier'] = time();
-        try{
-            $this->paymentProcessor->setAmount((int) $this->format_raw($order->info['total']));
-            $this->paymentProcessor->setApiUrl((string) $this->apiUrl);
-            $this->paymentProcessor->setCurrency((string) strtoupper($order->info['currency']));
-            $this->paymentProcessor->setDescription((string) STORE_NAME);
-            $this->paymentProcessor->setEmail((string) $order->customer['email_address']);
-            $this->paymentProcessor->setName((string) $order->customer['lastname'] . ', ' . $order->customer['firstname']);
-            $this->paymentProcessor->setPrivateKey((string) $this->privateKey);
-            $this->paymentProcessor->setToken((string) $_POST['paymill_token']);
-            $this->paymentProcessor->setLogger($this);
-            $this->paymentProcessor->setSource($this->version . '_OSCOM_' . tep_get_version());
 
-            $this->fastCheckout->setFastCheckoutFlag($this->fastCheckoutFlag);
+        $this->paymentProcessor->setAmount((int) $this->format_raw($order->info['total']));
+        $this->paymentProcessor->setApiUrl((string) $this->apiUrl);
+        $this->paymentProcessor->setCurrency((string) strtoupper($order->info['currency']));
+        $this->paymentProcessor->setDescription((string) STORE_NAME);
+        $this->paymentProcessor->setEmail((string) $order->customer['email_address']);
+        $this->paymentProcessor->setName((string) $order->customer['lastname'] . ', ' . $order->customer['firstname']);
+        $this->paymentProcessor->setPrivateKey((string) $this->privateKey);
+        $this->paymentProcessor->setToken((string) $_POST['paymill_token']);
+        $this->paymentProcessor->setLogger($this);
+        $this->paymentProcessor->setSource($this->version . '_OSCOM_' . tep_get_version());
 
-            if ($_POST['paymill_token'] === 'dummyToken') {
-                $this->fastCheckout();
-            }
+        $this->fastCheckout->setFastCheckoutFlag($this->fastCheckoutFlag);
 
-            $data = $this->fastCheckout->loadFastCheckoutData($_SESSION['customer_id']);
-            if (!empty($data['clientID'])) {
-                $this->existingClient($data);
-            }
-
-            $result = $this->paymentProcessor->processPayment();
-            $_SESSION['paymill']['transaction_id'] = $this->paymentProcessor->getTransactionId();
-        } catch(Exception $exception){
-            $result = false;
-            $errorCode = $this->_getPaymillError($exception->getCode());
+        if ($_POST['paymill_token'] === 'dummyToken') {
+            $this->fastCheckout();
         }
+
+        $data = $this->fastCheckout->loadFastCheckoutData($_SESSION['customer_id']);
+        if (!empty($data['clientID'])) {
+            $this->existingClient($data);
+        }
+
+        $result = $this->paymentProcessor->processPayment();
+        $_SESSION['paymill']['transaction_id'] = $this->paymentProcessor->getTransactionId();
+
 
         if (!$result) {
             unset($_SESSION['paymill_identifier']);
-            if(empty($errorCode)){
-                $errorCode = $this->_getPaymillError($this->paymentProcessor->getErrorCode());
-            }
-            tep_redirect(tep_href_link(FILENAME_CHECKOUT_PAYMENT, '', 'SSL', true, false) . '?step=step2&payment_error=' . $errorCode . '&error=200');
+            $errorCode = 'PAYMILL_'.$this->paymentProcessor->getErrorCode();
+            tep_redirect(tep_href_link(FILENAME_CHECKOUT_PAYMENT, '', 'SSL', true, false) . '?step=step2&payment_error=' . $this->code . '&error='.$errorCode);
         }
         
         if ($this->fastCheckoutFlag) {
@@ -356,18 +352,6 @@ class paymill_abstract implements Services_Paymill_LoggingInterface
            . "PRIMARY KEY (`userID`)"
          . ")"
         );
-    }
-
-    /**
-     * Returns the snippet name of the error text associated with the error
-     *
-     * @param string $errorCode
-     *
-     * @return string
-     */
-    function _getPaymillError($errorCode)
-    {
-        return 'PAYMILL_'.$errorCode;
     }
 }
 
