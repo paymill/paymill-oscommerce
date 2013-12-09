@@ -1,4 +1,7 @@
 #Changelog
+##1.4.4
+* update fast checkout
+
 ##1.4.3
 * Fixed an issue with the error display
 

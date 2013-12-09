@@ -113,7 +113,7 @@ class paymill_cc extends paymill_abstract
 
         $oscTemplate->addBlock($script, 'header_tags');
 
-        $oscTemplate->addBlock('<form id="paymill_form" action="' . tep_href_link(FILENAME_CHECKOUT_PROCESS, '', 'SSL') . '" method="post" style="display: none;"></form>', 'footer_scripts');
+        $oscTemplate->addBlock('<form id="paymill_form" action="' . tep_href_link(FILENAME_CHECKOUT_PROCESS, '', 'SSL') . '" method="post"></form>', 'footer_scripts');
     }
     
         

@@ -29,6 +29,7 @@ define('MODULE_PAYMENT_PAYMILL_ELV_TEXT_SAVED', 'Debit Payment powered by');
 define('MODULE_PAYMENT_PAYMILL_ELV_TEXT_ACCOUNT_INVALID', 'The account number is invalid.');
 define('MODULE_PAYMENT_PAYMILL_ELV_TEXT_BANKCODE_INVALID', 'The bank code is invalid.');
 define('MODULE_PAYMENT_PAYMILL_ELV_TEXT_ACCOUNT_HOLDER_INVALID', 'The account holder is invalid.');
+define('PAYMILL_0', 'General error in checkout.');
 define('PAYMILL_10001', 'General undefined response.');
 define('PAYMILL_10002', 'Still waiting on something.');
 define('PAYMILL_20000', 'General success response.');

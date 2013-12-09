@@ -34,7 +34,7 @@ class paymill_abstract implements Services_Paymill_LoggingInterface
 
     function paymill_abstract()
     {
-        $this->version = '1.4.3';
+        $this->version = '1.4.4';
         $this->fastCheckout = new FastCheckout();
         $this->paymentProcessor = new Services_Paymill_PaymentProcessor();
     }

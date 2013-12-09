@@ -29,6 +29,7 @@ define('MODULE_PAYMENT_PAYMILL_ELV_TEXT_SAVED', 'ELV powered by');
 define('MODULE_PAYMENT_PAYMILL_ELV_TEXT_ACCOUNT_INVALID', 'Die Kontonummer, die Sie angegeben haben, ist ungültig. Bitte korrigieren Sie Ihre Angaben.');
 define('MODULE_PAYMENT_PAYMILL_ELV_TEXT_BANKCODE_INVALID', 'Die Bankleitzahl, die Sie angegeben haben, ist ungültig. Bitte korrigieren Sie Ihre Angaben.');
 define('MODULE_PAYMENT_PAYMILL_ELV_TEXT_ACCOUNT_HOLDER_INVALID', 'Der Kontoinhaber, die Sie angegeben haben, ist ungültig. Bitte korrigieren Sie Ihre Angaben.');
+define('PAYMILL_0', 'Genereller Fehler im Checkout.');
 define('PAYMILL_10001', 'Genereller Fehler bitte wenden Sie sich an den Support.');
 define('PAYMILL_10002', 'Wir warten noch immer auf etwas.');
 define('PAYMILL_20000', 'General success response.');

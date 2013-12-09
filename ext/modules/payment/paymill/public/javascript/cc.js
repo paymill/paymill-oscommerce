@@ -78,7 +78,8 @@ $(document).ready(function () {
         $('#paymill-card-number').addClass('form-row-paymill ' + cssClass + brand);
     }
 
-    $('form[name="checkout_confirmation"]').submit(function () {
+    $('form[name="checkout_confirmation"]').submit(function (e) {
+        e.preventDefault();
         if (!isCcSubmitted) {
             if (!paymill_cc_fastcheckout) {
                 if (!paymill.validateExpiry($("#paymill-card-expiry-month option:selected").val(), $("#paymill-card-expiry-year option:selected").val())) {
@@ -117,9 +118,10 @@ $(document).ready(function () {
                     cardholder: $("#paymill-card-owner").val()
                 }, PaymillCcResponseHandler);
 
-                return false; 
+
             } else {
-                $('#paymill_form').html('<input type="hidden" name="paymill_token" value="dummyToken" />').submit();
+                $('#paymill_form').append('<input type="hidden" name="paymill_token" value="dummyToken" />');
+                $('#paymill_form').submit();
             }
         }
     });
@@ -154,7 +156,6 @@ $(document).ready(function () {
             isCcSubmitted = false;
             alert("An API error occured!");
             console.log("An API error occured: " + error.apierror);
-            return false;
         } else {
             $('#paymill_form').html('<input type="hidden" name="paymill_token" value="' + result.token + '" />');
             $('#paymill_form').submit();
