@@ -4,6 +4,7 @@ require_once(DIR_FS_CATALOG . 'ext/modules/payment/paymill/lib/Services/Paymill/
 require_once(DIR_FS_CATALOG . 'ext/modules/payment/paymill/lib/Services/Paymill/LoggingInterface.php');
 require_once(DIR_FS_CATALOG . 'ext/modules/payment/paymill/lib/Services/Paymill/Payments.php');
 require_once(DIR_FS_CATALOG . 'ext/modules/payment/paymill/lib/Services/Paymill/Clients.php');
+require_once(DIR_FS_CATALOG . 'ext/modules/payment/paymill/lib/Services/Paymill/Transactions.php');
 require_once(DIR_FS_CATALOG . 'ext/modules/payment/paymill/FastCheckout.php');
 
 /**
@@ -268,8 +269,14 @@ class paymill_abstract implements Services_Paymill_LoggingInterface
             'date_added' => 'now()',
             'customer_notified' => '0',
             'comments' => 'Payment approved, Transaction ID: ' . $_SESSION['paymill']['transaction_id']);
-
+        
         tep_db_perform(TABLE_ORDERS_STATUS_HISTORY, $sql_data_array);
+        
+        $transactions = new Services_Paymill_Transactions($this->privateKey, $this->apiUrl);
+        $transactions->update(array(
+            'id' => $_SESSION['paymill']['transaction_id'],
+            'description' => (string) STORE_NAME . ' Order # ' . $insert_id
+        ));
 
         unset($_SESSION['paymill']);
     }
