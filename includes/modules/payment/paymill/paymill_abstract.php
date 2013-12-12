@@ -86,11 +86,7 @@ class paymill_abstract implements Services_Paymill_LoggingInterface
 
     function pre_confirmation_check()
     {
-        global $oscTemplate;
-
-        $oscTemplate->addBlock('<link rel="stylesheet" type="text/css" href="ext/modules/payment/paymill/public/css/paymill.css" />', 'header_tags');
-        $oscTemplate->addBlock('<script type="text/javascript">var PAYMILL_PUBLIC_KEY = "' . $this->publicKey . '";</script>', 'header_tags');
-        $oscTemplate->addBlock('<script type="text/javascript" src="' . $this->bridgeUrl . '"></script>', 'header_tags');
+        return false;
     }
 
     function get_error()
@@ -120,7 +116,22 @@ class paymill_abstract implements Services_Paymill_LoggingInterface
 
     function confirmation()
     {
-        return false;
+       return array(
+            'fields' => array(
+                array(
+                    'title' => '',
+                    'field' => '<link rel="stylesheet" type="text/css" href="ext/modules/payment/paymill/public/css/paymill.css" />'
+                ),
+                array(
+                    'title' => '',
+                    'field' => '<script type="text/javascript">var PAYMILL_PUBLIC_KEY = "' . $this->publicKey . '";</script>'
+                ),
+                array(
+                    'title' => '',
+                    'field' => '<script type="text/javascript" src="' . $this->bridgeUrl . '"></script>'
+                ),
+            )
+        );
     }
 
     function process_button()
@@ -143,7 +154,7 @@ class paymill_abstract implements Services_Paymill_LoggingInterface
         $this->paymentProcessor->setPrivateKey((string) $this->privateKey);
         $this->paymentProcessor->setToken((string) $_POST['paymill_token']);
         $this->paymentProcessor->setLogger($this);
-        $this->paymentProcessor->setSource($this->version . '_OSCOM_' . tep_get_version());
+        $this->paymentProcessor->setSource($this->version . '_OSCOM_' . PROJECT_VERSION);
 
         $this->fastCheckout->setFastCheckoutFlag($this->fastCheckoutFlag);
 
@@ -324,7 +335,7 @@ class paymill_abstract implements Services_Paymill_LoggingInterface
         if (empty($currency_value) || !is_numeric($currency_value)) {
             $currency_value = $currencies->currencies[$currency_code]['value'];
         }
-
+        
         return number_format(tep_round($number * $currency_value, $currencies->currencies[$currency_code]['decimal_places']), $currencies->currencies[$currency_code]['decimal_places'], '', '');
     }
 

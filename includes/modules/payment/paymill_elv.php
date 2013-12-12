@@ -65,36 +65,6 @@ class paymill_elv extends paymill_abstract
         return $selection;
     }
 
-    function pre_confirmation_check()
-    {
-        global $oscTemplate, $order;
-
-        parent::pre_confirmation_check();
-
-        $oscTemplate->addBlock('<script type="text/javascript" src="ext/modules/payment/paymill/public/javascript/elv.js"></script>', 'header_tags');
-
-        $payment = $this->getPayment($_SESSION['customer_id']);
-        
-        $this->fastCheckout->setFastCheckoutFlag($this->fastCheckoutFlag);
-        
-        $script = '<script type="text/javascript">'
-                . 'var elvlogging = "' . MODULE_PAYMENT_PAYMILL_ELV_LOGGING . '";'
-                . 'var elv_account_number_invalid = "' . utf8_decode(MODULE_PAYMENT_PAYMILL_ELV_TEXT_ACCOUNT_INVALID) . '";'
-                . 'var elv_bank_code_invalid = "' . utf8_decode(MODULE_PAYMENT_PAYMILL_ELV_TEXT_BANKCODE_INVALID) . '";'
-                . 'var elv_bank_owner_invalid = "' . utf8_decode(MODULE_PAYMENT_PAYMILL_ELV_TEXT_ACCOUNT_HOLDER_INVALID) . '";'
-                . 'var paymill_account_name = ' . json_encode(tep_output_string_protected($order->billing['firstname'] . ' ' . $order->billing['lastname'])) . ';'
-                . 'var paymill_elv_code = "' . $payment['code'] . '";'
-                . 'var paymill_elv_holder = "' . $payment['holder'] . '";'
-                . 'var paymill_elv_account = "' . $payment['account'] . '";'
-                . 'var paymill_elv_fastcheckout = ' . $this->fastCheckout->canCustomerFastCheckoutElvTemplate($_SESSION['customer_id']) . ';'
-                . '</script>';
-
-        $oscTemplate->addBlock($script, 'header_tags');
-
-        $oscTemplate->addBlock('<form id="paymill_form" action="' . tep_href_link(FILENAME_CHECKOUT_PROCESS, '', 'SSL') . '" method="post" style="display: none;"></form>', 'footer_scripts');
-    }
-    
-        
     function getPayment($userId)
     {
         $payment = array(
@@ -113,12 +83,55 @@ class paymill_elv extends paymill_abstract
     
     function confirmation()
     {
-        $confirmation = array('fields' => array(array('title' => MODULE_PAYMENT_PAYMILL_ELV_TEXT_ACCOUNT_HOLDER,
-                                                      'field' => '<span id="account-name-field"></span>'),
-                                                array('title' => MODULE_PAYMENT_PAYMILL_ELV_TEXT_ACCOUNT,
-                                                      'field' => '<span id="account-number-field"></span>'),
-                                                array('title' => MODULE_PAYMENT_PAYMILL_ELV_TEXT_BANKCODE,
-                                                      'field' => '<span id="bank-code-field"></span>')));
+        global $order;
+        
+        $confirmation = parent::confirmation();
+        
+        $payment = $this->getPayment($_SESSION['customer_id']);
+        
+        $this->fastCheckout->setFastCheckoutFlag($this->fastCheckoutFlag);
+        
+        $script = '<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>'
+                . '<script type="text/javascript">'
+                . 'var elvlogging = "' . MODULE_PAYMENT_PAYMILL_ELV_LOGGING . '";'
+                . 'var elv_account_number_invalid = "' . utf8_decode(MODULE_PAYMENT_PAYMILL_ELV_TEXT_ACCOUNT_INVALID) . '";'
+                . 'var elv_bank_code_invalid = "' . utf8_decode(MODULE_PAYMENT_PAYMILL_ELV_TEXT_BANKCODE_INVALID) . '";'
+                . 'var elv_bank_owner_invalid = "' . utf8_decode(MODULE_PAYMENT_PAYMILL_ELV_TEXT_ACCOUNT_HOLDER_INVALID) . '";'
+                . 'var paymill_account_name = ' . json_encode($order->billing['firstname'] . ' ' . $order->billing['lastname']) . ';'
+                . 'var paymill_elv_code = "' . $payment['code'] . '";'
+                . 'var paymill_elv_holder = "' . utf8_decode($payment['holder']) . '";'
+                . 'var paymill_elv_account = "' . $payment['account'] . '";'
+                . 'var paymill_elv_fastcheckout = ' . $this->fastCheckout->canCustomerFastCheckoutElvTemplate($_SESSION['customer_id']) . ';'
+                . 'var checkout_payment_link = "' . tep_href_link(FILENAME_CHECKOUT_PAYMENT, 'step=step2&payment_error=' . $this->code . '&error=300', 'SSL', true, false) . '";'
+                . '</script>'
+                . '<script type="text/javascript" src="ext/modules/payment/paymill/public/javascript/elv.js"></script>';
+        
+        array_push($confirmation['fields'], 
+            array(
+                'field' => $script
+            )
+        );
+        
+        array_push($confirmation['fields'], 
+            array(
+                'title' => '<div class="paymill-label-field">' . MODULE_PAYMENT_PAYMILL_ELV_TEXT_ACCOUNT_HOLDER . '</div>',
+                'field' => '<span id="account-name-field"></span><span id="elv-holder-error" class="paymill-error"></span>'
+            )
+        );
+        
+        array_push($confirmation['fields'], 
+            array(
+                'title' => '<div class="paymill-label-field">' . MODULE_PAYMENT_PAYMILL_ELV_TEXT_ACCOUNT . '</div>',
+                'field' => '<span id="account-number-field"></span><span id="elv-account-error" class="paymill-error"></span>'
+            )
+        );
+        
+        array_push($confirmation['fields'], 
+            array(
+                'title' => '<div class="paymill-label-field">' . MODULE_PAYMENT_PAYMILL_ELV_TEXT_BANKCODE . '</div>',
+                'field' => '<span id="bank-code-field"></span><span id="elv-bankcode-error" class="paymill-error"></span>'
+            )
+        );
 
         return $confirmation;
     }
