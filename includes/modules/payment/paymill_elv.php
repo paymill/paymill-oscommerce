@@ -43,9 +43,8 @@ class paymill_elv extends paymill_abstract
 
         $oscTemplate->addBlock('<script type="text/javascript" src="ext/modules/payment/paymill/public/javascript/elv.js"></script>', 'header_tags');
 
-        $payment = $this->getPayment($_SESSION['customer_id']);
-        
         $this->fastCheckout->setFastCheckoutFlag($this->fastCheckoutFlag);
+        $payment = $this->getPayment($_SESSION['customer_id']);
         
         $script = '<script type="text/javascript">'
                 . 'var elvlogging = "' . MODULE_PAYMENT_PAYMILL_ELV_LOGGING . '";'
@@ -56,7 +55,7 @@ class paymill_elv extends paymill_abstract
                 . 'var paymill_elv_code = "' . $payment['code'] . '";'
                 . 'var paymill_elv_holder = "' . $payment['holder'] . '";'
                 . 'var paymill_elv_account = "' . $payment['account'] . '";'
-                . 'var paymill_elv_fastcheckout = ' . $this->fastCheckout->canCustomerFastCheckoutElvTemplate($_SESSION['customer_id']) . ';'
+                . 'var paymill_elv_fastcheckout = ' . ($this->fastCheckout->canCustomerFastCheckoutElv($_SESSION['customer_id']) ? 'true' : 'false') . ';'
                 . '</script>';
 
         $oscTemplate->addBlock($script, 'header_tags');
@@ -72,8 +71,8 @@ class paymill_elv extends paymill_abstract
             'holder' => '',
             'account' => ''
         );
-        
-        if ($this->fastCheckout->hasElvPaymentId($userId)) {
+
+        if ($this->fastCheckout->canCustomerFastCheckoutElv($userId)) {
             $data = $this->fastCheckout->loadFastCheckoutData($userId);
             $payment = $this->payments->getOne($data['paymentID_ELV']);
         }

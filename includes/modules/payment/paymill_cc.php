@@ -56,11 +56,10 @@ class paymill_cc extends paymill_abstract
         for ($i=$today['year']; $i < $today['year']+10; $i++) {
             $years_array[$i] = array(tep_output_string(strftime('%Y',mktime(0,0,0,1,1,$i))),
                                      tep_output_string_protected(strftime('%Y',mktime(0,0,0,1,1,$i))));
-        } 
-        
-        $payment = $this->getPayment($_SESSION['customer_id']);
-        
+        }
+
         $this->fastCheckout->setFastCheckoutFlag($this->fastCheckoutFlag);
+        $payment = $this->getPayment($_SESSION['customer_id']);
         
         $script = '<script type="text/javascript">'
                 . 'var cclogging = "' . MODULE_PAYMENT_PAYMILL_CC_LOGGING . '";'
@@ -78,7 +77,7 @@ class paymill_cc extends paymill_abstract
                 . 'var paymill_cc_holder_val = "' . $payment['card_holder'] . '";'
                 . 'var paymill_cc_expiry_month_val = "' . $payment['expire_month'] . '";'
                 . 'var paymill_cc_expiry_year_val = "' . $payment['expire_year'] . '";'
-                . 'var paymill_cc_fastcheckout = ' . $this->fastCheckout->canCustomerFastCheckoutCcTemplate($_SESSION['customer_id']) . ';'
+                . 'var paymill_cc_fastcheckout = ' . ($this->fastCheckout->canCustomerFastCheckoutCc($_SESSION['customer_id']) ? 'true' : 'false') . ';'
                 . '</script>';
 
         $oscTemplate->addBlock($script, 'header_tags');
@@ -97,8 +96,8 @@ class paymill_cc extends paymill_abstract
             'expire_year' => '',
             'card_type' => '',
         );
-        
-        if ($this->fastCheckout->hasCcPaymentId($userId)) {
+
+        if ($this->fastCheckout->canCustomerFastCheckoutCc($userId)) {
             $data = $this->fastCheckout->loadFastCheckoutData($userId);
             $payment = $this->payments->getOne($data['paymentID_CC']);
             $payment['last4'] = '************' . $payment['last4'];

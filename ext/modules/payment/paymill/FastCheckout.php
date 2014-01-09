@@ -1,110 +1,38 @@
 <?php
-
-class FastCheckout
+require_once('abstract/FastCheckoutAbstract.php');
+require_once(DIR_FS_CATALOG . 'ext/modules/payment/paymill/lib/Services/Paymill/Clients.php');
+require_once(DIR_FS_CATALOG . 'ext/modules/payment/paymill/lib/Services/Paymill/Payments.php');
+class FastCheckout extends FastCheckoutAbstract
 {
-    private $_fastCheckoutFlag = false;
-    
-    public function canCustomerFastCheckoutCcTemplate($userId)
+    /**
+     * Executes sql query
+     *
+     * @param $sql
+     *
+     * @return resource
+     */
+    function dbQuery($sql)
     {
-        $flag = 'false';
-        if (isset($userId) && $userId != '') {
-            if ($this->canCustomerFastCheckoutCc($userId)) {
-                $flag = 'true';
-            }
-        }
-        
-        return $flag;
-    }    
-    
-    public function canCustomerFastCheckoutElvTemplate($userId)
-    {
-        $flag = 'false';
-        if (isset($userId) && $userId != '') {
-            if ($this->canCustomerFastCheckoutElv($userId)) {
-                $flag = 'true';
-            }
-        }
-        return $flag;
-    }    
-    
-    public function canCustomerFastCheckoutCc($userId)
-    {
-        if (isset($userId) && $userId != '') {
-            return $this->hasCcPaymentId($userId) && $this->_fastCheckoutFlag;
-        }
+        return tep_db_query($sql);
+    }
 
-        return false;
-    }
-    
-    public function canCustomerFastCheckoutElv($userId)
+    /**
+     * Executes sql statements returning an array
+     * @param $sql
+     *
+     * @return array|bool|mixed
+     */
+    function dbFetchArray($sql)
     {
-        if (isset($userId) && $userId != '') {
-            return $this->hasElvPaymentId($userId) && $this->_fastCheckoutFlag;
-        }
-
-        return false;
-    }
-    
-    public function saveCcIds($userId, $newClientId, $newPaymentId)
-    {
-        if (isset($userId) && $userId != '') {
-            if ($this->_canUpdate($userId)) {
-                $sql = "UPDATE `pi_paymill_fastcheckout`SET `paymentID_CC` = '$newPaymentId' WHERE `userID` = '$userId'";
-            } else {
-                $sql = "INSERT INTO `pi_paymill_fastcheckout` (`userID`, `clientID`, `paymentID_CC`) VALUES ('$userId', '$newClientId', '$newPaymentId')";
-            }
-
-            tep_db_query($sql);
-        }
-    }
-    
-    public function saveElvIds($userId, $newClientId, $newPaymentId)
-    {
-        if (isset($userId) && $userId != '') {
-            if ($this->_canUpdate($userId)) {
-                $sql = "UPDATE `pi_paymill_fastcheckout`SET `paymentID_ELV` = '$newPaymentId' WHERE `userID` = '$userId'";
-            } else {
-                $sql = "INSERT INTO `pi_paymill_fastcheckout` (`userID`, `clientID`, `paymentID_ELV`) VALUES ('$userId', '$newClientId', '$newPaymentId')";
-            }
-
-           tep_db_query($sql);
-        }
-    }
-    
-    private function _canUpdate($userId)
-    {
-        $data = $this->loadFastCheckoutData($userId);
-        return $data;
-    }
-    
-    public function loadFastCheckoutData($userId)
-    {
-        $sql = "SELECT * FROM `pi_paymill_fastcheckout` WHERE `userID` = '$userId'";
-        
         return tep_db_fetch_array(tep_db_query($sql));
     }
-    
-    public function hasElvPaymentId($userId)
-    {
-        if (isset($userId) && $userId != '') {
-            $data = $this->loadFastCheckoutData($userId);
-            return $data && array_key_exists('paymentID_ELV', $data) && !empty($data['paymentID_ELV']);
-        }
-        return false;
-    }
-    
-    public function hasCcPaymentId($userId)
-    {
-        if (isset($userId) && $userId != '') {
-            $data = $this->loadFastCheckoutData($userId);
-            return $data && array_key_exists('paymentID_CC', $data) && !empty($data['paymentID_CC']);
-        }
-        return false;
-    }
 
-    public function setFastCheckoutFlag($fastCheckoutFlag)
+    /**
+     * Returns the name of the Fast Checkout Table as a string
+     * @return string
+     */
+    function getFastCheckoutTableName()
     {
-        $this->_fastCheckoutFlag = $fastCheckoutFlag;
+        return "pi_paymill_fastcheckout";
     }
-    
 }

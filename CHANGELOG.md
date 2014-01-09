@@ -1,4 +1,9 @@
 #Changelog
+##1.5.0
+* Removed Paymill Label
+* Added Version number to module config
+* Added additional validation to the fast checkout process
+
 ##1.4.4
 * update fast checkout
 
