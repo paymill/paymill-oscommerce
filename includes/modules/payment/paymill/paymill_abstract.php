@@ -5,6 +5,7 @@ require_once(DIR_FS_CATALOG . 'ext/modules/payment/paymill/lib/Services/Paymill/
 require_once(DIR_FS_CATALOG . 'ext/modules/payment/paymill/lib/Services/Paymill/Payments.php');
 require_once(DIR_FS_CATALOG . 'ext/modules/payment/paymill/lib/Services/Paymill/Clients.php');
 require_once(DIR_FS_CATALOG . 'ext/modules/payment/paymill/FastCheckout.php');
+require_once(DIR_FS_CATALOG . 'ext/modules/payment/paymill/WebHooks.php');
 
 /**
  * Paymill payment plugin
@@ -36,9 +37,10 @@ class paymill_abstract implements Services_Paymill_LoggingInterface
 
     function paymill_abstract()
     {
-        $this->description = '';
         $this->description = "<p style='font-weight: bold; text-align: center'>$this->version</p>";
         $this->paymentProcessor = new Services_Paymill_PaymentProcessor();
+
+
     }
     
     /**
@@ -264,6 +266,8 @@ class paymill_abstract implements Services_Paymill_LoggingInterface
 
         tep_db_perform(TABLE_ORDERS_STATUS_HISTORY, $sql_data_array);
 
+        $this->updateTransaction($_SESSION['paymill']['transaction_id'], $insert_id);
+
         unset($_SESSION['paymill']);
     }
 
@@ -356,8 +360,88 @@ class paymill_abstract implements Services_Paymill_LoggingInterface
            . "PRIMARY KEY (`userID`)"
          . ")"
         );
-    }
-}
 
+        tep_db_query(
+            "CREATE TABLE IF NOT EXISTS `pi_paymill_webhooks` ("
+            . "`id` varchar(100),"
+            . "`url` varchar(150),"
+            . "`mode` varchar(100),"
+            . "`type` varchar(100),"
+            . "`created_at` varchar(100),"
+            . "PRIMARY KEY (`id`)"
+            . ")"
+        );
+
+        $this->addOrderState('Paymill [Refund]');
+        $this->addOrderState('Paymill [Chargeback]');
+    }
+
+    /**
+     * Displays the register/remove Webhook button in the payment config.
+     * @param String $type Can be either CC or ELV
+     */
+    function displayWebhookButton($type){
+        if(empty($this->privateKey) || $this->privateKey == 0){
+            return;
+        }
+
+        $webhooks = new WebHooks($this->privateKey);
+        $hooks = $webhooks->loadAllWebHooks($type);
+        $action = empty($hooks) ? 'register' : 'remove';
+        $buttonAction = 'CREATE';
+        if($action === 'remove'){
+            $buttonAction = 'REMOVE';
+        }
+        $buttonText = constant('MODULE_PAYMENT_PAYMILL_'.$type.'_WEBHOOKS_LINK_'.$buttonAction);
+
+        $this->description .= '<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>';
+        $this->description .= '<script type="text/javascript" src="javascript/paymill_button_webhook.js"></script>';
+        $this->description .= '<p><form id="register_webhooks" method="POST">';
+        $parameters         = 'action='.$action.'&type='.$type;
+        $this->description .= '<input id="listener" type="hidden" value="'.tep_href_link('../admin/paymill_webhook_listener.php',$parameters, 'SSL', false, false).'"> ';
+        $this->description .= '<button type="submit">'.$buttonText.'</button></form></p>';
+    }
+
+    /**
+     * Updates the description of target transaction by adding the prefix 'OrderID: ' followed by the order id
+     * @param String $id
+     * @param String $orderId
+     */
+    function updateTransaction($id, $orderId)
+    {
+        $transactions = new Services_Paymill_Transactions($this->privateKey, $this->apiUrl);
+        $transaction = $transactions->getOne($id);
+        $description = 'OrderID: ' . $orderId . ' ' . $transaction['description'];
+        $transactions->update(array(
+                                   'id'          => $id,
+                                   'description' => $description
+                              ));
+
+    }
+
+    /**
+     * Adds a new order state with the given name for both german and english language sets
+     * Therefore the state name should be english
+     * @param String $stateName
+     */
+    function addOrderState($stateName)
+    {
+        $check_query = tep_db_query("select orders_status_id from " . TABLE_ORDERS_STATUS . " where orders_status_name = '$stateName' limit 1");
+
+        if (tep_db_num_rows($check_query) < 1) {
+            $status_query = tep_db_query("select max(orders_status_id) as status_id from " . TABLE_ORDERS_STATUS);
+            $status = tep_db_fetch_array($status_query);
+            $status_id = $status['status_id'] + 1;
+        } else {
+            $check = tep_db_fetch_array($check_query);
+            $status_id = $check['orders_status_id'];
+        }
+
+
+        tep_db_query("REPLACE INTO orders_status (orders_status_id, language_id, orders_status_name) VALUES($status_id, 1, '".$stateName."')");
+        tep_db_query("REPLACE INTO orders_status (orders_status_id, language_id, orders_status_name) VALUES($status_id, 2, '".$stateName."')");
+    }
+
+}
 
 ?>
