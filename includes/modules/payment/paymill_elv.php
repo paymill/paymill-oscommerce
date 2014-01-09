@@ -8,18 +8,17 @@ class paymill_elv extends paymill_abstract
     {
         parent::paymill_abstract();
         global $order;
-
         $this->code = 'paymill_elv';
-        $this->api_version = '2';
         $this->title = MODULE_PAYMENT_PAYMILL_ELV_TEXT_TITLE;
         $this->public_title = MODULE_PAYMENT_PAYMILL_ELV_TEXT_PUBLIC_TITLE;
+        $this->privateKey = trim(MODULE_PAYMENT_PAYMILL_ELV_PRIVATEKEY);
+        $this->fastCheckout = new FastCheckout($this->privateKey);
 
         if (defined('MODULE_PAYMENT_PAYMILL_ELV_STATUS')) {
             $this->enabled = ((MODULE_PAYMENT_PAYMILL_ELV_STATUS == 'True') ? true : false);
             $this->sort_order = MODULE_PAYMENT_PAYMILL_ELV_SORT_ORDER;
             $this->privateKey = trim(MODULE_PAYMENT_PAYMILL_ELV_PRIVATEKEY);
             $this->logging = ((MODULE_PAYMENT_PAYMILL_ELV_LOGGING == 'True') ? true : false);
-            $this->label = ((MODULE_PAYMENT_PAYMILL_ELV_LABEL == 'True') ? true : false);
             $this->publicKey = MODULE_PAYMENT_PAYMILL_ELV_PUBLICKEY;
             $this->fastCheckoutFlag = ((MODULE_PAYMENT_PAYMILL_ELV_FASTCHECKOUT == 'True') ? true : false);
             $this->payments = new Services_Paymill_Payments($this->privateKey, $this->apiUrl);
@@ -36,35 +35,6 @@ class paymill_elv extends paymill_abstract
         if (is_object($order)) $this->update_status();
     }    
     
-    function selection()
-    {
-        $selection = parent::selection();
-        
-        if ($this->label) {
-            $label = '<div class="form-row">'
-                      . '<div class="paymill_powered">'
-                           . '<div class="paymill_credits">'
-                               . MODULE_PAYMENT_PAYMILL_ELV_TEXT_SAVED
-                              . ' <a href="http://www.paymill.de" target="_blank">PAYMILL</a>'
-                           . '</div>'
-                       . '</div>'
-                   . '</div>';
-            $formArray = array();
-
-            $formArray[] = array(
-                'field' => '<link rel="stylesheet" type="text/css" href="ext/modules/payment/paymill/public/css/paymill.css" />'
-            );
-
-            $formArray[] = array(
-                'field' => $label      
-            );
-
-            $selection['fields'] = $formArray;
-        }
-        
-        return $selection;
-    }
-
     function pre_confirmation_check()
     {
         global $oscTemplate, $order;
@@ -142,7 +112,6 @@ class paymill_elv extends paymill_abstract
 
         tep_db_query("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_description, configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) VALUES ('" . MODULE_PAYMENT_PAYMILL_ELV_STATUS_TITLE . "', '" . MODULE_PAYMENT_PAYMILL_ELV_STATUS_DESC . "', 'MODULE_PAYMENT_PAYMILL_ELV_STATUS', 'True', '6', '1', 'tep_cfg_select_option(array(\'True\', \'False\'), ', now())");
         tep_db_query("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_description, configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) VALUES ('" . MODULE_PAYMENT_PAYMILL_ELV_FASTCHECKOUT_TITLE . "', '" . MODULE_PAYMENT_PAYMILL_ELV_FASTCHECKOUT_DESC . "', 'MODULE_PAYMENT_PAYMILL_ELV_FASTCHECKOUT', 'False', '6', '1', 'tep_cfg_select_option(array(\'True\', \'False\'), ', now())");
-        tep_db_query("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_description, configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) VALUES ('" . MODULE_PAYMENT_PAYMILL_ELV_LABEL_TITLE . "', '" . MODULE_PAYMENT_PAYMILL_ELV_LABEL_DESC . "', 'MODULE_PAYMENT_PAYMILL_ELV_LABEL', 'False', '6', '1', 'tep_cfg_select_option(array(\'True\', \'False\'), ', now())");
         tep_db_query("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_description, configuration_key, configuration_value, configuration_group_id, sort_order, date_added) VALUES ('" . MODULE_PAYMENT_PAYMILL_ELV_SORT_ORDER_TITLE . "', '" . MODULE_PAYMENT_PAYMILL_ELV_SORT_ORDER_DESC . "', 'MODULE_PAYMENT_PAYMILL_ELV_SORT_ORDER', '0', '6', '0', now())");
         tep_db_query("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_description, configuration_key, configuration_value, configuration_group_id, sort_order, date_added) VALUES ('" . MODULE_PAYMENT_PAYMILL_ELV_PRIVATEKEY_TITLE . "', '" . MODULE_PAYMENT_PAYMILL_ELV_PRIVATEKEY_DESC . "', 'MODULE_PAYMENT_PAYMILL_ELV_PRIVATEKEY', '0', '6', '0', now())");
         tep_db_query("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_description, configuration_key, configuration_value, configuration_group_id, sort_order, date_added) VALUES ('" . MODULE_PAYMENT_PAYMILL_ELV_PUBLICKEY_TITLE . "', '" . MODULE_PAYMENT_PAYMILL_ELV_PUBLICKEY_DESC . "', 'MODULE_PAYMENT_PAYMILL_ELV_PUBLICKEY', '0', '6', '0', now())");
@@ -157,7 +126,6 @@ class paymill_elv extends paymill_abstract
         return array(
             'MODULE_PAYMENT_PAYMILL_ELV_STATUS',
             'MODULE_PAYMENT_PAYMILL_ELV_FASTCHECKOUT',
-            'MODULE_PAYMENT_PAYMILL_ELV_LABEL',
             'MODULE_PAYMENT_PAYMILL_ELV_PRIVATEKEY',
             'MODULE_PAYMENT_PAYMILL_ELV_PUBLICKEY',
             'MODULE_PAYMENT_PAYMILL_ELV_ORDER_STATUS_ID',
