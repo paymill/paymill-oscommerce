@@ -106,7 +106,7 @@ class paymill_abstract implements Services_Paymill_LoggingInterface
             $error = urldecode($_GET['error']);
         }
 
-        $error_text['error'] = utf8_decode(constant($error));
+        $error_text['error'] = utf8_decode(constant('PAYMILL_'.$error));
 
         return $error_text;
     }
@@ -124,7 +124,7 @@ class paymill_abstract implements Services_Paymill_LoggingInterface
 
     function confirmation()
     {
-        return false;
+        return array('fields' => array());;
     }
 
     function process_button()
@@ -166,7 +166,7 @@ class paymill_abstract implements Services_Paymill_LoggingInterface
 
         if (!$result) {
             unset($_SESSION['paymill_identifier']);
-            $errorCode = 'PAYMILL_'.$this->paymentProcessor->getErrorCode();
+            $errorCode = $this->paymentProcessor->getErrorCode();
             tep_redirect(tep_href_link(FILENAME_CHECKOUT_PAYMENT, '', 'SSL', true, false) . '?step=step2&payment_error=' . $this->code . '&error='.$errorCode);
         }
         

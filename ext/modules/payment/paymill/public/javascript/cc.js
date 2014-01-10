@@ -10,6 +10,73 @@ $(document).ready(function () {
         };
     }
 
+    PaymillCreateCCForm();
+    PaymillAddCardDetection();
+
+    $('form[name="checkout_confirmation"]').submit(function (e) {
+        e.preventDefault();
+        if (!isCcSubmitted) {
+            if (!paymill_cc_fastcheckout) {
+                hideErrorBoxes();
+                var ccErrorFlag = true;
+
+                if (!paymill.validateExpiry($("#paymill-card-expiry-month option:selected").val(), $("#paymill-card-expiry-year option:selected").val())) {
+                    $("#card-expiry-error").text(cc_expiery_invalid);
+                    $("#card-expiry-error").css('display', 'block');
+                    ccErrorFlag = false;
+                }
+
+                if (!paymill.validateCardNumber($("#paymill-card-number").val())) {
+                    $("#card-number-error").text(cc_card_number_invalid);
+                    $("#card-number-error").css('display', 'block');
+                    ccErrorFlag = false;
+                }
+
+                if (!paymill.validateHolder($("#paymill-card-owner").val())) {
+                    $("#card-owner-error").text(cc_owner_invalid);
+                    $("#card-owner-error").css('display', 'block');
+                    ccErrorFlag = false;
+                }
+
+                if (!paymill.validateCvc($("#paymill-card-cvc").val()) && paymill.cardType($("#paymill-card-number").val()).toLowerCase() !== 'maestro') {
+                    $("#card-cvc-error").text(cc_cvc_number_invalid);
+                    $("#card-cvc-error").css('display', 'block');
+                    ccErrorFlag = false;
+                }
+
+                if (!ccErrorFlag) {
+                    return ccErrorFlag;
+                }
+
+                var cvc = '000';
+
+                if ($("#paymill-card-cvc").val() !== '') {
+                    cvc = $("#paymill-card-cvc").val();
+                }
+
+                paymill.createToken({
+                    number:     $("#paymill-card-number").val(),
+                    exp_month:  $("#paymill-card-expiry-month option:selected").val(),
+                    exp_year:   $("#paymill-card-expiry-year option:selected").val(),
+                    cvc:        cvc,
+                    amount_int: paymill_total,
+                    currency:   paymill_currency,
+                    cardholder: $("#paymill-card-owner").val()
+                }, PaymillCcResponseHandler);
+
+                return false;
+            } else {
+                $('#paymill_form').append('<input type="hidden" name="paymill_token" value="dummyToken" />');
+                $('#paymill_form').submit();
+            }
+        }
+    });
+
+    PaymillAddCCFormFokusActions();
+});
+
+function PaymillCreateCCForm()
+{
     $('#card-owner-field').html('<input type="text" value="' + paymill_cc_holder_val + '" id="paymill-card-owner" class="form-row-paymill" />');
     $('#card-number-field').html('<input type="text" value="' + paymill_cc_number_val + '" id="paymill-card-number" class="form-row-paymill" />');
     $('#card-expiry-month-field').html('<select id="paymill-card-expiry-month"></select>');
@@ -29,14 +96,18 @@ $(document).ready(function () {
 
         $('<option/>').val(cc_year_value).text(cc_year_text).appendTo($('#paymill-card-expiry-year'));
     };
-	
+
     $('#paymill-card-expiry-month').val(paymill_cc_expiry_month_val);
     $('#paymill-card-expiry-year').val(paymill_cc_expiry_year_val);
-	
+}
+
+function PaymillAddCardDetection()
+{
     var cssClass = "paymill-card-number-";
-	
+
     $('#paymill-card-number').keyup(function() {
-		
+        $('#paymill-card-number').removeClass();
+        $('#paymill-card-number').addClass('form-row-paymill');
         switch (paymill.cardType($('#paymill-card-number').val()).toLowerCase()) {
             case 'visa':
                 $('#paymill-card-number').removeClass();
@@ -72,93 +143,50 @@ $(document).ready(function () {
                 break;
         }
     });
+}
 
-    if (brand !== '') {
-        $('#paymill-card-number').removeClass();
-        $('#paymill-card-number').addClass('form-row-paymill ' + cssClass + brand);
-    }
-
-    $('form[name="checkout_confirmation"]').submit(function (e) {
-        e.preventDefault();
-        if (!isCcSubmitted) {
-            if (!paymill_cc_fastcheckout) {
-                if (!paymill.validateExpiry($("#paymill-card-expiry-month option:selected").val(), $("#paymill-card-expiry-year option:selected").val())) {
-                    alert(cc_expiery_invalid);
-                    return false;
-                }
-
-                if (!paymill.validateCardNumber($("#paymill-card-number").val())) {
-                    alert(cc_card_number_invalid);
-                    return false;
-                }
-
-                if (!paymill.validateHolder($("#paymill-card-owner").val())) {
-                    alert(cc_owner_invalid);
-                    return false;
-                }
-				
-                if (!paymill.validateCvc($("#paymill-card-cvc").val()) && paymill.cardType($("#paymill-card-number").val()).toLowerCase() !== 'maestro') {
-                    alert(cc_cvc_number_invalid);
-                    return false;
-                }
-				
-				var cvc = '000';
-				
-				if ($("#paymill-card-cvc").val() !== '') {
-					cvc = $("#paymill-card-cvc").val();
-				}
-				
-                paymill.createToken({
-                    number: $("#paymill-card-number").val(),
-                    exp_month: $("#paymill-card-expiry-month option:selected").val(), 
-                    exp_year: $("#paymill-card-expiry-year option:selected").val(), 
-                    cvc: cvc,
-                    amount_int: paymill_total,
-                    currency: paymill_currency,
-                    cardholder: $("#paymill-card-owner").val()
-                }, PaymillCcResponseHandler);
-
-
-            } else {
-                $('#paymill_form').append('<input type="hidden" name="paymill_token" value="dummyToken" />');
-                $('#paymill_form').submit();
-            }
-        }
-    });
-	
+function PaymillAddCCFormFokusActions()
+{
     $('#paymill-card-number').focus(function() {
         paymill_cc_fastcheckout = false;
-        $('#paymill-card-number').val('');
     });
-    
+
     $('#paymill-card-expiry-month').focus(function() {
         paymill_cc_fastcheckout = false;
     });
-    
+
     $('#paymill-card-expiry-year').focus(function() {
         paymill_cc_fastcheckout = false;
     });
-    
+
     $('#paymill-card-cvc').focus(function() {
         paymill_cc_fastcheckout = false;
         $('#paymill-card-cvc').val('');
     });
-    
+
     $('#paymill-card-owner').focus(function() {
         paymill_cc_fastcheckout = false;
-        $('#paymill-card-owner').val('');
     });
+}
 
-    function PaymillCcResponseHandler(error, result) 
-    { 
-        isCcSubmitted = true;
-        if (error) {
-            isCcSubmitted = false;
-            alert("An API error occured!");
-            console.log("An API error occured: " + error.apierror);
-        } else {
-            $('#paymill_form').html('<input type="hidden" name="paymill_token" value="' + result.token + '" />');
-            $('#paymill_form').submit();
-        }
+function hideErrorBoxes()
+{
+    $("#card-cvc-error").css('display', 'none');
+    $("#card-owner-error").css('display', 'none');
+    $("#card-number-error").css('display', 'none');
+    $("#card-expiry-error").css('display', 'none');
+}
+
+function PaymillCcResponseHandler(error, result)
+{
+    isCcSubmitted = true;
+    if (error) {
+        isCcSubmitted = false;
+        console.log(error);
+        window.location = $("<div/>").html(checkout_payment_link + error.apierror).text();
+        return false;
+    } else {
+        $('#paymill_form').html('<input type="hidden" name="paymill_token" value="' + result.token + '" />');
+        $('#paymill_form').submit();
     }
-});
+}

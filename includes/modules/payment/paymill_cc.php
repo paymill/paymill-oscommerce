@@ -84,6 +84,7 @@ class paymill_cc extends paymill_abstract
                 . 'var paymill_cc_expiry_month_val = "' . $payment['expire_month'] . '";'
                 . 'var paymill_cc_expiry_year_val = "' . $payment['expire_year'] . '";'
                 . 'var paymill_cc_fastcheckout = ' . ($this->fastCheckout->canCustomerFastCheckoutCc($_SESSION['customer_id']) ? 'true' : 'false') . ';'
+                . 'var checkout_payment_link = "' . tep_href_link(FILENAME_CHECKOUT_PAYMENT, 'step=step2', 'SSL', true, false) . '&payment_error=' . $this->code . '&error=";'
                 . '</script>';
 
         $oscTemplate->addBlock($script, 'header_tags');
@@ -116,14 +117,35 @@ class paymill_cc extends paymill_abstract
 
     function confirmation()
     {
-        $confirmation = array('fields' => array(array('title' => MODULE_PAYMENT_PAYMILL_CC_TEXT_CREDITCARD_OWNER,
-                                                      'field' => '<span id="card-owner-field"></span>'),
-                                                array('title' => MODULE_PAYMENT_PAYMILL_CC_TEXT_CREDITCARD_NUMBER,
-                                                      'field' => '<span id="card-number-field"></span><span class="card-icon"></span>'),
-                                                array('title' => MODULE_PAYMENT_PAYMILL_CC_TEXT_CREDITCARD_EXPIRY,
-                                                      'field' => '<span class="paymill-expiry"><span id="card-expiry-month-field"></span>&nbsp;<span id="card-expiry-year-field"></span></span>'),
-                                                array('title' => MODULE_PAYMENT_PAYMILL_CC_TEXT_CREDITCARD_CVC . '<span class="tooltip" title="' . MODULE_PAYMENT_PAYMILL_CC_TEXT_CREDITCARD_CVC_TOOLTIP . '">?</span>',
-                                                      'field' => '<span id="card-cvc-field" class="card-cvc-row"></span>')));
+        $confirmation = parent::confirmation();
+
+        array_push($confirmation['fields'],
+            array(
+                 'title' => '<div class="paymill-label-field">' . MODULE_PAYMENT_PAYMILL_CC_TEXT_CREDITCARD_OWNER . '</div>',
+                 'field' => '<span id="card-owner-field"></span><span id="card-owner-error" class="paymill-error"></span>'
+            )
+        );
+
+        array_push($confirmation['fields'],
+            array(
+                 'title' => '<div class="paymill-label-field">' . MODULE_PAYMENT_PAYMILL_CC_TEXT_CREDITCARD_NUMBER . '</div>',
+                 'field' => '<span id="card-number-field"></span><span id="card-number-error" class="paymill-error"></span>'
+            )
+        );
+
+        array_push($confirmation['fields'],
+            array(
+                 'title' => '<div class="paymill-label-field paymill-expiry">' . MODULE_PAYMENT_PAYMILL_CC_TEXT_CREDITCARD_EXPIRY . '</div>',
+                 'field' => '<div class="paymill-expiry"><span id="card-expiry-month-field"></span>&nbsp;<span id="card-expiry-year-field"></span></span><span id="card-expiry-error" class="paymill-error"></div>'
+            )
+        );
+
+        array_push($confirmation['fields'],
+            array(
+                 'title' => '<div class="paymill-label-field">' . MODULE_PAYMENT_PAYMILL_CC_TEXT_CREDITCARD_CVC . '<span class="tooltip" title="' . MODULE_PAYMENT_PAYMILL_CC_TEXT_CREDITCARD_CVC_TOOLTIP . '">?</span></div>',
+                 'field' => '<span id="card-cvc-field" class="card-cvc-row"></span><span id="card-cvc-error" class="paymill-error"></span>'
+            )
+        );
 
         return $confirmation;
     }
