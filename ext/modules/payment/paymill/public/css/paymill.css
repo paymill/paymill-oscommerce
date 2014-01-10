@@ -107,7 +107,7 @@
     background: url('../images/32x20_maestro.png') no-repeat center right !important;
     }
 
-.paymill-card-number-carte-bleue
+.paymill-card-number-unionpay
 {
     background: url('../images/32x20_unionpay.png') no-repeat center right !important;
     }
@@ -120,6 +120,21 @@
 .paymill-card-number-discover
 {
     background: url('../images/32x20_discover.png') no-repeat center right !important;
+    }
+
+.paymill-card-number-carte-bleue
+{
+    background: url('../images/32x20_carte-bleue.png') no-repeat center right !important;
+    }
+
+.paymill-card-number-dankort
+{
+    background: url('../images/32x20_dankort.png') no-repeat center right !important;
+    }
+
+.paymill-card-number-carta-si
+{
+    background: url('../images/32x20_carta-si.png') no-repeat center right !important;
     }
 
 .tooltip
