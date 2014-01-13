@@ -54,14 +54,18 @@ class paymill_elv extends paymill_abstract
         
         $script = '<script type="text/javascript">'
                 . 'var elvlogging = "' . MODULE_PAYMENT_PAYMILL_ELV_LOGGING . '";'
+                . 'var sepaActive ="' . MODULE_PAYMENT_PAYMILL_ELV_SEPA .'";'
                 . 'var elv_account_number_invalid = "' . utf8_decode(MODULE_PAYMENT_PAYMILL_ELV_TEXT_ACCOUNT_INVALID) . '";'
                 . 'var elv_bank_code_invalid = "' . utf8_decode(MODULE_PAYMENT_PAYMILL_ELV_TEXT_BANKCODE_INVALID) . '";'
                 . 'var elv_bank_owner_invalid = "' . utf8_decode(MODULE_PAYMENT_PAYMILL_ELV_TEXT_ACCOUNT_HOLDER_INVALID) . '";'
                 . 'var paymill_account_name = ' . json_encode(tep_output_string_protected($order->billing['firstname'] . ' ' . $order->billing['lastname'])) . ';'
                 . 'var paymill_elv_code = "' . $payment['code'] . '";'
-                . 'var paymill_elv_holder = "' . $payment['holder'] . '";'
+                . 'var paymill_elv_holder = "' . utf8_decode($payment['holder']) . '";'
                 . 'var paymill_elv_account = "' . $payment['account'] . '";'
+                . 'var paymill_elv_iban = "' . $payment['iban'] . '";'
+                . 'var paymill_elv_bic = "' . $payment['bic'] . '";'
                 . 'var paymill_elv_fastcheckout = ' . ($this->fastCheckout->canCustomerFastCheckoutElv($_SESSION['customer_id']) ? 'true' : 'false') . ';'
+                . 'var checkout_payment_link = "' . tep_href_link(FILENAME_CHECKOUT_PAYMENT, 'step=step2', 'SSL', true, false). '&payment_error=' . $this->code . '&error=' . '";'
                 . '</script>';
 
         $oscTemplate->addBlock($script, 'header_tags');
@@ -75,7 +79,9 @@ class paymill_elv extends paymill_abstract
         $payment = array(
             'code' => '',
             'holder' => '',
-            'account' => ''
+            'account' => '',
+            'iban' => '',
+            'bic' => ''
         );
 
         if ($this->fastCheckout->canCustomerFastCheckoutElv($userId)) {
@@ -88,12 +94,46 @@ class paymill_elv extends paymill_abstract
     
     function confirmation()
     {
-        $confirmation = array('fields' => array(array('title' => MODULE_PAYMENT_PAYMILL_ELV_TEXT_ACCOUNT_HOLDER,
-                                                      'field' => '<span id="account-name-field"></span>'),
-                                                array('title' => MODULE_PAYMENT_PAYMILL_ELV_TEXT_ACCOUNT,
-                                                      'field' => '<span id="account-number-field"></span>'),
-                                                array('title' => MODULE_PAYMENT_PAYMILL_ELV_TEXT_BANKCODE,
-                                                      'field' => '<span id="bank-code-field"></span>')));
+        $confirmation = parent::confirmation();
+
+        array_push($confirmation['fields'],
+            array(
+                 'title' => '<div class="paymill-label-field">' . MODULE_PAYMENT_PAYMILL_ELV_TEXT_ACCOUNT_HOLDER . '</div>',
+                 'field' => '<span id="account-name-field"></span><span id="elv-holder-error" class="paymill-error"></span>'
+            )
+        );
+
+
+        if(MODULE_PAYMENT_PAYMILL_ELV_SEPA == 'True'){
+            array_push($confirmation['fields'],
+                array(
+                     'title' => '<div class="paymill-label-field">' . MODULE_PAYMENT_PAYMILL_ELV_TEXT_IBAN . '</div>',
+                     'field' => '<span id="iban-field"></span><span id="elv-iban-error" class="paymill-error"></span>'
+                )
+            );
+
+            array_push($confirmation['fields'],
+                array(
+                     'title' => '<div class="paymill-label-field">' . MODULE_PAYMENT_PAYMILL_ELV_TEXT_BIC . '</div>',
+                     'field' => '<span id="bic-field"></span><span id="elv-bic-error" class="paymill-error"></span>'
+                )
+            );
+
+        } else {
+            array_push($confirmation['fields'],
+                array(
+                     'title' => '<div class="paymill-label-field">' . MODULE_PAYMENT_PAYMILL_ELV_TEXT_ACCOUNT . '</div>',
+                     'field' => '<span id="account-number-field"></span><span id="elv-account-error" class="paymill-error"></span>'
+                )
+            );
+
+            array_push($confirmation['fields'],
+                array(
+                     'title' => '<div class="paymill-label-field">' . MODULE_PAYMENT_PAYMILL_ELV_TEXT_BANKCODE . '</div>',
+                     'field' => '<span id="bank-code-field"></span><span id="elv-bankcode-error" class="paymill-error"></span>'
+                )
+            );
+        }
 
         return $confirmation;
     }
@@ -118,6 +158,7 @@ class paymill_elv extends paymill_abstract
         tep_db_query("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_description, configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) VALUES ('" . MODULE_PAYMENT_PAYMILL_ELV_STATUS_TITLE . "', '" . MODULE_PAYMENT_PAYMILL_ELV_STATUS_DESC . "', 'MODULE_PAYMENT_PAYMILL_ELV_STATUS', 'True', '6', '1', 'tep_cfg_select_option(array(\'True\', \'False\'), ', now())");
         tep_db_query("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_description, configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) VALUES ('" . MODULE_PAYMENT_PAYMILL_ELV_FASTCHECKOUT_TITLE . "', '" . MODULE_PAYMENT_PAYMILL_ELV_FASTCHECKOUT_DESC . "', 'MODULE_PAYMENT_PAYMILL_ELV_FASTCHECKOUT', 'False', '6', '1', 'tep_cfg_select_option(array(\'True\', \'False\'), ', now())");
         tep_db_query("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_description, configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) VALUES ('" . MODULE_PAYMENT_PAYMILL_ELV_WEBHOOKS_TITLE . "', '" . MODULE_PAYMENT_PAYMILL_ELV_WEBHOOKS_DESC . "', 'MODULE_PAYMENT_PAYMILL_ELV_WEBHOOKS', 'False', '6', '1', 'tep_cfg_select_option(array(\'True\', \'False\'), ', now())");
+        tep_db_query("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_description, configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) VALUES ('" . MODULE_PAYMENT_PAYMILL_ELV_SEPA_TITLE . "', '" . MODULE_PAYMENT_PAYMILL_ELV_SEPA_DESC . "', 'MODULE_PAYMENT_PAYMILL_ELV_SEPA', 'False', '6', '1', 'tep_cfg_select_option(array(\'True\', \'False\'), ', now())");
         tep_db_query("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_description, configuration_key, configuration_value, configuration_group_id, sort_order, date_added) VALUES ('" . MODULE_PAYMENT_PAYMILL_ELV_SORT_ORDER_TITLE . "', '" . MODULE_PAYMENT_PAYMILL_ELV_SORT_ORDER_DESC . "', 'MODULE_PAYMENT_PAYMILL_ELV_SORT_ORDER', '0', '6', '0', now())");
         tep_db_query("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_description, configuration_key, configuration_value, configuration_group_id, sort_order, date_added) VALUES ('" . MODULE_PAYMENT_PAYMILL_ELV_PRIVATEKEY_TITLE . "', '" . MODULE_PAYMENT_PAYMILL_ELV_PRIVATEKEY_DESC . "', 'MODULE_PAYMENT_PAYMILL_ELV_PRIVATEKEY', '0', '6', '0', now())");
         tep_db_query("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_description, configuration_key, configuration_value, configuration_group_id, sort_order, date_added) VALUES ('" . MODULE_PAYMENT_PAYMILL_ELV_PUBLICKEY_TITLE . "', '" . MODULE_PAYMENT_PAYMILL_ELV_PUBLICKEY_DESC . "', 'MODULE_PAYMENT_PAYMILL_ELV_PUBLICKEY', '0', '6', '0', now())");
@@ -133,6 +174,7 @@ class paymill_elv extends paymill_abstract
             'MODULE_PAYMENT_PAYMILL_ELV_STATUS',
             'MODULE_PAYMENT_PAYMILL_ELV_FASTCHECKOUT',
             'MODULE_PAYMENT_PAYMILL_ELV_WEBHOOKS',
+            'MODULE_PAYMENT_PAYMILL_ELV_SEPA',
             'MODULE_PAYMENT_PAYMILL_ELV_PRIVATEKEY',
             'MODULE_PAYMENT_PAYMILL_ELV_PUBLICKEY',
             'MODULE_PAYMENT_PAYMILL_ELV_ORDER_STATUS_ID',

@@ -124,7 +124,7 @@ class paymill_abstract implements Services_Paymill_LoggingInterface
 
     function confirmation()
     {
-        return array('fields' => array());;
+        return array('fields' => array());
     }
 
     function process_button()
@@ -137,7 +137,7 @@ class paymill_abstract implements Services_Paymill_LoggingInterface
         global $order;
 
         $_SESSION['paymill_identifier'] = time();
-
+        $this->paymentProcessor->setToken((string) $_POST['paymill_token']);
         $this->paymentProcessor->setAmount((int) $this->format_raw($order->info['total']));
         $this->paymentProcessor->setApiUrl((string) $this->apiUrl);
         $this->paymentProcessor->setCurrency((string) strtoupper($order->info['currency']));
@@ -145,18 +145,16 @@ class paymill_abstract implements Services_Paymill_LoggingInterface
         $this->paymentProcessor->setEmail((string) $order->customer['email_address']);
         $this->paymentProcessor->setName((string) $order->customer['lastname'] . ', ' . $order->customer['firstname']);
         $this->paymentProcessor->setPrivateKey((string) $this->privateKey);
-        $this->paymentProcessor->setToken((string) $_POST['paymill_token']);
         $this->paymentProcessor->setLogger($this);
         $this->paymentProcessor->setSource($this->version . '_OSCOM_' . tep_get_version());
-
         $this->fastCheckout->setFastCheckoutFlag($this->fastCheckoutFlag);
 
-        if ($_POST['paymill_token'] === 'dummyToken') {
+        if ($_POST['paymill_token'] == 'dummyToken') {
             $this->fastCheckout();
         }
 
         $data = $this->fastCheckout->loadFastCheckoutData($_SESSION['customer_id']);
-        if (!empty($data['clientID'])) {
+        if (array_key_exists('clientID',$data) && $data['clientID'] != '' && $data['clientID'] != null){
             $this->existingClient($data);
         }
 
@@ -197,19 +195,19 @@ class paymill_abstract implements Services_Paymill_LoggingInterface
             $this->paymentProcessor->setClientId($client['id']);
         }
     }
-    
+
     function fastCheckout()
     {
-        if ($this->fastCheckout->canCustomerFastCheckoutCc($_SESSION['customer_id']) && $this->code === 'paymill_cc') {
-            $data = $this->fastCheckout->loadFastCheckoutData($_SESSION['customer_id']);
+        $userId = $_SESSION['customer_id'];
+        $data = $this->fastCheckout->loadFastCheckoutData($userId);
+
+        if ($this->fastCheckout->canCustomerFastCheckoutCc($userId) && $this->code === 'paymill_cc') {
             if (!empty($data['paymentID_CC'])) {
                 $this->paymentProcessor->setPaymentId($data['paymentID_CC']);
             }
         }
-        
-        if ($this->fastCheckout->canCustomerFastCheckoutElv($_SESSION['customer_id']) && $this->code === 'paymill_elv') {
-            $data = $this->fastCheckout->loadFastCheckoutData($_SESSION['customer_id']);
-            
+
+        if ($this->fastCheckout->canCustomerFastCheckoutElv($userId) && $this->code === 'paymill_elv') {
             if (!empty($data['paymentID_ELV'])) {
                 $this->paymentProcessor->setPaymentId($data['paymentID_ELV']);
             }
