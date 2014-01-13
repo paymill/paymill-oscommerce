@@ -91,9 +91,9 @@ class WebHooks extends WebHooksAbstract
         tep_db_query("INSERT INTO `pi_paymill_logging` "
                      . "(debug, message, identifier) "
                      . "VALUES('"
-                     . xtc_db_input($debugInfo) . "', '"
-                     . xtc_db_input($messageInfo) . "', '"
-                     . xtc_db_input($_SESSION['paymill_identifier'])
+                     . tep_db_input($debugInfo) . "', '"
+                     . tep_db_input($messageInfo) . "', '"
+                     . tep_db_input($_SESSION['paymill_identifier'])
                      . "')"
         );
     }
@@ -147,5 +147,25 @@ class WebHooks extends WebHooksAbstract
     function getWebhookState($type)
     {
         return ((constant('MODULE_PAYMENT_PAYMILL_'.$type.'_WEBHOOKS') == 'True') ? true : false);
+    }
+
+    /**
+     * Required the Libs WebHooks class
+     *
+     * @return void
+     */
+    function requireTransactions()
+    {
+        require_once('lib/Services/Paymill/Transactions.php');
+    }
+
+    /**
+     * Required the Libs WebHooks class
+     *
+     * @return void
+     */
+    function requireRefunds()
+    {
+        require_once('lib/Services/Paymill/Refunds.php');
     }
 }
