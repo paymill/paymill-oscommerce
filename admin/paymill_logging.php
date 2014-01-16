@@ -34,7 +34,7 @@ if (isset($_POST['submit']) || isset($_SESSION['search_key'])) {
 
 $data = tep_db_query($sql);
 
-$recordCount = tep_db_num_rows($data);
+$recordCount = tep_db_num_rows(tep_db_query("SELECT * FROM `pi_paymill_logging`"));
 $pageCount = $recordCount / $recordLimit;
 require(DIR_WS_INCLUDES . 'template_top.php');
 ?>
