@@ -158,7 +158,7 @@ function getSepaState()
 
 function hideErrorBoxes()
 {
-    $("#card-holder-error").css('display', 'none');
+    $("#elv-holder-error").css('display', 'none');
 
     if(getSepaState()){ //Sepa Form active
         $("#elv-iban-error").css('display', 'none');
