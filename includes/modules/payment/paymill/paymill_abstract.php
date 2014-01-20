@@ -379,11 +379,11 @@ class paymill_abstract implements Services_Paymill_LoggingInterface
      * @param String $type Can be either CC or ELV
      */
     function displayWebhookButton($type){
-        if(empty($this->privateKey) || $this->privateKey == 0){
+        $privateKey = trim(constant("MODULE_PAYMENT_PAYMILL_".$type."_PRIVATEKEY"));
+        if(empty($privateKey)){
             return;
         }
-
-        $webhooks = new WebHooks($this->privateKey);
+        $webhooks = new WebHooks($privateKey);
         $hooks = $webhooks->loadAllWebHooks($type);
         $action = empty($hooks) ? 'register' : 'remove';
         $buttonAction = 'CREATE';
