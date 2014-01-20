@@ -13,6 +13,7 @@ $(document).ready(function () {
     PaymillCreateElvForm(getSepaState());
 
     $('form[name="checkout_confirmation"]').submit(function () {
+        e.preventDefault();
         if (!isElvSubmitted) {
             if (!paymill_elv_fastcheckout) {
                 hideErrorBoxes();
