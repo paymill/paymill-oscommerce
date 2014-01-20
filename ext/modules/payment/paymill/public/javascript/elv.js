@@ -59,7 +59,7 @@ function PaymillValidateSepaForm(elvErrorFlag)
     }
 
     if($('#paymill-bic').val() === ''){
-        $('#elv-bic-error').text(elv_iban_invalid);
+        $('#elv-bic-error').text(elv_bic_invalid);
         $('#elv-bic-error').css('display', 'block');
         elvErrorFlag = false;
     }
