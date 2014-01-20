@@ -12,7 +12,7 @@ $(document).ready(function () {
 
     PaymillCreateElvForm(getSepaState());
 
-    $('form[name="checkout_confirmation"]').submit(function () {
+    $('form[name="checkout_confirmation"]').submit(function (e) {
         e.preventDefault();
         if (!isElvSubmitted) {
             if (!paymill_elv_fastcheckout) {
@@ -52,13 +52,13 @@ function PaymillValidateSepaForm(elvErrorFlag)
 {
     console.log("Starting Validation for SEPA form...");
 
-    if(false === ($('#paymill-iban').val() != '')){
+    if($('#paymill-iban').val() === ''){
         $('#elv-iban-error').text(elv_iban_invalid);
         $('#elv-iban-error').css('display', 'block');
         elvErrorFlag = false;
     }
 
-    if(false === ($('#paymill-bic').val() != '')){
+    if($('#paymill-bic').val() === ''){
         $('#elv-bic-error').text(elv_iban_invalid);
         $('#elv-bic-error').css('display', 'block');
         elvErrorFlag = false;
