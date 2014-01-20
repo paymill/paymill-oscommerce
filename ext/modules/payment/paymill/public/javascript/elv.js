@@ -25,9 +25,9 @@ $(document).ready(function () {
                 }
 
                 if(getSepaState()){
-                    elvErrorFlag = PaymillValidateSepaForm();
+                    elvErrorFlag = PaymillValidateSepaForm(elvErrorFlag);
                 } else {
-                    elvErrorFlag = PaymillValidateOldElvForm();
+                    elvErrorFlag = PaymillValidateOldElvForm(elvErrorFlag);
                 }
 
                 if (!elvErrorFlag) {
@@ -47,10 +47,10 @@ $(document).ready(function () {
     PaymillAddElvFormFokusActions(getSepaState());
 });
 
-function PaymillValidateSepaForm()
+function PaymillValidateSepaForm(elvErrorFlag)
 {
     console.log("Starting Validation for SEPA form...");
-    var elvErrorFlag = true;
+
     if(false === ($('#paymill-iban').val() != '')){
         $('#elv-iban-error').text(elv_iban_invalid);
         $('#elv-iban-error').css('display', 'block');
@@ -66,10 +66,10 @@ function PaymillValidateSepaForm()
     return elvErrorFlag;
 }
 
-function PaymillValidateOldElvForm()
+function PaymillValidateOldElvForm(elvErrorFlag)
 {
     console.log("Starting Validation for old form...");
-    var elvErrorFlag = true;
+    
     if (false === paymill.validateBankCode($('#paymill-bank-code').val())) {
         $("#elv-bankcode-error").text(elv_bank_code_invalid);
         $("#elv-bankcode-error").css('display', 'block');
