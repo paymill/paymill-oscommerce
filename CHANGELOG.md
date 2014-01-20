@@ -1,8 +1,12 @@
 #Changelog
 ##1.5.0
+* Added SEPA Payment Form for german Direct Debit
+* Added WebHooks. WebHooks will automatically synch your shops order states on refund or chargeback events
+* Updated Fast Checkout
 * Removed Paymill Label
-* Added Version number to module config
-* Added additional validation to the fast checkout process
+* Added version number to payment configuration
+* Fixed Log view
+* Added improved feedback on errors for both bridge and api errors
 
 ##1.4.4
 * update fast checkout
