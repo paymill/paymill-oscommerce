@@ -47,6 +47,7 @@ class paymill_elv extends paymill_abstract
 
         parent::pre_confirmation_check();
 
+        $oscTemplate->addBlock('<script type="text/javascript" src="ext/modules/payment/paymill/public/javascript/Iban.js"></script>', 'header_tags');
         $oscTemplate->addBlock('<script type="text/javascript" src="ext/modules/payment/paymill/public/javascript/elv.js"></script>', 'header_tags');
 
         $this->fastCheckout->setFastCheckoutFlag($this->fastCheckoutFlag);
