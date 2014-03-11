@@ -47,6 +47,7 @@ class paymill_cc extends paymill_abstract
 
         parent::pre_confirmation_check();
 
+        $oscTemplate->addBlock('<script type="text/javascript" src="ext/modules/payment/paymill/public/javascript/BrandDetection.js"></script>', 'header_tags');
         $oscTemplate->addBlock('<script type="text/javascript" src="ext/modules/payment/paymill/public/javascript/cc.js"></script>', 'header_tags');
 
         $months_array = array();
