@@ -61,8 +61,8 @@ class paymill_elv extends paymill_abstract
                   '";'
                   . 'var elv_bank_owner_invalid = "' .
                   utf8_decode(MODULE_PAYMENT_PAYMILL_ELV_TEXT_ACCOUNT_HOLDER_INVALID) . '";'
-                  . 'var elv_iban_invalid = "' . utf8_decode(PAYMILL_field_invalid_iban) . '";'
-                  . 'var elv_bic_invalid = "' . utf8_decode(PAYMILL_field_invalid_bic) . '";'
+                  . 'var elv_iban_invalid = "' . utf8_decode(PAYMILL_FIELD_INVALID_IBAN) . '";'
+                  . 'var elv_bic_invalid = "' . utf8_decode(PAYMILL_FIELD_INVALID_BIC) . '";'
                   . 'var paymill_account_name = ' .
                   json_encode(tep_output_string_protected($order->billing['firstname'] . ' ' .
                                                           $order->billing['lastname'])) . ';'
