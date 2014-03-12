@@ -21,25 +21,25 @@ $(document).ready(function () {
                 var ccErrorFlag = true;
 
                 if (!paymill.validateExpiry($("#paymill-card-expiry-month option:selected").val(), $("#paymill-card-expiry-year option:selected").val())) {
-                    $("#card-expiry-error").text(cc_expiery_invalid);
+                    $("#card-expiry-error").text($("<div/>").html(cc_expiery_invalid).text());
                     $("#card-expiry-error").css('display', 'block');
                     ccErrorFlag = false;
                 }
 
                 if (!paymill.validateCardNumber($("#paymill-card-number").val())) {
-                    $("#card-number-error").text(cc_card_number_invalid);
+                    $("#card-number-error").text($("<div/>").html(cc_card_number_invalid).text());
                     $("#card-number-error").css('display', 'block');
                     ccErrorFlag = false;
                 }
 
                 if (!paymill.validateHolder($("#paymill-card-owner").val())) {
-                    $("#card-owner-error").text(cc_owner_invalid);
+                    $("#card-owner-error").text($("<div/>").html(cc_owner_invalid).text());
                     $("#card-owner-error").css('display', 'block');
                     ccErrorFlag = false;
                 }
 
                 if (!paymill.validateCvc($("#paymill-card-cvc").val()) && paymill.cardType($("#paymill-card-number").val()).toLowerCase() !== 'maestro') {
-                    $("#card-cvc-error").text(cc_cvc_number_invalid);
+                    $("#card-cvc-error").text($("<div/>").html(cc_cvc_number_invalid).text());
                     $("#card-cvc-error").css('display', 'block');
                     ccErrorFlag = false;
                 }

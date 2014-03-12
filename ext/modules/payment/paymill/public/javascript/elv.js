@@ -20,7 +20,7 @@ $(document).ready(function () {
                 var elvErrorFlag = true;
 
                 if ($('#paymill-bank-owner').val() === "") {
-                    $("#elv-holder-error").text(elv_bank_owner_invalid);
+                    $("#elv-holder-error").text($("<div/>").html(elv_bank_owner_invalid).text());
                     $("#elv-holder-error").css('display', 'block');
                     elvErrorFlag = false;
                 }
@@ -55,13 +55,13 @@ function PaymillValidateSepaForm(elvErrorFlag)
     var iban = new Iban();
 
     if(!iban.validate($('#paymill-iban').val())){
-        $('#elv-iban-error').text(elv_iban_invalid);
+        $('#elv-iban-error').text($("<div/>").html(elv_iban_invalid).text());
         $('#elv-iban-error').css('display', 'block');
         elvErrorFlag = false;
     }
 
     if($('#paymill-bic').val() === ''){
-        $('#elv-bic-error').text(elv_bic_invalid);
+        $('#elv-bic-error').text($("<div/>").html(elv_bic_invalid).text());
         $('#elv-bic-error').css('display', 'block');
         elvErrorFlag = false;
     }
@@ -74,12 +74,12 @@ function PaymillValidateOldElvForm(elvErrorFlag)
     console.log("Starting Validation for old form...");
     
     if (false === paymill.validateBankCode($('#paymill-bank-code').val())) {
-        $("#elv-bankcode-error").text(elv_bank_code_invalid);
+        $("#elv-bankcode-error").text($("<div/>").html(elv_bank_code_invalid).text());
         $("#elv-bankcode-error").css('display', 'block');
         elvErrorFlag = false;
     }
     if (false === paymill.validateAccountNumber($('#paymill-account-number').val())) {
-        $("#elv-account-error").text(elv_account_number_invalid);
+        $("#elv-account-error").text($("<div/>").html(elv_account_number_invalid).text());
         $("#elv-account-error").css('display', 'block');
         elvErrorFlag = false;
     }
