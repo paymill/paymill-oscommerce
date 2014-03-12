@@ -56,17 +56,12 @@ class paymill_elv extends paymill_abstract
         $script = '<script type="text/javascript">'
                   . 'var elvlogging = "' . MODULE_PAYMENT_PAYMILL_ELV_LOGGING . '";'
                   . 'var sepaActive ="' . MODULE_PAYMENT_PAYMILL_ELV_SEPA . '";'
-                  . 'var elv_account_number_invalid = "' .
-                  utf8_decode(MODULE_PAYMENT_PAYMILL_ELV_TEXT_ACCOUNT_INVALID) . '";'
-                  . 'var elv_bank_code_invalid = "' . utf8_decode(MODULE_PAYMENT_PAYMILL_ELV_TEXT_BANKCODE_INVALID) .
-                  '";'
-                  . 'var elv_bank_owner_invalid = "' .
-                  utf8_decode(MODULE_PAYMENT_PAYMILL_ELV_TEXT_ACCOUNT_HOLDER_INVALID) . '";'
-                  . 'var elv_iban_invalid = "' . utf8_decode(PAYMILL_FIELD_INVALID_IBAN) . '";'
-                  . 'var elv_bic_invalid = "' . utf8_decode(PAYMILL_FIELD_INVALID_BIC) . '";'
-                  . 'var paymill_account_name = ' .
-                  json_encode(tep_output_string_protected($order->billing['firstname'] . ' ' .
-                                                          $order->billing['lastname'])) . ';'
+                  . 'var elv_account_number_invalid = "' . utf8_encode(html_entity_decode(MODULE_PAYMENT_PAYMILL_ELV_TEXT_ACCOUNT_INVALID)) . '";'
+                  . 'var elv_bank_code_invalid = "' . utf8_encode(html_entity_decode(MODULE_PAYMENT_PAYMILL_ELV_TEXT_BANKCODE_INVALID)) .'";'
+                  . 'var elv_bank_owner_invalid = "' .utf8_encode(html_entity_decode(MODULE_PAYMENT_PAYMILL_ELV_TEXT_ACCOUNT_HOLDER_INVALID)) . '";'
+                  . 'var elv_iban_invalid = "' . utf8_encode(html_entity_decode(MODULE_PAYMENT_PAYMILL_ELV_TEXT_IBAN_INVALID)) . '";'
+                  . 'var elv_bic_invalid = "' . utf8_encode(html_entity_decode(MODULE_PAYMENT_PAYMILL_ELV_TEXT_BIC_INVALID)) . '";'
+                  . 'var paymill_account_name = ' . json_encode(tep_output_string_protected($order->billing['firstname'] . ' ' . $order->billing['lastname'])) . ';'
                   . 'var paymill_elv_code = "' . $payment['code'] . '";'
                   . 'var paymill_elv_holder = "' . utf8_decode($payment['holder']) . '";'
                   . 'var paymill_elv_account = "' . $payment['account'] . '";'
