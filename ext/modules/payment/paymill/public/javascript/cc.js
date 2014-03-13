@@ -85,7 +85,7 @@ function PaymillCreateCCForm()
 
     for ( var cc_month_counter in paymill_cc_months ) {
         var cc_month_value = paymill_cc_months[cc_month_counter][0];
-        var cc_month_text = paymill_cc_months[cc_month_counter][1];
+        var cc_month_text = $("<div/>").html(paymill_cc_months[cc_month_counter][1]).text();
 
         $('<option/>').val(cc_month_value).text(cc_month_text).appendTo($('#paymill-card-expiry-month'));
     };
