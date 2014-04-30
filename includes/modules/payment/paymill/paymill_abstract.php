@@ -177,7 +177,7 @@ class paymill_abstract implements Services_Paymill_LoggingInterface
         
         unset($_SESSION['paymill_identifier']);
     }
-
+    
     function existingClient($data)
     {
         global $order;
@@ -379,7 +379,8 @@ class paymill_abstract implements Services_Paymill_LoggingInterface
      * Displays the register/remove Webhook button in the payment config.
      * @param String $type Can be either CC or ELV
      */
-    function displayWebhookButton($type){
+    function displayWebhookButton($type)
+    {
         $privateKey = trim(constant("MODULE_PAYMENT_PAYMILL_".$type."_PRIVATEKEY"));
         if(empty($privateKey)){
             return;
