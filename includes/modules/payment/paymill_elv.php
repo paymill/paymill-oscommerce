@@ -139,6 +139,20 @@ class paymill_elv extends paymill_abstract
         return $this->_check;
     }
 
+    function before_process()
+    {
+        global $order;
+        parent::before_process();
+        $dayCount = 7 * 24 * 60 * 60; 
+        $date = time() + $dayCount;
+        
+        if ($order->info['comments']) {
+            $order->info['comments'] .= "\n" . SEPA_DRAWN_TEXT . date("d.m.y", $date);
+        } else {
+            $order->info['comments'] = "\n" . SEPA_DRAWN_TEXT . date("d.m.y", $date);
+        }
+    }
+
     function install()
     {
         global $language;

@@ -94,4 +94,5 @@ define("PAYMILL_0", "Ha ocurrido un error mientras proces&aacute;bamos tu pago."
 define("MODULE_PAYMENT_PAYMILL_ELV_TEXT_TITLE", "PAYMILL Domiciliaci&oacute;n bancaria");
 define("TEXT_INFO_API_VERSION", "API Version");
 define("MODULE_PAYMENT_PAYMILL_ELV_STATUS_DESC", "");
+define("SEPA_DRAWN_TEXT", "The direct debit is drawn to the following date: ");
 ?>
