@@ -24,7 +24,13 @@ class FastCheckout extends FastCheckoutAbstract
      */
     function dbFetchArray($sql)
     {
-        return tep_db_fetch_array(tep_db_query($sql));
+        $data = tep_db_fetch_array(tep_db_query($sql));
+        
+        if (!is_array($data)) {
+            $data = array();
+        }
+        
+        return $data;
     }
 
     /**

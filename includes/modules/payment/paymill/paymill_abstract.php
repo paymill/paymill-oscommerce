@@ -154,7 +154,8 @@ class paymill_abstract implements Services_Paymill_LoggingInterface
         }
 
         $data = $this->fastCheckout->loadFastCheckoutData($_SESSION['customer_id']);
-        if (array_key_exists('clientID',$data) && $data['clientID'] != '' && $data['clientID'] != null){
+        
+        if (array_key_exists('clientID', $data) && $data['clientID'] != '' && $data['clientID'] != null){
             $this->existingClient($data);
         }
 

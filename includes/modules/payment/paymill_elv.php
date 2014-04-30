@@ -111,36 +111,19 @@ class paymill_elv extends paymill_abstract
             )
         );
 
-        if (MODULE_PAYMENT_PAYMILL_ELV_SEPA == 'True') {
-            array_push($confirmation['fields'],
-                array(
-                    'title' => '<div class="paymill-label-field">' . MODULE_PAYMENT_PAYMILL_ELV_TEXT_IBAN . '</div>',
-                    'field' => '<span id="iban-field"></span><span id="elv-iban-error" class="paymill-error"></span>'
-                )
-            );
+        array_push($confirmation['fields'],
+            array(
+                'title' => '<div class="paymill-label-field">' . MODULE_PAYMENT_PAYMILL_ELV_TEXT_IBAN . ' / ' . MODULE_PAYMENT_PAYMILL_ELV_TEXT_ACCOUNT . '</div>',
+                'field' => '<span id="iban-field"></span><span id="elv-iban-error" class="paymill-error"></span>'
+            )
+        );
 
-            array_push($confirmation['fields'],
-                array(
-                    'title' => '<div class="paymill-label-field">' . MODULE_PAYMENT_PAYMILL_ELV_TEXT_BIC . '</div>',
-                    'field' => '<span id="bic-field"></span><span id="elv-bic-error" class="paymill-error"></span>'
-                )
-            );
-        } else {
-            array_push($confirmation['fields'],
-                array(
-                    'title' => '<div class="paymill-label-field">' . MODULE_PAYMENT_PAYMILL_ELV_TEXT_ACCOUNT . '</div>',
-                    'field' => '<span id="account-number-field"></span><span id="elv-account-error" class="paymill-error"></span>'
-                )
-            );
-
-            array_push($confirmation['fields'],
-                array(
-                    'title' =>
-                        '<div class="paymill-label-field">' . MODULE_PAYMENT_PAYMILL_ELV_TEXT_BANKCODE . '</div>',
-                    'field' => '<span id="bank-code-field"></span><span id="elv-bankcode-error" class="paymill-error"></span>'
-                )
-            );
-        }
+        array_push($confirmation['fields'],
+            array(
+                'title' => '<div class="paymill-label-field">' . MODULE_PAYMENT_PAYMILL_ELV_TEXT_BIC . ' / ' . MODULE_PAYMENT_PAYMILL_ELV_TEXT_BANKCODE . '</div>',
+                'field' => '<span id="bic-field"></span><span id="elv-bic-error" class="paymill-error"></span>'
+            )
+        );
 
         return $confirmation;
     }
