@@ -178,11 +178,6 @@ class paymill_elv extends paymill_abstract
                      mysql_real_escape_string(MODULE_PAYMENT_PAYMILL_ELV_WEBHOOKS_DESC) .
                      "', 'MODULE_PAYMENT_PAYMILL_ELV_WEBHOOKS', 'False', '6', '1', 'tep_cfg_select_option(array(\'True\', \'False\'), ', now())");
         tep_db_query("INSERT INTO " . TABLE_CONFIGURATION .
-                     " (configuration_title, configuration_description, configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) VALUES ('" .
-                     mysql_real_escape_string(MODULE_PAYMENT_PAYMILL_ELV_SEPA_TITLE) . "', '" .
-                     mysql_real_escape_string(MODULE_PAYMENT_PAYMILL_ELV_SEPA_DESC) .
-                     "', 'MODULE_PAYMENT_PAYMILL_ELV_SEPA', 'False', '6', '1', 'tep_cfg_select_option(array(\'True\', \'False\'), ', now())");
-        tep_db_query("INSERT INTO " . TABLE_CONFIGURATION .
                      " (configuration_title, configuration_description, configuration_key, configuration_value, configuration_group_id, sort_order, date_added) VALUES ('" .
                      mysql_real_escape_string(MODULE_PAYMENT_PAYMILL_ELV_SORT_ORDER_TITLE) . "', '" .
                      mysql_real_escape_string(MODULE_PAYMENT_PAYMILL_ELV_SORT_ORDER_DESC) .
@@ -227,7 +222,6 @@ class paymill_elv extends paymill_abstract
             'MODULE_PAYMENT_PAYMILL_ELV_STATUS',
             'MODULE_PAYMENT_PAYMILL_ELV_FASTCHECKOUT',
             'MODULE_PAYMENT_PAYMILL_ELV_WEBHOOKS',
-            'MODULE_PAYMENT_PAYMILL_ELV_SEPA',
             'MODULE_PAYMENT_PAYMILL_ELV_PRIVATEKEY',
             'MODULE_PAYMENT_PAYMILL_ELV_PUBLICKEY',
             'MODULE_PAYMENT_PAYMILL_ELV_ORDER_STATUS_ID',
