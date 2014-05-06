@@ -207,17 +207,15 @@ class paymill_cc extends paymill_abstract
         
         array_push($confirmation['fields'],
             array(
-                'title' =>
-                    '<div class="paymill-label-field">' . MODULE_PAYMENT_PAYMILL_CC_TEXT_CREDITCARD_OWNER . '</div>',
-                'field' => '<span id="card-owner-field"></span><span id="card-owner-error" class="paymill-error"></span>'
+                'title' => '<div class="paymill-label-field">' . MODULE_PAYMENT_PAYMILL_CC_TEXT_CREDITCARD_OWNER . '</div>',
+                'field' => '<span id="card-owner-error" class="paymill-error"></span><span id="card-owner-field"></span>'
             )
         );
 
         array_push($confirmation['fields'],
             array(
-                'title' =>
-                    '<div class="paymill-label-field">' . MODULE_PAYMENT_PAYMILL_CC_TEXT_CREDITCARD_NUMBER . '</div>',
-                'field' => '<span id="card-number-field"></span><span id="card-number-error" class="paymill-error"></span>'
+                'title' => '<div class="paymill-label-field">' . MODULE_PAYMENT_PAYMILL_CC_TEXT_CREDITCARD_NUMBER . '</div>',
+                'field' => '<span id="card-number-error" class="paymill-error"></span><span id="card-number-field"></span>'
             )
         );
 
@@ -225,7 +223,7 @@ class paymill_cc extends paymill_abstract
             array(
                 'title' => '<div class="paymill-label-field paymill-expiry">' .
                            MODULE_PAYMENT_PAYMILL_CC_TEXT_CREDITCARD_EXPIRY . '</div>',
-                'field' => '<div class="paymill-expiry"><span id="card-expiry-month-field"></span>&nbsp;<span id="card-expiry-year-field"></span></span><span id="card-expiry-error" class="paymill-error"></div>'
+                'field' => '<div class="paymill-expiry"><span id="card-expiry-error" class="paymill-error"></span><span id="card-expiry-month-field"></span>&nbsp;<span id="card-expiry-year-field"></span></span></div>'
             )
         );
 
