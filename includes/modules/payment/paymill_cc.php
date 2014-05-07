@@ -200,7 +200,7 @@ class paymill_cc extends paymill_abstract
             array_push($confirmation['fields'], 
                 array(
                     'title' => '',
-                    'field' => $logos
+                    'field' => '<div style="width: 200px;">' . $logos . '</div>'
                 )
             );
         }
