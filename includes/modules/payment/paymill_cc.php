@@ -101,12 +101,12 @@ class paymill_cc extends paymill_abstract
                   . "logos['carte-bleue'] =  " . strtolower(MODULE_PAYMENT_PAYMILL_CC_CARTEBLEUE) . ";"
                   . "logos['discover'] =  " . strtolower(MODULE_PAYMENT_PAYMILL_CC_DISCOVER) . ";"
                   . "logos['diners-club'] =  " . strtolower(MODULE_PAYMENT_PAYMILL_CC_DINERSCLUB) . ";"
-                  . "logos['unionpay'] =  " . strtolower(MODULE_PAYMENT_PAYMILL_CC_UNIONPAY) . ";"
+                  . "logos['china-unionpay'] =  " . strtolower(MODULE_PAYMENT_PAYMILL_CC_UNIONPAY) . ";"
                   . "logos['maestro'] =  " . strtolower(MODULE_PAYMENT_PAYMILL_CC_MAESTRO) . ";"
                   . "logos['jcb'] =  " . strtolower(MODULE_PAYMENT_PAYMILL_CC_JCB) . ";"
                   . "logos['mastercard'] =  " . strtolower(MODULE_PAYMENT_PAYMILL_CC_MASTERCARD) . ";"
                   . "logos['visa'] =  " . strtolower(MODULE_PAYMENT_PAYMILL_CC_VISA) . ";"
-                  . "var allBrandsDisabled = !logos['amex'] && !logos['carta-si'] && !logos['dankort'] && !logos['carte-bleue'] && !logos['discover'] && !logos['diners-club'] && !logos['unionpay'] && !logos['maestro'] && !logos['jcb'] && !logos['mastercard'] && !logos['visa'];"
+                  . "var allBrandsDisabled = !logos['amex'] && !logos['carta-si'] && !logos['dankort'] && !logos['carte-bleue'] && !logos['discover'] && !logos['diners-club'] && !logos['china-unionpay'] && !logos['maestro'] && !logos['jcb'] && !logos['mastercard'] && !logos['visa'];"
                 . '</script>';
 
         $oscTemplate->addBlock($script, 'header_tags');

@@ -141,6 +141,7 @@ function PaymillAddCardDetection()
         var detector = new PaymillBrandDetection();
         var brand = detector.detect(cardNumber);
         console.log("Brand detected: " + brand);
+		console.log(logos[brand]);
 
         if (detector.validate(cardNumber)) {
             suffix = '';
@@ -154,6 +155,7 @@ function PaymillAddCardDetection()
 					$('#paymill-card-number').removeClass();
 					$('#paymill-card-number').addClass('form-row-paymill');
 					break;
+				case 'china-unionpay':
 				case 'carte-bleue':
 				case 'maestro':
 				case 'dankort':
@@ -161,7 +163,6 @@ function PaymillAddCardDetection()
 				case 'discover':
 				case 'jcb':
 				case 'amex':
-				case 'china-unionpay':
 				case 'diners-club':
 				case 'mastercard':
 				case 'visa':
