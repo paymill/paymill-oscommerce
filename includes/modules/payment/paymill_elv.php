@@ -114,9 +114,9 @@ class paymill_elv extends paymill_abstract
         $date = tep_date_long(date('Y-m-d', strtotime("+$days day")) . ' 00:00:00');
         
         if ($order->info['comments']) {
-            $order->info['comments'] .= "\n" . SEPA_DRAWN_TEXT . date("d.m.y", $date);
+            $order->info['comments'] .= "\n" . SEPA_DRAWN_TEXT . $date;
         } else {
-            $order->info['comments'] = "\n" . SEPA_DRAWN_TEXT . date("d.m.y", $date);
+            $order->info['comments'] = "\n" . SEPA_DRAWN_TEXT . $date;
         }
     }
 
