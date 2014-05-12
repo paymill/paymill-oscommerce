@@ -111,7 +111,7 @@ class paymill_elv extends paymill_abstract
             $days = MODULE_PAYMENT_PAYMILL_ELV_PRENOTIFICATION_DAYS;
         }
         
-        $date = date('d.m.Y', strtotime("+$days day"));
+        $date = tep_date_long(date('Y-m-d', strtotime("+$days day")) . ' 00:00:00');
         
         if ($order->info['comments']) {
             $order->info['comments'] .= "\n" . SEPA_DRAWN_TEXT . date("d.m.y", $date);
