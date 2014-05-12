@@ -99,6 +99,26 @@ class paymill_elv extends paymill_abstract
 
         return $payment;
     }
+    
+    function before_process()
+    {
+        global $order;
+        parent::before_process();
+        
+        $days = 7;
+        
+        if (is_numeric(MODULE_PAYMENT_PAYMILL_ELV_PRENOTIFICATION_DAYS)) {
+            $days = MODULE_PAYMENT_PAYMILL_ELV_PRENOTIFICATION_DAYS;
+        }
+        
+        $date = date('d.m.Y', strtotime("+$days day"));
+        
+        if ($order->info['comments']) {
+            $order->info['comments'] .= "\n" . SEPA_DRAWN_TEXT . date("d.m.y", $date);
+        } else {
+            $order->info['comments'] = "\n" . SEPA_DRAWN_TEXT . date("d.m.y", $date);
+        }
+    }
 
     function confirmation()
     {
@@ -178,6 +198,11 @@ class paymill_elv extends paymill_abstract
                      mysql_real_escape_string(MODULE_PAYMENT_PAYMILL_ELV_PUBLICKEY_DESC) .
                      "', 'MODULE_PAYMENT_PAYMILL_ELV_PUBLICKEY', '0', '6', '0', now())");
         tep_db_query("INSERT INTO " . TABLE_CONFIGURATION .
+                     " (configuration_title, configuration_description, configuration_key, configuration_value, configuration_group_id, sort_order, date_added) VALUES ('" .
+                     mysql_real_escape_string(MODULE_PAYMENT_PAYMILL_ELV_PRENOTIFICATION_DAYS_TITLE) . "', '" .
+                     mysql_real_escape_string(MODULE_PAYMENT_PAYMILL_ELV_PRENOTIFICATION_DAYS_DESC) .
+                     "', 'MODULE_PAYMENT_PAYMILL_ELV_PRENOTIFICATION_DAYS', '0', '6', '0', now())");
+        tep_db_query("INSERT INTO " . TABLE_CONFIGURATION .
                      " (configuration_title, configuration_description, configuration_key, configuration_value, configuration_group_id, sort_order, set_function, use_function, date_added) values ('" .
                      mysql_real_escape_string(MODULE_PAYMENT_PAYMILL_ELV_ORDER_STATUS_ID_TITLE) . "', '" .
                      mysql_real_escape_string(MODULE_PAYMENT_PAYMILL_ELV_ORDER_STATUS_ID_DESC) .
@@ -209,6 +234,7 @@ class paymill_elv extends paymill_abstract
             'MODULE_PAYMENT_PAYMILL_ELV_WEBHOOKS',
             'MODULE_PAYMENT_PAYMILL_ELV_PRIVATEKEY',
             'MODULE_PAYMENT_PAYMILL_ELV_PUBLICKEY',
+            'MODULE_PAYMENT_PAYMILL_ELV_PRENOTIFICATION_DAYS',
             'MODULE_PAYMENT_PAYMILL_ELV_ORDER_STATUS_ID',
             'MODULE_PAYMENT_PAYMILL_ELV_TRANSACTION_ORDER_STATUS_ID',
             'MODULE_PAYMENT_PAYMILL_ELV_ZONE',

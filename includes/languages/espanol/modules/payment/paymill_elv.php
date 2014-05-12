@@ -95,4 +95,6 @@ define("MODULE_PAYMENT_PAYMILL_ELV_TEXT_TITLE", "PAYMILL Domiciliaci&oacute;n ba
 define("TEXT_INFO_API_VERSION", "API Version");
 define("MODULE_PAYMENT_PAYMILL_ELV_STATUS_DESC", "");
 define("SEPA_DRAWN_TEXT", "The direct debit is drawn to the following date: ");
+define("MODULE_PAYMENT_PAYMILL_ELV_PRENOTIFICATION_DAYS_TITLE", "Days until the debit");
+define("MODULE_PAYMENT_PAYMILL_ELV_PRENOTIFICATION_DAYS_DESC", "");
 ?>
