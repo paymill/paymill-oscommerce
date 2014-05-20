@@ -1,4 +1,10 @@
 #Changelog
+##1.7.0
+* add payment logos
+* merge elv / sepa form
+* add pre notification to email and invoice
+
+
 ##1.6.0
 * Added Language Support for german, english, french, italian, spanish and portuguese
 * Added improved early pan detection
