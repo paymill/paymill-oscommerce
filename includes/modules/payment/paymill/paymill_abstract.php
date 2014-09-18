@@ -371,6 +371,15 @@ class paymill_abstract implements Services_Paymill_LoggingInterface
             . ")"
         );
 
+        tep_db_query(
+            "CREATE TABLE IF NOT EXISTS `pi_paymill_transaction` ("
+            . "`order_id` varchar(100),"
+            . "`transaction_id` varchar(100),"
+            . "`amount` varchar(100),"
+            . "PRIMARY KEY (`order_id`)"
+            . ")"
+        );
+
         $this->addOrderState('Paymill [Refund]');
         $this->addOrderState('Paymill [Chargeback]');
     }
