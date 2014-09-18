@@ -1,4 +1,8 @@
 #Changelog
+##1.8.0
+* add refund button in the order overview
+* limit the transaction description to 128 signs
+
 ##1.7.0
 * add payment logos
 * merge elv / sepa form
