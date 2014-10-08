@@ -3,6 +3,8 @@ define("MODULE_PAYMENT_PAYMILL_CC_STATUS_TITLE", "Aktivieren");
 define("MODULE_PAYMENT_PAYMILL_CC_DESCRIPTION", "PAYMILL Log");
 define("MODULE_PAYMENT_PAYMILL_CC_FASTCHECKOUT_TITLE", "Fast Checkout erlauben");
 define("MODULE_PAYMENT_PAYMILL_CC_FASTCHECKOUT_DESC", "Sofern Aktiviert, werden die Daten Ihrer Kunden f&uuml;r k&uuml;nftige K&auml;ufe von PAYMILL gespeichert und erneut zur Verf&uuml;gung gestellt. Der Kunde muss seine Daten nur 1 mal eintragen. Diese L&ouml;sung ist PCI Konform.");
+define("MODULE_PAYMENT_PAYMILL_CC_PREAUTH_TITLE", "Preauth/Captrue");
+define("MODULE_PAYMENT_PAYMILL_CC_PREAUTH_DESC", "Wenn Preauth/Capture aktiviert wird, werden die Zahlungen im Checkout nur authorisiert und müssen über die Bestelldetail Seite eingezogen werden.");
 define("MODULE_PAYMENT_PAYMILL_CC_SORT_ORDER_TITLE", "Reihenfolge");
 define("MODULE_PAYMENT_PAYMILL_CC_SORT_ORDER_DESC", "Anzeigeposition im Checkout");
 define("MODULE_PAYMENT_PAYMILL_CC_PRIVATEKEY_TITLE", "Private Key");
@@ -129,4 +131,7 @@ define("MODULE_PAYMENT_PAYMILL_CC_ACCEPTED_CARDS", "Accepted Credit Cards");
 define('PAYMILL_REFUND_BUTTON_TEXT', 'Bestellung erstatten');
 define('PAYMILL_REFUND_SUCCESS', 'Bestellung erfolgreich erstattet.');
 define('PAYMILL_REFUND_ERROR', 'Bestellung nicht erfolgreich erstattet.');
+define('PAYMILL_CAPTURE_BUTTON_TEXT', 'Bestellung einziehen');
+define('PAYMILL_CAPTURE_SUCCESS', 'Bestellung erfolgreich eingezogen.');
+define('PAYMILL_CAPTURE_ERROR', 'Bestellung nicht erfolgreich eingezogen.');
 ?>

@@ -18,6 +18,7 @@ class paymill_cc extends paymill_abstract
             $this->sort_order = MODULE_PAYMENT_PAYMILL_CC_SORT_ORDER;
             $this->logging = ((MODULE_PAYMENT_PAYMILL_CC_LOGGING == 'True') ? true : false);
             $this->webHooksEnabled = ((MODULE_PAYMENT_PAYMILL_CC_WEBHOOKS == 'True') ? true : false);
+            $this->preauth = ((MODULE_PAYMENT_PAYMILL_CC_PREAUTH == 'True') ? true : false);
             $this->publicKey = MODULE_PAYMENT_PAYMILL_CC_PUBLICKEY;
             $this->fastCheckoutFlag = ((MODULE_PAYMENT_PAYMILL_CC_FASTCHECKOUT == 'True') ? true : false);
             $this->payments = new Services_Paymill_Payments(trim($this->privateKey), $this->apiUrl);
@@ -39,6 +40,15 @@ class paymill_cc extends paymill_abstract
         if (is_object($order)) {
             $this->update_status();
         }
+    }
+    
+    function after_process()
+    {
+        global $insert_id;
+        parent::after_process();
+        
+        tep_db_query("UPDATE pi_paymill_transaction SET preauth_id = '" . tep_db_prepare_input($_SESSION['paymill']['preauth_id']) . "' WHERE order_id = " . (int) $insert_id);
+        unset($_SESSION['paymill']);
     }
 
     function pre_confirmation_check()
@@ -273,6 +283,12 @@ class paymill_cc extends paymill_abstract
                      mysql_real_escape_string(MODULE_PAYMENT_PAYMILL_CC_WEBHOOKS_TITLE) . "', '" .
                      mysql_real_escape_string(MODULE_PAYMENT_PAYMILL_CC_WEBHOOKS_DESC) .
                      "', 'MODULE_PAYMENT_PAYMILL_CC_WEBHOOKS', 'False', '6', '1', 'tep_cfg_select_option(array(\'True\', \'False\'), ', now())");
+        
+        tep_db_query("INSERT INTO " . TABLE_CONFIGURATION .
+                     " (configuration_title, configuration_description, configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) VALUES ('" .
+                     mysql_real_escape_string(MODULE_PAYMENT_PAYMILL_CC_PREAUTH_TITLE) . "', '" .
+                     mysql_real_escape_string(MODULE_PAYMENT_PAYMILL_CC_PREAUTH_DESC) .
+                     "', 'MODULE_PAYMENT_PAYMILL_CC_PREAUTH', 'False', '6', '1', 'tep_cfg_select_option(array(\'True\', \'False\'), ', now())");
 
         tep_db_query("INSERT INTO " . TABLE_CONFIGURATION .
                 " (configuration_title, configuration_description, configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) VALUES ('" .
@@ -385,6 +401,7 @@ class paymill_cc extends paymill_abstract
             'MODULE_PAYMENT_PAYMILL_CC_STATUS',
             'MODULE_PAYMENT_PAYMILL_CC_FASTCHECKOUT',
             'MODULE_PAYMENT_PAYMILL_CC_WEBHOOKS',
+            'MODULE_PAYMENT_PAYMILL_CC_PREAUTH',
             'MODULE_PAYMENT_PAYMILL_CC_AMEX',
             'MODULE_PAYMENT_PAYMILL_CC_VISA',
             'MODULE_PAYMENT_PAYMILL_CC_UNIONPAY',

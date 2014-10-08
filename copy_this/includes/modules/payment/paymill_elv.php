@@ -18,6 +18,7 @@ class paymill_elv extends paymill_abstract
             $this->sort_order = MODULE_PAYMENT_PAYMILL_ELV_SORT_ORDER;
             $this->logging = ((MODULE_PAYMENT_PAYMILL_ELV_LOGGING == 'True') ? true : false);
             $this->webHooksEnabled = ((MODULE_PAYMENT_PAYMILL_ELV_WEBHOOKS == 'True') ? true : false);
+            $this->preauth = false;
             $this->publicKey = MODULE_PAYMENT_PAYMILL_ELV_PUBLICKEY;
             $this->fastCheckoutFlag = ((MODULE_PAYMENT_PAYMILL_ELV_FASTCHECKOUT == 'True') ? true : false);
             $this->payments = new Services_Paymill_Payments($this->privateKey, $this->apiUrl);
@@ -146,6 +147,12 @@ class paymill_elv extends paymill_abstract
         );
 
         return $confirmation;
+    }
+    
+    function after_process()
+    {
+        parent::after_process();
+        unset($_SESSION['paymill']);
     }
 
     function check()

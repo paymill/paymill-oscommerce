@@ -3,6 +3,8 @@ define("MODULE_PAYMENT_PAYMILL_CC_STATUS_TITLE", "Activar");
 define("MODULE_PAYMENT_PAYMILL_CC_DESCRIPTION", "Registro de PAYMILL");
 define("MODULE_PAYMENT_PAYMILL_CC_FASTCHECKOUT_TITLE", "Activar la compra r&aacute;pida");
 define("MODULE_PAYMENT_PAYMILL_CC_FASTCHECKOUT_DESC", "Si est&aacute; activado, los datos de tus clientes ser&aacute;n almacenados por PAYMILL y estar&aacute;n disponibles de nuevo para futuras compras. El cliente simplemente tendr&aacute; que introducir sus datos una vez. Esta soluci&oacute;n cumple con la normativa del PCI.");
+define("MODULE_PAYMENT_PAYMILL_CC_PREAUTH_TITLE", "preauth/captrue");
+define("MODULE_PAYMENT_PAYMILL_CC_PREAUTH_DESC", "The payment is only authorized in the checkout and mus be captured manually at the order detail page.");
 define("MODULE_PAYMENT_PAYMILL_CC_SORT_ORDER_TITLE", "Secuencia");
 define("MODULE_PAYMENT_PAYMILL_CC_SORT_ORDER_DESC", "Posici&oacute;n durante el proceso de compra.");
 define("MODULE_PAYMENT_PAYMILL_CC_PRIVATEKEY_TITLE", "Clave privada");
@@ -129,4 +131,7 @@ define("MODULE_PAYMENT_PAYMILL_CC_ACCEPTED_CARDS", "Accepted Credit Cards");
 define('PAYMILL_REFUND_BUTTON_TEXT', 'refund order');
 define('PAYMILL_REFUND_SUCCESS', 'Order successful refunded.');
 define('PAYMILL_REFUND_ERROR', 'Order not successful refunded.');
+define('PAYMILL_CAPTURE_BUTTON_TEXT', 'Capture order');
+define('PAYMILL_CAPTURE_SUCCESS', 'Capture successfully done.');
+define('PAYMILL_CAPTURE_ERROR', 'Capture not successfully done.');
 ?>

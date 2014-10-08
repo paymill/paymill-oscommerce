@@ -159,9 +159,13 @@ class paymill_abstract implements Services_Paymill_LoggingInterface
             $this->existingClient($data);
         }
 
-        $result = $this->paymentProcessor->processPayment();
-        $_SESSION['paymill']['transaction_id'] = $this->paymentProcessor->getTransactionId();
-
+        if (!$this->preauth) {
+            $result = $this->paymentProcessor->processPayment();
+            $_SESSION['paymill']['transaction_id'] = $this->paymentProcessor->getTransactionId();
+        } else {
+            $result = $this->paymentProcessor->processPayment(!$this->preauth);
+            $_SESSION['paymill']['preauth_id'] = $this->paymentProcessor->getPreauthId();
+        }
 
         if (!$result) {
             unset($_SESSION['paymill_identifier']);
@@ -267,8 +271,6 @@ class paymill_abstract implements Services_Paymill_LoggingInterface
 
         $this->updateTransaction($_SESSION['paymill']['transaction_id'], $insert_id);
         tep_db_query("INSERT INTO pi_paymill_transaction (order_id, transaction_id, amount, payment_code) VALUES ('" . tep_db_prepare_input($insert_id) . "', '" . tep_db_prepare_input($_SESSION['paymill']['transaction_id']) . "', '" . (int) $this->format_raw($order->info['total']) . "', '" . tep_db_prepare_input($this->code) . "')");
-
-        unset($_SESSION['paymill']);
     }
 
     function remove()
@@ -376,6 +378,7 @@ class paymill_abstract implements Services_Paymill_LoggingInterface
             "CREATE TABLE IF NOT EXISTS `pi_paymill_transaction` ("
             . "`order_id` varchar(100),"
             . "`transaction_id` varchar(100),"
+            . "`preauth_id` varchar(100),"
             . "`amount` varchar(100),"
             . "`payment_code` varchar(100),"
             . "PRIMARY KEY (`order_id`)"
@@ -384,6 +387,7 @@ class paymill_abstract implements Services_Paymill_LoggingInterface
 
         $this->addOrderState('Paymill [Refund]');
         $this->addOrderState('Paymill [Chargeback]');
+        $this->addOrderState('Paymill [Captured]');
     }
 
     /**

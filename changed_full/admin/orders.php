@@ -107,9 +107,14 @@
                 <!-- Paymill begin -->
                 <?php
                 $transaction = tep_db_fetch_array(tep_db_query("SELECT * FROM pi_paymill_transaction WHERE order_id = '" . $_GET['oID'] . "'"));
-                if (isset($transaction['transaction_id'])) {
+                if (!empty($transaction['transaction_id'])) {
                     include(dirname(__FILE__) . '/../includes/languages/' . $_SESSION['language'] . '/modules/payment/' . $transaction['payment_code'] . '.php');
                     echo tep_draw_button(PAYMILL_REFUND_BUTTON_TEXT, 'document', tep_href_link('paymill_refund.php', 'oID=' . $HTTP_GET_VARS['oID']), null, null);
+                }
+                
+                if (!empty($transaction['preauth_id']) && empty($transaction['transaction_id'])) {
+                    include(dirname(__FILE__) . '/../includes/languages/' . $_SESSION['language'] . '/modules/payment/' . $transaction['payment_code'] . '.php');
+                    echo tep_draw_button(PAYMILL_CAPTURE_BUTTON_TEXT, 'document', tep_href_link('paymill_capture.php', 'oID=' . $HTTP_GET_VARS['oID']), null, null);
                 }
                 ?>
                 <!-- Paymill end -->
