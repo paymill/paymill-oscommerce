@@ -35,9 +35,9 @@ if (isset($_GET['oID']) && !empty($_GET['oID'])) {
 
         tep_db_query("UPDATE pi_paymill_transaction SET transaction_id = '" . tep_db_prepare_input($paymentProcessor->getTransactionId()) . "' WHERE order_id = " . (int) $_GET['oID']);
         
-        $messageStack->add_session(PAYMILL_REFUND_SUCCESS, 'success');
+        $messageStack->add_session(PAYMILL_CAPTURE_SUCCESS, 'success');
     } else {
-        $messageStack->add_session(PAYMILL_REFUND_ERROR, 'error');
+        $messageStack->add_session(PAYMILL_CAPTURE_ERROR, 'error');
     }
 }
 
